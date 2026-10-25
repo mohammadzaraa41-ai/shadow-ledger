@@ -1,11 +1,16 @@
 workflows:
   ios-release:
-    name: iOS Shadow Ledger Build & Export
+    name: iOS Shadow Ledger TestFlight Build
     max_build_duration: 60
     instance_type: mac_mini_m1
+    integrations:
+      app_store_connect: AppStoreKey
     environment:
       node: latest
       xcode: latest
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: com.mohammadalzaraa.shadowledger
     scripts:
       - name: Install dependencies
         script: |
@@ -16,17 +21,27 @@ workflows:
       - name: Sync iOS Capacitor project
         script: |
           npx cap sync ios
-      - name: Build and archive iOS App
+      - name: Set up code signing settings on Xcode project
+        script: |
+          xcode-project use-profiles
+      - name: Build and package IPA for TestFlight
         script: |
           cd ios/App
+          agvtool new-version -all $(($(app-store-connect get-latest-testflight-build-number --bundle-id "com.mohammadalzaraa.shadowledger") + 1)) || true
           xcodebuild build \
             -project App.xcodeproj \
             -scheme App \
             -destination "generic/platform=iOS" \
-            -configuration Release \
-            CODE_SIGNING_ALLOWED=NO \
-            CONFIGURATION_BUILD_DIR=build/Release-iphoneos
+            -archivePath build/App.xcarchive \
+            archive
+          xcodebuild -exportArchive \
+            -archivePath build/App.xcarchive \
+            -exportOptionsPlist /Users/builder/export_options.plist \
+            -exportPath build/output
     artifacts:
-      - ios/App/build/**/*.app
-      - ios/App/build/**/*.ipa
+      - ios/App/build/output/*.ipa
       - dist/**/*
+    publishing:
+      app_store_connect:
+        auth: integration
+        submit_to_testflight: true
