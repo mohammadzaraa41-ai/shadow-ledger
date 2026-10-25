@@ -11,6 +11,16 @@ workflows:
           - Shadow_Ledger_AppStore
         certificates:
           - roya_dist_cert
+      vars:
+        APP_STORE_CONNECT_KEY_IDENTIFIER: "A6KX3BWC3R"
+        APP_STORE_CONNECT_ISSUER_ID: "d92772bf-9d09-4eb7-a2e5-a5f5ac129ade"
+        APP_STORE_CONNECT_PRIVATE_KEY: |
+          -----BEGIN PRIVATE KEY-----
+          MIGTAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBHkwdwIBAQQgdNew/HS4frfBTiYO
+          EvKJCMqwTY/+G92Shpp6LlqFk8SgCgYIKoZIzj0DAQehRANCAASR++QXchvmtZci
+          GXw8S9cMWeNlaQa8k+7QPuIxByCvuECqWaGFZVJ/WoQFCryxXGVGGMoUoCJXSxG6
+          hcCBXOiU
+          -----END PRIVATE KEY-----
     scripts:
       - name: Install dependencies
         script: |
@@ -21,6 +31,11 @@ workflows:
       - name: Sync iOS Capacitor project
         script: |
           npx cap sync ios
+      - name: Set incremental build number
+        script: |
+          cd ios/App
+          BUILD_NUM=${BUILD_NUMBER:-1}
+          agvtool new-version -all $BUILD_NUM
       - name: Set up code signing settings on Xcode project
         script: |
           xcode-project use-profiles --project ios/App/App.xcodeproj --export-options-plist /Users/builder/export_options.plist
@@ -40,3 +55,9 @@ workflows:
     artifacts:
       - ios/App/build/output/*.ipa
       - dist/**/*
+    publishing:
+      app_store_connect:
+        api_key: $APP_STORE_CONNECT_PRIVATE_KEY
+        key_id: $APP_STORE_CONNECT_KEY_IDENTIFIER
+        issuer_id: $APP_STORE_CONNECT_ISSUER_ID
+        submit_to_testflight: true
