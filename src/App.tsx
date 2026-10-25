@@ -16,11 +16,13 @@ import { Tutorial } from './components/Tutorial';
 import { sensoryAudio } from './game/audioEngine';
 import { createKiraAI, executeKiraAITurn, type KiraMastermindState } from './game/kiraAI';
 import { multiplayer, type ChatMessage, type PlayerRole } from './game/multiplayer';
+import { generateProactiveAIMessage } from './game/psychologicalChatAI';
 import { unlockSteamAchievement } from './game/steam';
 import type { Action } from './game/store';
 import { useGame } from './game/store';
 import type { Region } from './game/types';
 import { useLang } from './i18n';
+import { useRef } from 'react';
 
 export default function App() {
   const { t, tx, lang } = useLang();
@@ -86,24 +88,34 @@ export default function App() {
       : { title: t(`end.${state.status}.t`), desc: t(`end.${state.status}.d`) }
     : null;
 
+  const lastDayRef = useRef(state.player.day);
+  const highSuspicionRef = useRef(false);
+
   const handleStartSoloRole = (chosenRole: PlayerRole) => {
     setShowSoloRoleModal(false);
+    const myName = chosenRole === 'DETECTIVE'
+      ? (lang === 'ar' ? 'المحقق L' : 'Detective L')
+      : (lang === 'ar' ? 'قاضي الظل (The Shadow)' : 'The Shadow');
+    const opponentName = chosenRole === 'DETECTIVE'
+      ? (lang === 'ar' ? 'كيرا (KIRA AI)' : 'Kira (AI)')
+      : (lang === 'ar' ? 'المحقق سايفر (Detective Cipher)' : 'Detective Cipher');
+
     if (chosenRole === 'DETECTIVE') {
       const newKira = createKiraAI();
       setKiraAIState(newKira);
       setMultiplayerConfig({
         active: false,
         role: 'DETECTIVE',
-        myName: lang === 'ar' ? 'المحقق L' : 'Detective L',
-        opponentName: lang === 'ar' ? 'كيرا (KIRA AI)' : 'Kira (AI)',
+        myName,
+        opponentName,
         roomCode: '',
       });
     } else {
       setMultiplayerConfig({
         active: false,
         role: 'KILLER',
-        myName: lang === 'ar' ? 'قاضي الظل (The Shadow)' : 'The Shadow',
-        opponentName: lang === 'ar' ? 'المحقق سايفر (Detective Cipher)' : 'Detective Cipher',
+        myName,
+        opponentName,
         roomCode: '',
       });
     }
@@ -113,6 +125,30 @@ export default function App() {
       setHelp(true);
       localStorage.setItem('seenTutorial', '1');
     }
+
+    // Schedule intelligent, psychological opening greeting from the AI opponent
+    setTimeout(() => {
+      const openGreeting = generateProactiveAIMessage({
+        trigger: 'GAME_START',
+        playerRole: chosenRole,
+        opponentName,
+        lang,
+        gameState: state,
+      });
+      const opponentRole = chosenRole === 'KILLER' ? 'DETECTIVE' : 'KILLER';
+      multiplayer.send({
+        type: 'CHAT',
+        message: {
+          id: `chat-proactive-start-${Date.now()}`,
+          senderName: opponentName,
+          senderRole: opponentRole,
+          text: openGreeting,
+          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          hasAudioScramble: opponentRole === 'DETECTIVE',
+        },
+      });
+      sensoryAudio.playRadioStatic(0.7);
+    }, 1200);
   };
 
   const handleAdvanceDayForDetective = () => {
@@ -192,7 +228,64 @@ export default function App() {
     if (state.player.suspicion === 0 && state.player.day > 1) {
       unlockSteamAchievement('ACH_GHOST');
     }
-  }, [state.status, state.player.suspicion, state.player.day]);
+
+    // Proactive AI triggers in Single Player Mode
+    if (started && !multiplayerConfig.active && state.status === 'PLAYING') {
+      // 1. Day advance reaction from AI
+      if (state.player.day > lastDayRef.current) {
+        lastDayRef.current = state.player.day;
+        setTimeout(() => {
+          const dayTaunt = generateProactiveAIMessage({
+            trigger: 'DAY_START',
+            playerRole: multiplayerConfig.role,
+            opponentName: multiplayerConfig.opponentName,
+            lang,
+            gameState: state,
+          });
+          const opponentRole = multiplayerConfig.role === 'KILLER' ? 'DETECTIVE' : 'KILLER';
+          multiplayer.send({
+            type: 'CHAT',
+            message: {
+              id: `chat-ai-day-${state.player.day}-${Date.now()}`,
+              senderName: multiplayerConfig.opponentName,
+              senderRole: opponentRole,
+              text: dayTaunt,
+              timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+              hasAudioScramble: opponentRole === 'DETECTIVE',
+            },
+          });
+          sensoryAudio.playRadioStatic(0.6);
+        }, 2000);
+      }
+
+      // 2. High Suspicion milestone (> 65%)
+      if (state.player.suspicion >= 65 && !highSuspicionRef.current) {
+        highSuspicionRef.current = true;
+        setTimeout(() => {
+          const suspTaunt = generateProactiveAIMessage({
+            trigger: 'HIGH_SUSPICION',
+            playerRole: multiplayerConfig.role,
+            opponentName: multiplayerConfig.opponentName,
+            lang,
+            gameState: state,
+          });
+          const opponentRole = multiplayerConfig.role === 'KILLER' ? 'DETECTIVE' : 'KILLER';
+          multiplayer.send({
+            type: 'CHAT',
+            message: {
+              id: `chat-ai-susp-${Date.now()}`,
+              senderName: multiplayerConfig.opponentName,
+              senderRole: opponentRole,
+              text: suspTaunt,
+              timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+              hasAudioScramble: opponentRole === 'DETECTIVE',
+            },
+          });
+          sensoryAudio.playRadioStatic(0.7);
+        }, 1500);
+      }
+    }
+  }, [state.status, state.player.suspicion, state.player.day, started, multiplayerConfig.active, multiplayerConfig.role, multiplayerConfig.opponentName, lang, state]);
 
   if (!started) {
     return (
@@ -281,6 +374,8 @@ export default function App() {
         myName={multiplayerConfig.myName}
         opponentName={multiplayerConfig.opponentName}
         myRole={multiplayerConfig.role}
+        isMultiplayer={multiplayerConfig.active}
+        gameState={state}
       />
 
       {/* Morning Tabloid Breaking News Cutscene */}
