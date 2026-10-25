@@ -20,11 +20,12 @@ workflows:
         script: |
           cd ios/App
           xcodebuild build \
-            -workspace App.xcworkspace \
+            -project App.xcodeproj \
             -scheme App \
             -destination "generic/platform=iOS" \
             -configuration Release \
-            CODE_SIGNING_ALLOWED=NO
+            CODE_SIGNING_ALLOWED=NO \
+            CONFIGURATION_BUILD_DIR=build/Release-iphoneos
     artifacts:
       - ios/App/build/**/*.app
       - ios/App/build/**/*.ipa
