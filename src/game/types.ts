@@ -96,6 +96,16 @@ export interface PlayerState {
   immuneTargets?: string[];
   spellingErrors?: number;
   intelProgress?: Record<string, { hasSurname?: boolean; hasFace?: boolean; hasFirstName?: boolean }>;
+  isCamouflaged?: boolean;
+  camouflagedUntilHour?: number;
+}
+
+export interface ClimaxState {
+  active: boolean;
+  secondsLeft: number;
+  initiatedBy: 'KILLER' | 'DETECTIVE';
+  targetId?: string;
+  reason: L10n;
 }
 
 export interface DeathRecord {

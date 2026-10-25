@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Atmosphere } from './components/Atmosphere';
 import { BreakingNewsTicker } from './components/BreakingNewsTicker';
+import { ClimaxModal } from './components/ClimaxModal';
 import { DetectiveConsole } from './components/DetectiveConsole';
 import { Ledger } from './components/Ledger';
 import { LindBroadcastModal } from './components/LindBroadcastModal';
@@ -287,6 +288,15 @@ export default function App() {
     }
   }, [state.status, state.player.suspicion, state.player.day, started, multiplayerConfig.active, multiplayerConfig.role, multiplayerConfig.opponentName, lang, state]);
 
+  // Climax 40-second countdown ticker
+  useEffect(() => {
+    if (!state.climax || !state.climax.active) return;
+    const interval = setInterval(() => {
+      wrappedDispatch({ type: 'TICK_CLIMAX' });
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [state.climax?.active, state.climax?.secondsLeft]);
+
   if (!started) {
     return (
       <div className="app">
@@ -425,6 +435,14 @@ export default function App() {
             });
             setActiveLindBroadcast(null);
           }}
+        />
+      )}
+
+      {/* 40-Second Climax Tension Overlay */}
+      {state.climax && state.climax.active && (
+        <ClimaxModal
+          climax={state.climax}
+          onDismiss={() => wrappedDispatch({ type: 'CANCEL_CLIMAX' })}
         />
       )}
 

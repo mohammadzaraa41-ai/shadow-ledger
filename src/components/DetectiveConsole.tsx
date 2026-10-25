@@ -11,6 +11,7 @@ import { DetectiveMedalsModal, DetectiveMedalToast } from './DetectiveMedalsModa
 import { DetectiveDossiersTab } from './detective/DetectiveDossiersTab';
 import { DetectiveRadarTab } from './detective/DetectiveRadarTab';
 import { DetectiveSignalsTab } from './detective/DetectiveSignalsTab';
+import { InterrogationModal } from './detective/InterrogationModal';
 
 export function DetectiveConsole({
   state,
@@ -36,6 +37,7 @@ export function DetectiveConsole({
   const [isLindBroadcasting, setIsLindBroadcasting] = useState(false);
   const [lindCountdown, setLindCountdown] = useState(0);
   const [showMedalsModal, setShowMedalsModal] = useState(false);
+  const [showInterrogationModal, setShowInterrogationModal] = useState(false);
 
   // Track and award Detective Medals dynamically
   useEffect(() => {
@@ -109,16 +111,34 @@ export function DetectiveConsole({
 
   const handleDeployCamera = () => {
     sensoryAudio.playCctvSwitch();
+    dispatch({ type: 'DEPLOY_CAMERAS', region: selRegion });
     multiplayer.send({
       type: 'DEPLOY_CAMERA',
       region: selRegion,
     });
     setDecoySuccessMsg(
       isRtl
-        ? `تم تفعيل كاميرات المراقبة بالرؤية الليلية في قطاع ${REGION_NAME[selRegion].ar}!`
-        : `Night-vision CCTV surveillance active in ${REGION_NAME[selRegion].en}!`,
+        ? `📷 تم زرع كاميرات المراقبة بالرؤية الليلية والتنصت المنزلي في قطاع ${REGION_NAME[selRegion].ar}!`
+        : `📷 Secret Bedroom Wiretaps & CCTV active in ${REGION_NAME[selRegion].en}!`,
     );
     setTimeout(() => setDecoySuccessMsg(null), 4000);
+  };
+
+  const handleToggleBlackout = () => {
+    sensoryAudio.playRadioStatic(0.7);
+    dispatch({ type: 'MEDIA_BLACKOUT', region: selRegion });
+    const isNowBlackedOut = !state.mediaBlackoutRegions?.includes(selRegion);
+    setDecoySuccessMsg(
+      isRtl
+        ? (isNowBlackedOut ? `📡 تم فرض التعتيم الإعلامي وحظر نشر الأخبار في قطاع ${REGION_NAME[selRegion].ar}!` : `📡 تم رفع التعتيم الإعلامي عن قطاع ${REGION_NAME[selRegion].ar}`)
+        : (isNowBlackedOut ? `📡 Media Blackout imposed on ${REGION_NAME[selRegion].en}!` : `📡 Media Blackout lifted on ${REGION_NAME[selRegion].en}`),
+    );
+    setTimeout(() => setDecoySuccessMsg(null), 4000);
+  };
+
+  const handleInterrogationAccuse = (_suspectId: string) => {
+    setShowInterrogationModal(false);
+    handleIssueArrest();
   };
 
   const handleLaunchLindBroadcast = () => {
@@ -267,6 +287,8 @@ export function DetectiveConsole({
           lindCountdown={lindCountdown}
           onPlantDecoy={handlePlantDecoy}
           onDeployCamera={handleDeployCamera}
+          onToggleBlackout={handleToggleBlackout}
+          onOpenInterrogation={() => setShowInterrogationModal(true)}
           onLaunchLindBroadcast={handleLaunchLindBroadcast}
           onIssueArrest={handleIssueArrest}
         />
@@ -282,6 +304,15 @@ export function DetectiveConsole({
 
       {showMedalsModal && (
         <DetectiveMedalsModal onClose={() => setShowMedalsModal(false)} />
+      )}
+
+      {showInterrogationModal && (
+        <InterrogationModal
+          region={selRegion}
+          isKillerInRegion={state.player.homeRegion === selRegion}
+          onClose={() => setShowInterrogationModal(false)}
+          onAccuse={handleInterrogationAccuse}
+        />
       )}
     </section>
   );

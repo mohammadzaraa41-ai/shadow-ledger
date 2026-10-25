@@ -198,6 +198,20 @@ const SPECS: TargetSpec[] = [
   },
   {
     profile: {
+      id: 'target-detective-l',
+      name: { ar: 'ريوجي ماستودا', en: 'Ryoji Matsuda' },
+      faceId: 'f-detective-l',
+      title: { ar: 'المحقق سايفر — القائد السري للتحريات (L)', en: 'Detective Cipher — Secret Task Force Commander (L)' },
+      region: 'CENTRAL',
+      precinct: { ar: 'غرفة العمليات المشفرة التابعة للإنتربول', en: 'Interpol Encrypted Command' },
+      priority: 'DETECTIVE',
+      routine: { place: { ar: 'المقر السري للشرطة الدولية', en: 'Interpol Classified Bunker' }, window: { from: 0, to: 24 } },
+    },
+    police: { ar: 'ملف سري للغاية برمز تصنيف أحمر: هوية المحقق L محصنة وتخضع لأعلى درجات السرية الوطنية.', en: 'Classified Level-Red: Detective L real identity encrypted under state secrecy act.' },
+    camera: { ar: 'شاشة حاسوب تكتيكي تعرض الحرف اللاتيني Σ بصوت مشوش.', en: 'Tactical monitor with gothic letter sigil and scrambled audio feed.' },
+  },
+  {
+    profile: {
       id: 'k5', name: { ar: 'هيجيكاتا رين', en: 'Hijikata Ren' }, faceId: 'f-k5',
       title: { ar: 'سفاح مأجور في حلبات القتال', en: 'Underground Syndicate Hitman' }, region: 'NORTH',
       precinct: { ar: 'قسم الشمال 1', en: 'North Precinct 1' }, priority: 'CRIMINAL',

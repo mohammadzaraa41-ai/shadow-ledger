@@ -6139,6 +6139,739 @@ html[lang='en'] .dn-manual-input {
   }
 }
 
+/* =========================================================
+   PSYCHOLOGICAL THRILLER EXPANSION: CAMOUFLAGE & SURVEILLANCE
+   ========================================================= */
+
+.surveillance-warning-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: linear-gradient(90deg, rgba(220, 38, 38, 0.25), rgba(185, 28, 28, 0.15));
+  border: 1px solid rgba(239, 68, 68, 0.6);
+  border-radius: 6px;
+  padding: 8px 12px;
+  margin-bottom: 12px;
+  color: #fca5a5;
+  font-size: 12px;
+  animation: pulseSurveillance 1.8s infinite alternate;
+}
+
+@keyframes pulseSurveillance {
+  0% { box-shadow: 0 0 8px rgba(220, 38, 38, 0.3); }
+  100% { box-shadow: 0 0 18px rgba(220, 38, 38, 0.7); }
+}
+
+.surveillance-icon-pulse {
+  animation: pulseIcon 1s infinite alternate;
+}
+
+@keyframes pulseIcon {
+  0% { transform: scale(1); opacity: 0.8; }
+  100% { transform: scale(1.15); opacity: 1; }
+}
+
+.btn-toggle-camouflage {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 6px;
+  border: 1px solid #3b82f6;
+  background: rgba(30, 58, 138, 0.25);
+  color: #93c5fd;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  margin-top: 8px;
+}
+
+.btn-toggle-camouflage:hover {
+  background: rgba(30, 58, 138, 0.45);
+  box-shadow: 0 0 12px rgba(59, 130, 246, 0.4);
+}
+
+.btn-toggle-camouflage.active {
+  border-color: #10b981;
+  background: rgba(16, 185, 129, 0.2);
+  color: #6ee7b7;
+  box-shadow: 0 0 14px rgba(16, 185, 129, 0.4);
+}
+
+.camo-badge {
+  font-size: 10px;
+  background: rgba(16, 185, 129, 0.3);
+  padding: 2px 6px;
+  border-radius: 4px;
+  color: #a7f3d0;
+}
+
+/* =========================================================
+   TERMINAL COUNTER INTEL: HUNT DETECTIVE L
+   ========================================================= */
+
+.terminal-counter-intel {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px;
+  background: rgba(10, 14, 23, 0.7);
+  border-radius: 8px;
+  border: 1px solid rgba(59, 130, 246, 0.2);
+}
+
+.counter-intel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding-bottom: 10px;
+}
+
+.intel-target-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  font-size: 15px;
+  color: #e0f2fe;
+}
+
+.intel-status-pill {
+  font-size: 11px;
+  padding: 3px 8px;
+  border-radius: 12px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.intel-status-pill.ready {
+  background: rgba(239, 68, 68, 0.2);
+  color: #f87171;
+  border: 1px solid rgba(239, 68, 68, 0.5);
+  animation: pulseReady 1.5s infinite;
+}
+
+@keyframes pulseReady {
+  0% { box-shadow: 0 0 5px rgba(239, 68, 68, 0.4); }
+  50% { box-shadow: 0 0 14px rgba(239, 68, 68, 0.8); }
+  100% { box-shadow: 0 0 5px rgba(239, 68, 68, 0.4); }
+}
+
+.intel-status-pill.in-progress {
+  background: rgba(245, 158, 11, 0.2);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.4);
+}
+
+.intel-dossier-card {
+  display: flex;
+  gap: 16px;
+  background: rgba(17, 24, 39, 0.85);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.dossier-left {
+  flex-shrink: 0;
+}
+
+.dossier-face-preview {
+  width: 90px;
+  height: 110px;
+  border-radius: 6px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: #090d16;
+}
+
+.face-masked {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  color: #64748b;
+  font-size: 10px;
+}
+
+.face-unmasked {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  color: #10b981;
+  font-size: 10px;
+}
+
+.intel-details {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.intel-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  color: #cbd5e1;
+}
+
+.intel-val {
+  font-weight: 600;
+}
+
+.intel-progress-bar-wrap {
+  width: 100%;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-top: 4px;
+}
+
+.intel-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #3b82f6, #10b981);
+  transition: width 0.4s ease;
+}
+
+.intel-actions-deck {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+@media (max-width: 640px) {
+  .intel-actions-deck {
+    grid-template-columns: 1fr;
+  }
+}
+
+.btn-intel-op {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 12px;
+  background: rgba(30, 41, 59, 0.7);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 6px;
+  color: #e2e8f0;
+  text-align: inherit;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-intel-op:hover:not(:disabled) {
+  background: rgba(51, 65, 85, 0.9);
+  border-color: #3b82f6;
+  transform: translateY(-1px);
+}
+
+.btn-intel-op:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.op-icon {
+  margin-top: 2px;
+  color: #60a5fa;
+}
+
+.op-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.op-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #f1f5f9;
+}
+
+.op-desc {
+  font-size: 11px;
+  color: #94a3b8;
+  line-height: 1.4;
+}
+
+.op-risk {
+  font-size: 10px;
+  color: #f59e0b;
+  font-weight: 600;
+  margin-top: 4px;
+}
+
+.op-done {
+  font-size: 10px;
+  color: #10b981;
+  font-weight: 600;
+  margin-top: 4px;
+}
+
+.hunt-ready-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px;
+  background: rgba(220, 38, 38, 0.25);
+  border: 1px solid #ef4444;
+  border-radius: 6px;
+  color: #fca5a5;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.hunt-pulse-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #ef4444;
+  animation: pulseReady 1s infinite;
+}
+
+/* =========================================================
+   INTERROGATION CHAMBER MODAL (DETECTIVE L)
+   ========================================================= */
+
+.interrogation-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(8px);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+.interrogation-card {
+  width: 100%;
+  max-width: 680px;
+  max-height: 92vh;
+  overflow-y: auto;
+  background: #0b0f17;
+  border: 1px solid rgba(59, 130, 246, 0.4);
+  border-radius: 12px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.9), 0 0 20px rgba(59, 130, 246, 0.2);
+}
+
+.interrogation-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding-bottom: 12px;
+}
+
+.interrogation-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 16px;
+  font-weight: 700;
+  color: #38bdf8;
+}
+
+.btn-interrogation-close {
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  cursor: pointer;
+  padding: 4px;
+}
+
+.suspect-tabs-row {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+
+.suspect-tab-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  background: rgba(30, 41, 59, 0.6);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 6px;
+  color: #cbd5e1;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s;
+}
+
+.suspect-tab-btn.active {
+  background: rgba(14, 165, 233, 0.25);
+  border-color: #0284c7;
+  color: #e0f2fe;
+}
+
+.suspect-tab-btn.stressed {
+  border-color: #ef4444;
+  color: #f87171;
+}
+
+.interrogation-suspect-profile {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  background: rgba(15, 23, 42, 0.8);
+  border-radius: 8px;
+  padding: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.interrogation-portrait {
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  background: #1e293b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #0284c7;
+}
+
+.interrogation-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.suspect-name {
+  font-size: 15px;
+  font-weight: 700;
+  color: #f8fafc;
+}
+
+.suspect-crime {
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+/* Biometric Telemetry Monitor */
+.biometric-heart-monitor {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #020617;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  border-radius: 8px;
+  padding: 12px 16px;
+  position: relative;
+}
+
+.biometric-heart-monitor.critical {
+  border-color: rgba(239, 68, 68, 0.5);
+  animation: pulseSurveillance 1s infinite alternate;
+}
+
+.bpm-digital-display {
+  display: flex;
+  flex-direction: column;
+}
+
+.bpm-number {
+  font-size: 26px;
+  font-weight: 800;
+  color: #10b981;
+  font-family: monospace;
+}
+
+.biometric-heart-monitor.critical .bpm-number {
+  color: #ef4444;
+}
+
+.bpm-label {
+  font-size: 10px;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.bpm-ecg-svg {
+  width: 120px;
+  height: 36px;
+}
+
+.interrogation-transcript-box {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: rgba(15, 23, 42, 0.6);
+  border-radius: 8px;
+  padding: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.transcript-dialogue {
+  font-size: 13px;
+  color: #f1f5f9;
+  font-style: italic;
+  line-height: 1.5;
+}
+
+.transcript-analysis {
+  font-size: 11px;
+  color: #38bdf8;
+  font-weight: 600;
+}
+
+.tactical-questions-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+}
+
+.btn-question {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  background: rgba(30, 41, 59, 0.7);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 6px;
+  color: #e2e8f0;
+  text-align: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-question:hover {
+  background: rgba(51, 65, 85, 0.9);
+  border-color: #38bdf8;
+}
+
+.interrogation-indictment-bar {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 8px;
+}
+
+.btn-indict-suspect {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  background: #dc2626;
+  border: 1px solid #ef4444;
+  border-radius: 6px;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 0 16px rgba(220, 38, 38, 0.5);
+  transition: all 0.2s;
+}
+
+.btn-indict-suspect:hover {
+  background: #b91c1c;
+  box-shadow: 0 0 24px rgba(220, 38, 38, 0.8);
+}
+
+/* =========================================================
+   40-SECOND CLIMAX MODAL (FATAL COUNTDOWN)
+   ========================================================= */
+
+.climax-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.92);
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.climax-pulse-vignette {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(circle at center, transparent 40%, rgba(220, 38, 38, 0.35) 90%, rgba(185, 28, 28, 0.6) 100%);
+  animation: climaxVignettePulse 1s infinite alternate cubic-bezier(0.4, 0, 0.6, 1);
+}
+
+@keyframes climaxVignettePulse {
+  0% { opacity: 0.5; }
+  100% { opacity: 1; }
+}
+
+.climax-card {
+  position: relative;
+  z-index: 10;
+  width: 100%;
+  max-width: 520px;
+  background: #090c13;
+  border: 1px solid rgba(220, 38, 38, 0.6);
+  border-radius: 14px;
+  padding: 28px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 18px;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.95), 0 0 35px rgba(220, 38, 38, 0.4);
+}
+
+.climax-header-badge {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.climax-badge-text {
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  color: #f87171;
+  text-transform: uppercase;
+}
+
+.climax-timer-container {
+  margin: 10px 0;
+}
+
+.climax-timer-ring {
+  position: relative;
+  width: 140px;
+  height: 140px;
+}
+
+.climax-svg-ring {
+  transform: rotate(-90deg);
+  width: 100%;
+  height: 100%;
+}
+
+.ring-bg {
+  fill: transparent;
+  stroke: rgba(255, 255, 255, 0.08);
+  stroke-width: 6;
+}
+
+.ring-progress {
+  fill: transparent;
+  stroke: #ef4444;
+  stroke-width: 6;
+  stroke-dasharray: 276.46;
+  transition: stroke-dashoffset 0.8s ease;
+  filter: drop-shadow(0 0 6px #ef4444);
+}
+
+.climax-digital-time {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.seconds-digits {
+  font-size: 38px;
+  font-weight: 900;
+  font-family: monospace;
+  color: #ffffff;
+  line-height: 1;
+  text-shadow: 0 0 16px rgba(239, 68, 68, 0.8);
+}
+
+.seconds-unit {
+  font-size: 11px;
+  font-weight: 700;
+  color: #94a3b8;
+  letter-spacing: 1px;
+}
+
+.climax-bpm-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(220, 38, 38, 0.15);
+  border: 1px solid rgba(220, 38, 38, 0.3);
+  padding: 6px 14px;
+  border-radius: 20px;
+  color: #fca5a5;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.bpm-pulse-icon {
+  animation: pulseIcon 0.6s infinite alternate;
+  color: #ef4444;
+}
+
+.climax-narrative-box {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.climax-title {
+  font-size: 18px;
+  font-weight: 800;
+  color: #ffffff;
+  margin: 0;
+}
+
+.climax-description {
+  font-size: 13px;
+  color: #cbd5e1;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.climax-subquote {
+  font-size: 12px;
+  font-style: italic;
+  color: #94a3b8;
+  background: rgba(255, 255, 255, 0.04);
+  padding: 10px 14px;
+  border-radius: 6px;
+  border-left: 3px solid #ef4444;
+  margin-top: 6px;
+}
+
+.climax-footer-status {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: 12px;
+  font-size: 11px;
+  color: #94a3b8;
+}
+
+.climax-cancel-btn {
+  background: transparent;
+  border: none;
+  color: #64748b;
+  cursor: pointer;
+}
+
+
 
 
 

@@ -3,7 +3,7 @@ import { matchesName } from '../i18n';
 import { BASE_TARGETS, MAX_DAYS, buildBaseFeed } from './data';
 import { emptyDeduction, evaluateTurn } from './detectiveAI';
 import type {
-  DeathMethod, DeathRecord, DetectiveDeductionState, ExecutionCommand, Faction, GameStatus, L10n,
+  ClimaxState, DeathMethod, DeathRecord, DetectiveDeductionState, ExecutionCommand, Faction, GameStatus, L10n,
   NewsItem, PlayerState, Region, SuspicionFactor, TargetProfile, Text,
 } from './types';
 
@@ -25,6 +25,9 @@ export interface GameState {
   deduction: DetectiveDeductionState;
   status: GameStatus;
   report: DayReport | null;
+  surveillanceRegions: Region[];
+  mediaBlackoutRegions: Region[];
+  climax: ClimaxState | null;
 }
 
 export interface LedgerInput {
@@ -49,6 +52,14 @@ export type Action =
   | { type: 'DETECTIVE_ADVANCE_DAY'; kiraCommands: ExecutionCommand[] }
   | { type: 'SET_GAME_STATUS'; status: GameStatus }
   | { type: 'PLANT_DECOY_TARGET'; region: Region; fakeName: L10n }
+  | { type: 'DEPLOY_CAMERAS'; region: Region }
+  | { type: 'MEDIA_BLACKOUT'; region: Region }
+  | { type: 'ACTIVATE_CAMOUFLAGE' }
+  | { type: 'HACK_POLICE_DATABASE' }
+  | { type: 'AMBUSH_FBI_TAIL' }
+  | { type: 'START_CLIMAX'; initiatedBy: 'KILLER' | 'DETECTIVE'; targetId?: string; reason: L10n }
+  | { type: 'TICK_CLIMAX' }
+  | { type: 'CANCEL_CLIMAX' }
   | { type: 'RESET' };
 
 export function getTargetIntel(p: PlayerState, targetId: string) {
@@ -78,7 +89,17 @@ export function initialState(): GameState {
     if (saved) {
       const parsed = JSON.parse(saved);
       if (parsed && parsed.player && parsed.targets && parsed.status === 'PLAYING') {
-        return parsed;
+        return {
+          ...parsed,
+          surveillanceRegions: parsed.surveillanceRegions || [],
+          mediaBlackoutRegions: parsed.mediaBlackoutRegions || [],
+          climax: parsed.climax || null,
+          player: {
+            ...parsed.player,
+            immuneTargets: parsed.player.immuneTargets || [],
+            intelProgress: parsed.player.intelProgress || {},
+          },
+        };
       }
     }
   } catch {}
@@ -99,6 +120,9 @@ export function initialState(): GameState {
     },
     targets: BASE_TARGETS.map((t) => ({ ...t })),
     news: buildBaseFeed(), records: [], deduction: emptyDeduction(), status: 'PLAYING', report: null,
+    surveillanceRegions: [],
+    mediaBlackoutRegions: [],
+    climax: null,
   };
 }
 
@@ -242,12 +266,58 @@ export function reducer(s: GameState, a: Action): GameState {
       };
     }
     case 'SUBMIT': {
+      // 1. Surveillance check: Caught on camera writing without camouflage!
+      if ((s.surveillanceRegions || []).includes(p.homeRegion) && !p.isCamouflaged) {
+        return {
+          ...s,
+          status: 'ARRESTED',
+          report: {
+            day: p.day,
+            delta: 100,
+            breakdown: [{ label: { ar: '📷 رصد متلبساً بالجرم المشهود عبر كاميرات المراقبة السرية لغرفة النوم!', en: '📷 Caught red-handed on hidden bedroom surveillance cameras!' }, value: 100 }],
+            lines: [],
+            notes: [{ ar: 'SWAT داهمت المقر وصادرت الدفتر والقلم فور كتابة أول حرف.', en: 'SWAT raided during ledger inscription and seized evidence.' }],
+          },
+        };
+      }
+
       const cmd = buildCommand(s, a.input);
       if (!isCommand(cmd)) return s; // UI pre-validates via buildCommand
+
+      // 2. Check if Detective L is the written target
+      if (a.input.faceTargetId === 'target-detective-l') {
+        return {
+          ...s,
+          player: { ...p, pending: [...p.pending, cmd] },
+          climax: {
+            active: true,
+            secondsLeft: 40,
+            initiatedBy: 'KILLER',
+            targetId: 'target-detective-l',
+            reason: {
+              ar: '🚨 تم كتابة اسم المحقق L في الدفتر! 40 ثانية متبقية حتى النوبة القلبية الحتمية!',
+              en: '🚨 Detective L written in the Ledger! 40 seconds remain until inevitable cardiac arrest!',
+            },
+          },
+        };
+      }
+
       return { ...s, player: { ...p, pending: [...p.pending, cmd] } };
     }
-    case 'ADVANCE_HOUR':
-      return p.hour >= 23 ? s : { ...s, player: { ...p, hour: p.hour + 1 } };
+    case 'ADVANCE_HOUR': {
+      const nextHour = p.hour + 1;
+      const isStillCamouflaged = p.isCamouflaged && p.camouflagedUntilHour !== undefined && nextHour < p.camouflagedUntilHour;
+      return p.hour >= 23
+        ? s
+        : {
+            ...s,
+            player: {
+              ...p,
+              hour: nextHour,
+              isCamouflaged: isStillCamouflaged,
+            },
+          };
+    }
     case 'END_DAY':
       return endDay(s);
     case 'DISMISS_REPORT':
@@ -363,6 +433,88 @@ export function reducer(s: GameState, a: Action): GameState {
         targets: [newDecoyTarget, ...s.targets],
         news: [newDecoyNews, ...s.news],
       };
+    }
+    case 'DEPLOY_CAMERAS': {
+      const survList = s.surveillanceRegions || [];
+      const nextSurv = survList.includes(a.region)
+        ? survList
+        : [...survList, a.region];
+      return { ...s, surveillanceRegions: nextSurv };
+    }
+    case 'MEDIA_BLACKOUT': {
+      const blackoutList = s.mediaBlackoutRegions || [];
+      const nextBlackout = blackoutList.includes(a.region)
+        ? blackoutList.filter((r) => r !== a.region)
+        : [...blackoutList, a.region];
+      return { ...s, mediaBlackoutRegions: nextBlackout };
+    }
+    case 'ACTIVATE_CAMOUFLAGE': {
+      return {
+        ...s,
+        player: {
+          ...p,
+          isCamouflaged: true,
+          camouflagedUntilHour: (p.hour + 4) % 24,
+        },
+      };
+    }
+    case 'HACK_POLICE_DATABASE': {
+      const prevIntel = p.intelProgress?.['target-detective-l'] || {};
+      return {
+        ...s,
+        player: {
+          ...p,
+          suspicion: clampSusp(p.suspicion + 15),
+          intelProgress: {
+            ...p.intelProgress,
+            'target-detective-l': { ...prevIntel, hasSurname: true },
+          },
+        },
+      };
+    }
+    case 'AMBUSH_FBI_TAIL': {
+      const prevIntel = p.intelProgress?.['target-detective-l'] || {};
+      return {
+        ...s,
+        player: {
+          ...p,
+          suspicion: clampSusp(p.suspicion + 10),
+          intelProgress: {
+            ...p.intelProgress,
+            'target-detective-l': { ...prevIntel, hasFace: true, hasFirstName: true },
+          },
+        },
+      };
+    }
+    case 'START_CLIMAX': {
+      return {
+        ...s,
+        climax: {
+          active: true,
+          secondsLeft: 40,
+          initiatedBy: a.initiatedBy,
+          targetId: a.targetId,
+          reason: a.reason,
+        },
+      };
+    }
+    case 'TICK_CLIMAX': {
+      if (!s.climax || !s.climax.active) return s;
+      const nextSec = s.climax.secondsLeft - 1;
+      if (nextSec <= 0) {
+        if (s.climax.initiatedBy === 'KILLER') {
+          const targets = s.targets.map((t) =>
+            t.id === 'target-detective-l' ? { ...t, alive: false } : t
+          );
+          return { ...s, targets, status: 'WON', climax: null };
+        } else {
+          return { ...s, status: 'ARRESTED', climax: null };
+        }
+      }
+      return { ...s, climax: { ...s.climax, secondsLeft: nextSec } };
+    }
+    case 'CANCEL_CLIMAX': {
+      return { ...s, climax: null };
     }
     case 'RESET':
       try {

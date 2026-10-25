@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { CheckCheck, Eye } from 'lucide-react';
+import { Camera, CheckCheck, Eye } from 'lucide-react';
 import { hapticEngine, sensoryAudio } from '../game/audioEngine';
 import { multiplayer } from '../game/multiplayer';
 import { unlockSteamAchievement } from '../game/steam';
@@ -397,6 +397,39 @@ export function Ledger({
             </button>
           )}
         </div>
+
+        {/* Tactical Surveillance & Camouflage Bar */}
+        {state.surveillanceRegions.includes(state.player.homeRegion) && (
+          <div className={`surveillance-warning-bar ${state.player.isCamouflaged ? 'camouflaged' : 'danger'}`}>
+            <div className="surv-alert-content">
+              <Camera size={15} className="pulse-icon text-red" />
+              <div className="surv-text-stack">
+                <b>
+                  {lang === 'ar'
+                    ? '⚠️ رُصدت كاميرات مراقبة وتنصت سري في حيك السكني!'
+                    : '⚠️ Hidden Surveillance Cameras active in your sector!'}
+                </b>
+                <small>
+                  {state.player.isCamouflaged
+                    ? (lang === 'ar' ? '🛡️ التمويه نشط (الكتابة آمنة ومحمية)' : '🛡️ Camouflage Active (Safe to write)')
+                    : (lang === 'ar' ? 'الكتابة بدون تمويه تؤدي للمداهمة فوراً!' : 'Writing without camouflage triggers instant SWAT raid!')}
+                </small>
+              </div>
+            </div>
+            <button
+              type="button"
+              className={`btn-toggle-camouflage ${state.player.isCamouflaged ? 'active' : ''}`}
+              onClick={() => {
+                sensoryAudio.playLetterScratch();
+                dispatch({ type: 'ACTIVATE_CAMOUFLAGE' });
+              }}
+            >
+              {state.player.isCamouflaged
+                ? (lang === 'ar' ? '✓ التمويه مفعل (4 ساعات)' : '✓ Camouflaged (4h)')
+                : (lang === 'ar' ? '🍿 حيلة التمويه (Potato Chip Trick)' : '🍿 Camouflage Trick')}
+            </button>
+          </div>
+        )}
 
         {/* 1. Target Dossiers Reel */}
         <DossierReel

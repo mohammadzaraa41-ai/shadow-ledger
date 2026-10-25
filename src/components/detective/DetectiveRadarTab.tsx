@@ -74,6 +74,8 @@ export function DetectiveRadarTab({
   onPlantDecoy,
   onDeployCamera,
   onLaunchLindBroadcast,
+  onToggleBlackout,
+  onOpenInterrogation,
   onIssueArrest,
 }: {
   state: GameState;
@@ -86,6 +88,8 @@ export function DetectiveRadarTab({
   onPlantDecoy: () => void;
   onDeployCamera: () => void;
   onLaunchLindBroadcast: () => void;
+  onToggleBlackout?: () => void;
+  onOpenInterrogation?: () => void;
   onIssueArrest: () => void;
 }) {
   const { lang, tx } = useLang();
@@ -431,8 +435,13 @@ export function DetectiveRadarTab({
                     : `Deploy night-vision CCTV units across ${REGION_NAME[selRegion].en} streets.`}
                 </p>
               </div>
-              <button className="btn-tactical btn-camera" onClick={onDeployCamera}>
-                {isRtl ? 'تفعيل الكاميرات' : 'Activate CCTV'}
+              <button
+                className={`btn-tactical btn-camera ${(state.surveillanceRegions || []).includes(selRegion) ? 'active' : ''}`}
+                onClick={onDeployCamera}
+              >
+                {(state.surveillanceRegions || []).includes(selRegion)
+                  ? (isRtl ? '✓ الكاميرات مفعلة' : '✓ CCTV Active')
+                  : (isRtl ? 'تفعيل الكاميرات' : 'Activate CCTV')}
               </button>
             </div>
 
@@ -461,7 +470,48 @@ export function DetectiveRadarTab({
               </button>
             </div>
 
-            {/* Operation 4: Final Arrest Warrant */}
+            {/* Operation 4: Media Blackout */}
+            <div className="tactical-card blackout-card">
+              <div className="card-icon-slot">
+                <Radio size={20} className="op-icon blackout-icon text-yellow" />
+              </div>
+              <div className="card-info">
+                <b>{isRtl ? '📡 تعتيم إعلامي تكتيكي (Media Blackout)' : 'Tactical Media Blackout'}</b>
+                <p>
+                  {isRtl
+                    ? `حظر نشر أسماء المجرمين في تلفزيون ${REGION_NAME[selRegion].ar}. إذا مات مجرم هناك، نثبت أن القاتل يخترق حواسيب الشرطة!`
+                    : `Censor criminal names on TV in ${REGION_NAME[selRegion].en}. If a criminal dies, proves Kira hacks police systems!`}
+                </p>
+              </div>
+              <button
+                className={`btn-tactical btn-blackout ${(state.mediaBlackoutRegions || []).includes(selRegion) ? 'active' : ''}`}
+                onClick={onToggleBlackout}
+              >
+                {(state.mediaBlackoutRegions || []).includes(selRegion)
+                  ? (isRtl ? '✓ التعتيم مفعل' : '✓ Blackout Active')
+                  : (isRtl ? 'فرض التعتيم' : 'Impose Blackout')}
+              </button>
+            </div>
+
+            {/* Operation 5: Tactical Interrogation Room */}
+            <div className="tactical-card interrogation-card">
+              <div className="card-icon-slot">
+                <Compass size={20} className="op-icon text-cyan" />
+              </div>
+              <div className="card-info">
+                <b>{isRtl ? '🔍 غرفة استجواب المشتبه بهم (Interrogation)' : 'Suspect Interrogation Chamber'}</b>
+                <p>
+                  {isRtl
+                    ? `استدعاء 3 مشتبه بهم في قطاع ${REGION_NAME[selRegion].ar} والتحقيق معهم برصد نبضات القلب والمؤشرات الحيوية!`
+                    : `Summon 3 suspects in ${REGION_NAME[selRegion].en} for interrogation with live heart rate telemetry!`}
+                </p>
+              </div>
+              <button className="btn-tactical btn-interrogate" onClick={onOpenInterrogation}>
+                {isRtl ? 'بدء الاستجواب' : 'Interrogate Suspects'}
+              </button>
+            </div>
+
+            {/* Operation 6: Final Arrest Warrant */}
             <div className="tactical-card arrest-card">
               <div className="card-icon-slot">
                 <AlertTriangle size={20} className="op-icon arrest-icon" />
