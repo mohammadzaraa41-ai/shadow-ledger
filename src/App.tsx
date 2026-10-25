@@ -102,8 +102,8 @@ export default function App() {
       setMultiplayerConfig({
         active: false,
         role: 'KILLER',
-        myName: lang === 'ar' ? 'لايت (KIRA)' : 'Light (Kira)',
-        opponentName: lang === 'ar' ? 'المحقق L' : 'Detective L',
+        myName: lang === 'ar' ? 'قاضي الظل (The Shadow)' : 'The Shadow',
+        opponentName: lang === 'ar' ? 'المحقق سايفر (Detective Cipher)' : 'Detective Cipher',
         roomCode: '',
       });
     }

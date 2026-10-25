@@ -38,7 +38,7 @@ export function Splash({ onStart, onHowTo, onMultiplayer, ended, onRestart }: Pr
                   className="stamp stamp-duel"
                   onClick={onMultiplayer}
                 >
-                  👥 {lang === 'ar' ? 'تحدي لايت ضد إل (1v1 أونلاين)' : 'Light vs L (1v1 Online Duel)'}
+                  👥 {lang === 'ar' ? 'تحدي قاضي الظل ضد المحقق (1v1 أونلاين)' : 'Shadow vs Detective (1v1 Online Duel)'}
                 </button>
               )}
               <button id="btn-howto" className="link-btn" onClick={onHowTo}>{t('splash.howto')}</button>

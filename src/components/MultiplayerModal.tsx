@@ -16,7 +16,7 @@ export function MultiplayerModal({
 
   const [tab, setTab] = useState<'CREATE' | 'JOIN'>('CREATE');
   const [role, setRole] = useState<PlayerRole>('KILLER');
-  const [name, setName] = useState(role === 'KILLER' ? 'لايت (KIRA)' : 'المحقق L');
+  const [name, setName] = useState(role === 'KILLER' ? 'قاضي الظل (The Shadow)' : 'المحقق سايفر (Detective Cipher)');
   const [roomCode, setRoomCode] = useState(() => `ROOM-${Math.floor(100 + Math.random() * 900)}`);
   const [joinCodeInput, setJoinCodeInput] = useState('');
   const [isCopied, setIsCopied] = useState(false);
@@ -26,8 +26,8 @@ export function MultiplayerModal({
   // Update default name placeholder when role changes if user hasn't heavily customized
   const handleRoleSelect = (newRole: PlayerRole) => {
     setRole(newRole);
-    if (name === 'لايت (KIRA)' || name === 'المحقق L') {
-      setName(newRole === 'KILLER' ? 'لايت (KIRA)' : 'المحقق L');
+    if (name === 'قاضي الظل (The Shadow)' || name === 'المحقق سايفر (Detective Cipher)' || name === 'لايت (KIRA)' || name === 'المحقق L') {
+      setName(newRole === 'KILLER' ? 'قاضي الظل (The Shadow)' : 'المحقق سايفر (Detective Cipher)');
     }
   };
 
@@ -58,7 +58,7 @@ export function MultiplayerModal({
 
   const handleLaunch = () => {
     sensoryAudio.playThunder();
-    onStartGame(role, name, opponentName || (role === 'KILLER' ? 'المحقق L' : 'لايت (KIRA)'), tab === 'CREATE' ? roomCode : joinCodeInput);
+    onStartGame(role, name, opponentName || (role === 'KILLER' ? 'المحقق سايفر (Detective Cipher)' : 'قاضي الظل (The Shadow)'), tab === 'CREATE' ? roomCode : joinCodeInput);
     onClose();
   };
 
@@ -68,7 +68,7 @@ export function MultiplayerModal({
         <header className="multiplayer-modal-header">
           <div className="header-title-group">
             <span className="mp-crest">1v1 ONLINE DUEL</span>
-            <h2>{isRtl ? 'مواجهة لايت ضد إل — تحدي هاتفين' : 'Light vs L — 1v1 Online Duel'}</h2>
+            <h2>{isRtl ? 'مواجهة قاضي الظل ضد المحقق — تحدي هاتفين' : 'Shadow vs Detective — 1v1 Online Duel'}</h2>
           </div>
           <button className="btn-close-modal" onClick={onClose}>
             <X size={18} />
@@ -85,7 +85,7 @@ export function MultiplayerModal({
               className="mp-text-input"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder={isRtl ? 'أدخل اسمك (مثال: لايت، كِيرا، L، ريان)' : 'Enter your name'}
+              placeholder={isRtl ? 'أدخل اسمك (مثال: الظل، سايفر، المحقق، ريان)' : 'Enter your name'}
             />
           </div>
         </div>
@@ -101,8 +101,8 @@ export function MultiplayerModal({
             >
               <div className="role-icon">🗡️</div>
               <div className="role-meta">
-                <b>{isRtl ? 'صاحب الدفتر (لايت / KIRA)' : 'The Killer (Light / Kira)'}</b>
-                <small>{isRtl ? 'ينفذ الأحكام بالدفتر، يضلل المحقق، ويحكم العالم' : 'Wields the Death Ledger & escapes justice'}</small>
+                <b>{isRtl ? 'قاضي الظل (The Shadow)' : 'The Shadow (Mastermind)'}</b>
+                <small>{isRtl ? 'ينفذ الأحكام بالدفتر، يضلل المحقق، ويطهر المدينة' : 'Wields the Shadow Ledger & escapes justice'}</small>
               </div>
             </button>
 
@@ -113,8 +113,8 @@ export function MultiplayerModal({
             >
               <div className="role-icon">🔍</div>
               <div className="role-meta">
-                <b>{isRtl ? 'المحقق العبقري (L)' : 'Master Detective (L)'}</b>
-                <small>{isRtl ? 'يبث الطعوم، يراقب الكاميرات، ويصطاد القاتل' : 'Plants decoys, tracks hours, issues arrests'}</small>
+                <b>{isRtl ? 'المحقق سايفر (Detective Cipher)' : 'Detective Cipher (Chief)'}</b>
+                <small>{isRtl ? 'يبث الطعوم، يراقب الكاميرات، ويصطاد الفاعل' : 'Plants decoys, tracks hours, issues arrests'}</small>
               </div>
             </button>
           </div>
@@ -160,7 +160,7 @@ export function MultiplayerModal({
               <span>
                 {isConnected
                   ? isRtl
-                    ? `متصل بالخصم (${opponentName || (role === 'KILLER' ? 'المحقق L' : 'لايت')})`
+                    ? `متصل بالخصم (${opponentName || (role === 'KILLER' ? 'المحقق سايفر' : 'قاضي الظل')})`
                     : `Connected with (${opponentName || 'Opponent'})`
                   : isRtl
                   ? 'بانتظار دخول اللاعب الثاني...'

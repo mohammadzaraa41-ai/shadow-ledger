@@ -69,7 +69,7 @@ export function StatusBar({
               id="btn-multiplayer-hub"
               className="steam-icon-btn mp-icon-btn"
               onClick={onOpenMultiplayer}
-              title={lang === 'ar' ? 'تحدي لايت ضد إل (1v1 أونلاين)' : 'Light vs L (1v1 Online)'}
+              title={lang === 'ar' ? 'تحدي قاضي الظل ضد المحقق (1v1 أونلاين)' : 'Shadow vs Detective (1v1 Online)'}
             >
               <Users size={13} />
             </button>
