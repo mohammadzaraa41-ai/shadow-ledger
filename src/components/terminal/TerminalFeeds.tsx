@@ -345,11 +345,11 @@ export function TerminalFeeds({ state, dispatch }: { state: GameState; dispatch:
               <div
                 className="shinigami-eye-vision-banner"
                 onClick={() => handleQuickTarget(targetObj.id)}
-                title={lang === 'ar' ? 'كشف عيون الشينيغامي: اضغط لاستهدافه بالدفتر فوراً' : 'Shinigami Eyes: click to target'}
+                title={lang === 'ar' ? 'كشف عين الظل: اضغط لاستهدافه بالدفتر فوراً' : 'Shadow Sight: click to target'}
               >
                 <Eye size={16} className="shinigami-eye-pulse" />
                 <div className="shinigami-info">
-                  <span className="shinigami-tag">{lang === 'ar' ? 'رؤية عيون الشينيغامي الملعونة' : 'Shinigami Vision'}</span>
+                  <span className="shinigami-tag">{lang === 'ar' ? 'رؤية عين الظل الكاشفة' : 'Shadow Sight Vision'}</span>
                   <b className="shinigami-true-name">{targetObj.name[lang]}</b>
                 </div>
                 <span className="shinigami-prompt">{lang === 'ar' ? '«تنفيذ الحكم 🩸»' : '«Target 🩸»'}</span>

@@ -33,7 +33,7 @@ export function SoloRoleModal({
         </p>
 
         <div className="role-cards-grid">
-          {/* Option 1: KIRA / KILLER */}
+          {/* Option 1: SHADOW MASTERMIND */}
           <div
             className="role-selection-box role-kira-box"
             onClick={() => {
@@ -44,26 +44,26 @@ export function SoloRoleModal({
           >
             <div className="role-box-top">
               <span className="role-glyph-crest">🖋️</span>
-              <span className="role-badge kira-badge">KIRA // GOD OF THE NEW WORLD</span>
+              <span className="role-badge kira-badge">SHADOW // ARCHITECT OF RETRIBUTION</span>
             </div>
-            <h4>{isRtl ? 'لايت (كيرا) — قاضي العالم الجديد' : 'Light (KIRA) — God of the New World'}</h4>
+            <h4>{isRtl ? 'قاضي الظل (The Shadow) — مهندس العدالة الغامض' : 'The Shadow — Architect of Retribution'}</h4>
             <p>
               {isRtl
-                ? 'املك دفتر الظل، دوّن أسماء المجرمين، واكشف روتين الفاسدين. راوغ تحريات L وتفادَ فخاخه التلفزيونية لتبني عالمك الخالي من الفساد.'
-                : 'Wield the Shadow Ledger, eliminate the corrupt, and evade L’s deductive traps to birth a new world.'}
+                ? 'املك دفتر الظل، دوّن أسماء المجرمين، واكشف روتين الفاسدين. راوغ تحريات المحقق وتفادَ فخاخه التلفزيونية لتطهير المدينة.'
+                : 'Wield the Shadow Ledger, eliminate the corrupt, and evade the detective’s deductive traps to reshape the city.'}
             </p>
             <ul className="role-perks-list">
-              <li>{isRtl ? '✓ التحكم الكامل بدفتر الموت وقلم الحبر' : '✓ Full control of Death Ledger & Pen'}</li>
+              <li>{isRtl ? '✓ التحكم الكامل بدفتر الظل وريشة الحبر' : '✓ Full control of Shadow Ledger & Quill'}</li>
               <li>{isRtl ? '✓ فك شفرات الروتين عبر كاميرات المراقبة' : '✓ Crack routine intel via CCTV surveillance'}</li>
-              <li>{isRtl ? '✓ مواجهة ذكاء L البايزي والاستدلالي' : '✓ Face dynamic Bayesian AI Detective L'}</li>
+              <li>{isRtl ? '✓ مواجهة ذكاء المحقق الاستدلالي المتقدم' : '✓ Face dynamic Bayesian AI Chief Detective'}</li>
             </ul>
             <button className="btn-confirm-role btn-kira-role">
               <Feather size={14} />
-              <span>{isRtl ? 'ابدأ كـ كيرا (KIRA)' : 'Play as KIRA'}</span>
+              <span>{isRtl ? 'ابدأ كـ قاضي الظل (The Shadow)' : 'Play as The Shadow'}</span>
             </button>
           </div>
 
-          {/* Option 2: DETECTIVE L */}
+          {/* Option 2: DETECTIVE CIPHER */}
           <div
             className="role-selection-box role-l-box"
             onClick={() => {
@@ -72,23 +72,23 @@ export function SoloRoleModal({
             }}
           >
             <div className="role-box-top">
-              <span className="role-glyph-crest gothic-l">L</span>
-              <span className="role-badge l-badge">INTERPOL // MASTER DETECTIVE</span>
+              <span className="role-glyph-crest gothic-l">Σ</span>
+              <span className="role-badge l-badge">TASK FORCE // CHIEF INVESTIGATOR</span>
             </div>
-            <h4>{isRtl ? 'المحقق العبقري L — قاهر المستحيل' : 'Master Detective L — Chief Investigator'}</h4>
+            <h4>{isRtl ? 'المحقق سايفر (Detective Cipher) — قاهر الألغاز' : 'Detective Cipher — Chief Investigator'}</h4>
             <p>
               {isRtl
-                ? 'قُد فرقة التحقيق الخاصة، انصب الطعوم التلفزيونية الإقليمية، أطلق بث Lind L. Tailor الحي، واحصر قطاع كيرا السكني لتداهمه وتعتقله.'
-                : 'Command Interpol Task Force, broadcast regional decoys, bait Kira with live TV sting, and raid his hideout.'}
+                ? 'قُد فرقة التحقيق الخاصة، انصب الطعوم التلفزيونية الإقليمية، أطلق بث التحدي الحي، واحصر قطاع الظل السكني لتداهمه وتعتقله.'
+                : 'Command Interpol Task Force, broadcast regional decoys, bait the killer with live TV sting, and raid the hideout.'}
             </p>
             <ul className="role-perks-list">
               <li>{isRtl ? '✓ رادار استدلال بايزي مباشر يحلل كل جريمة' : '✓ Live Bayesian heatmap & time profiler'}</li>
-              <li>{isRtl ? '✓ إطلاق فخ Lind L. Tailor الحي تلفزيونياً' : '✓ Launch Lind L. Tailor live TV bait trap'}</li>
-              <li>{isRtl ? '✓ مواجهة ذكاء كيرا الخفي ومداهمة مقره' : '✓ Track and raid autonomous AI Kira'}</li>
+              <li>{isRtl ? '✓ إطلاق فخ التحدي التلفزيوني الحي' : '✓ Launch live TV decoy bait trap'}</li>
+              <li>{isRtl ? '✓ مواجهة ذكاء الظل الخفي ومداهمة مقره' : '✓ Track and raid autonomous Shadow AI'}</li>
             </ul>
             <button className="btn-confirm-role btn-l-role">
               <Crosshair size={14} />
-              <span>{isRtl ? 'ابدأ كـ المحقق L' : 'Play as Detective L'}</span>
+              <span>{isRtl ? 'ابدأ كـ المحقق سايفر (Detective Cipher)' : 'Play as Detective Cipher'}</span>
             </button>
           </div>
         </div>

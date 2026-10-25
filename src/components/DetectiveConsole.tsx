@@ -165,16 +165,16 @@ export function DetectiveConsole({
     if (state.player.homeRegion === selRegion) {
       unlockDetectiveMedal('MEDAL_CHECKMATE');
       dispatch({ type: 'SET_GAME_STATUS', status: 'WON' });
-      alert(
+      setDecoySuccessMsg(
         isRtl
-          ? `🚨 كش ملك! مداهمة ناجحة! تم تطويق منزل ${killerName} وإلقاء القبض عليه متلبساً! انتصر المحقق L وفُضحت هوية KIRA!`
-          : `🚨 Checkmate! Raid successful! ${killerName} arrested red-handed! Detective L triumphs!`
+          ? `🚨 كش ملك! مداهمة ناجحة! تم تطويق منزل ${killerName} وإلقاء القبض عليه متلبساً! انتصر المحقق واستعاد العدالة!`
+          : `🚨 Checkmate! Raid successful! ${killerName} arrested red-handed! Detective triumph!`
       );
     } else {
-      alert(
+      setDecoySuccessMsg(
         isRtl
-          ? `❌ المداهمة في قطاع ${REGION_NAME[selRegion].ar} باءت بالفشل! القاتل ليس هناك، وفقدت الشرطة مصداقيتها!`
-          : `❌ Raid failed! Killer is not in this sector!`
+          ? `❌ المداهمة في قطاع ${REGION_NAME[selRegion].ar} باءت بالفشل! المشتبه به ليس هناك، وفقدت الشرطة مصداقيتها!`
+          : `❌ Raid failed! Suspect is not in this sector!`
       );
     }
   };
@@ -187,11 +187,11 @@ export function DetectiveConsole({
       {/* Command Header */}
       <header className="detective-v2-header">
         <div className="task-force-identity">
-          <div className="gothic-l-avatar">L</div>
+          <div className="gothic-l-avatar">Σ</div>
           <div className="task-force-text">
             <div className="task-force-org-title">
               <Shield size={13} className="shield-icon" />
-              <span>INTERPOL // SPECIAL TASK FORCE // ICPO-01</span>
+              <span>SPECIAL TASK FORCE // INVESTIGATION COMMAND</span>
             </div>
             <h2 className="detective-full-title">{detectiveName}</h2>
           </div>
@@ -207,7 +207,7 @@ export function DetectiveConsole({
             }}
           >
             <Award size={15} />
-            <span>{isRtl ? 'أوسمة وتكريمات L' : 'Medals & Records'}</span>
+            <span>{isRtl ? 'أوسمة وإنجازات المحقق' : 'Medals & Commendations'}</span>
           </button>
 
           <div className="suspicion-tracker-box">

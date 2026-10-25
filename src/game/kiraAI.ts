@@ -13,15 +13,15 @@ const REGIONS: Region[] = ['NORTH', 'WEST', 'EAST', 'SOUTH', 'CENTRAL'];
 
 export const KIRA_SOLO_TAUNTS = {
   ar: [
-    'هل تسمع أصوات السقوط يا L؟ العالم يتطهر من دنس الفاسدين.',
+    'هل تسمع أصوات السقوط أيها المحقق؟ المدينة تتطهر من دنس الفاسدين.',
     'تبحث عني في الظلام بينما العدالة أكتبها أنا في وضح النهار.',
     'بثوثك التلفزيونية وألاعيبك التكتيكية لن تشتت بوصلتي الحتمية.',
     'راقب السجلات اليوم.. سقط رأس كبير آخر من رؤوس الفساد.',
     'العدالة ليست كتباً وقوانين عاجزة، العدالة هي القصاص الحتمي.',
-    'تقترب خطوة فأسبقك بعشر.. لن تكشف هويتي أبداً يا L.',
+    'تقترب خطوة فأسبقك بعشر.. لن تكشف هويتي الحقيقية أبداً.',
   ],
   en: [
-    'Can you hear the wicked falling, L? The world is being cleansed.',
+    'Can you hear the wicked falling, detective? The city is being cleansed.',
     'You search in shadows while I write absolute justice in plain sight.',
     'Your tactical television broadcasts will never derail my sacred judgment.',
     'Check today’s obituaries.. another corrupt titan has fallen.',

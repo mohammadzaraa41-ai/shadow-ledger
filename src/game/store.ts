@@ -1,4 +1,4 @@
-import { useReducer } from 'react';
+import { useEffect, useReducer } from 'react';
 import { matchesName } from '../i18n';
 import { BASE_TARGETS, MAX_DAYS, buildBaseFeed } from './data';
 import { emptyDeduction, evaluateTurn } from './detectiveAI';
@@ -70,7 +70,19 @@ export function getTargetIntel(p: PlayerState, targetId: string) {
   };
 }
 
+const STORAGE_KEY = 'shadow_ledger_game_state_v1';
+
 export function initialState(): GameState {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      if (parsed && parsed.player && parsed.targets && parsed.status === 'PLAYING') {
+        return parsed;
+      }
+    }
+  } catch {}
+
   return {
     player: {
       day: 1, hour: 18, homeRegion: 'WEST',
@@ -353,10 +365,21 @@ export function reducer(s: GameState, a: Action): GameState {
       };
     }
     case 'RESET':
+      try {
+        localStorage.removeItem(STORAGE_KEY);
+      } catch {}
       return initialState();
   }
 }
 
 export function useGame() {
-  return useReducer(reducer, undefined, initialState);
+  const [state, dispatch] = useReducer(reducer, undefined, initialState);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    } catch {}
+  }, [state]);
+
+  return [state, dispatch] as const;
 }

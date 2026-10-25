@@ -53,9 +53,9 @@ class MultiplayerService {
     isConnected: false,
     isHost: false,
     roomCode: '',
-    localName: 'لايت (KIRA)',
+    localName: 'قاضي الظل (The Shadow)',
     localRole: 'KILLER',
-    opponentName: 'المحقق L',
+    opponentName: 'المحقق سايفر (Detective Cipher)',
     opponentRole: 'DETECTIVE',
     chatMessages: [],
   };
@@ -85,11 +85,11 @@ class MultiplayerService {
     this.cleanup();
 
     this.state.roomCode = roomCode.toUpperCase().trim();
-    this.state.localName = name.trim() || (role === 'KILLER' ? 'لايت (KIRA)' : 'المحقق L');
+    this.state.localName = name.trim() || (role === 'KILLER' ? 'قاضي الظل (The Shadow)' : 'المحقق سايفر (Detective Cipher)');
     this.state.localRole = role;
     this.state.isHost = isHost;
     this.state.opponentRole = role === 'KILLER' ? 'DETECTIVE' : 'KILLER';
-    this.state.opponentName = role === 'KILLER' ? 'المحقق L' : 'لايت (KIRA)';
+    this.state.opponentName = role === 'KILLER' ? 'المحقق سايفر (Detective Cipher)' : 'قاضي الظل (The Shadow)';
 
     // 1. Setup local BroadcastChannel for instant testing across tabs on the same device
     try {
@@ -107,6 +107,30 @@ class MultiplayerService {
     try {
       this.peer = new Peer(myPeerId, {
         debug: 1,
+        config: {
+          iceServers: [
+            { urls: 'stun:stun.l.google.com:19302' },
+            { urls: 'stun:stun1.l.google.com:19302' },
+            { urls: 'stun:stun2.l.google.com:19302' },
+            { urls: 'stun:stun3.l.google.com:19302' },
+            { urls: 'stun:stun4.l.google.com:19302' },
+            {
+              urls: 'turn:openrelay.metered.ca:80',
+              username: 'openrelayproject',
+              credential: 'openrelayproject',
+            },
+            {
+              urls: 'turn:openrelay.metered.ca:443',
+              username: 'openrelayproject',
+              credential: 'openrelayproject',
+            },
+            {
+              urls: 'turn:openrelay.metered.ca:443?transport=tcp',
+              username: 'openrelayproject',
+              credential: 'openrelayproject',
+            },
+          ],
+        },
       });
 
       this.peer.on('open', () => {

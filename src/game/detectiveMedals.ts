@@ -12,10 +12,10 @@ const STORAGE_KEY = 'shadow_ledger_detective_medals';
 export const INITIAL_MEDALS: DetectiveMedal[] = [
   {
     id: 'MEDAL_LIND_TRAP',
-    title: { ar: 'وسام فخ Lind L. Tailor', en: 'Master Baiter Commendation' },
+    title: { ar: 'وسام فخ التحدي التلفزيوني', en: 'Master Baiter Commendation' },
     desc: {
-      ar: 'نجاح استدراج KIRA لتصفية السجين البديل على الهواء وحصر موقعه الجغرافي.',
-      en: 'Successfully baited KIRA to eliminate the decoy on live TV and pinpoint his region.',
+      ar: 'نجاح استدراج الفاعل لتصفية السجين البديل على الهواء وحصر موقعه الجغرافي.',
+      en: 'Successfully baited the culprit to eliminate the decoy on live TV and pinpoint the sector.',
     },
     icon: '📺',
     unlocked: false,
@@ -25,7 +25,7 @@ export const INITIAL_MEDALS: DetectiveMedal[] = [
     title: { ar: 'محلل النمط الزمني', en: 'Circadian Pattern Cracker' },
     desc: {
       ar: 'استنتاج وتحديد ساعات نشاط القاتل بدقة تفوق 80% بناءً على توقيت الوفيات.',
-      en: 'Accurately profiled KIRA’s daily activity timetable from casualty timestamps.',
+      en: 'Accurately profiled the culprit’s daily activity timetable from casualty timestamps.',
     },
     icon: '⏱️',
     unlocked: false,
@@ -35,7 +35,7 @@ export const INITIAL_MEDALS: DetectiveMedal[] = [
     title: { ar: 'تطويق القطاع السكني', en: 'Sector Encirclement Award' },
     desc: {
       ar: 'حصر الشبهة في قطاع سكني واحد بنسبة احتمال تفوق 75% عبر التحليل الجنائي.',
-      en: 'Narrowed KIRA residency belief above 75% in a single sector through forensics.',
+      en: 'Narrowed suspect residency belief above 75% in a single sector through forensics.',
     },
     icon: '🎯',
     unlocked: false,
@@ -45,17 +45,17 @@ export const INITIAL_MEDALS: DetectiveMedal[] = [
     title: { ar: 'فخ الطُعم الإقليمي', en: 'Decoy Trap Specialist' },
     desc: {
       ar: 'استدراج القاتل لكتابة اسم سجين وهمي بثته الشرطة محلياً لإثبات قدرته على القتل.',
-      en: 'Tricked KIRA into targeting a regional police decoy identity.',
+      en: 'Tricked the killer into targeting a regional police decoy identity.',
     },
     icon: '🪤',
     unlocked: false,
   },
   {
     id: 'MEDAL_CHECKMATE',
-    title: { ar: 'كش ملك: القيود في معصم KIRA', en: 'Supreme Checkmate: Kira in Handcuffs' },
+    title: { ar: 'كش ملك: القيود في معصم القاتل', en: 'Supreme Checkmate: Handcuffs' },
     desc: {
       ar: 'إصدار أمر مداهمة حاسم وصحيح أدى إلى تطويق منزل القاتل واعتقاله متلبساً!',
-      en: 'Executed a flawless raid warrant arresting KIRA red-handed!',
+      en: 'Executed a flawless raid warrant arresting the mastermind red-handed!',
     },
     icon: '🚨',
     unlocked: false,

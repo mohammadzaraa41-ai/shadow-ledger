@@ -1,0 +1,18 @@
+{
+  "name": "دفتر الظل — Shadow Ledger",
+  "short_name": "Shadow Ledger",
+  "description": "لعبة استنتاج نفسي وصراع فكري بين قاضي الظل وفرقة التحقيق الخاصة.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#07070a",
+  "theme_color": "#07070a",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/splash_art.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    }
+  ]
+}

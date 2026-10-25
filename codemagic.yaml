@@ -1,0 +1,31 @@
+workflows:
+  ios-release:
+    name: iOS Shadow Ledger Build & Export
+    max_build_duration: 60
+    instance_type: mac_mini_m1
+    environment:
+      node: 20.x
+      xcode: 15.4
+    scripts:
+      - name: Install dependencies
+        script: |
+          npm ci
+      - name: Build web production bundle
+        script: |
+          npm run build
+      - name: Sync iOS Capacitor project
+        script: |
+          npx cap sync ios
+      - name: Build and archive iOS App
+        script: |
+          cd ios/App
+          xcodebuild build \
+            -workspace App.xcworkspace \
+            -scheme App \
+            -destination "generic/platform=iOS" \
+            -configuration Release \
+            CODE_SIGNING_ALLOWED=NO
+    artifacts:
+      - ios/App/build/**/*.app
+      - ios/App/build/**/*.ipa
+      - dist/**/*

@@ -46,8 +46,8 @@ export default function App() {
   }>({
     active: false,
     role: 'KILLER',
-    myName: 'لايت (KIRA)',
-    opponentName: 'المحقق L',
+    myName: 'قاضي الظل (The Shadow)',
+    opponentName: 'المحقق سايفر (Detective Cipher)',
     roomCode: '',
   });
 

@@ -373,12 +373,12 @@ export function Ledger({
       </div>
 
       <div className="page">
-        {/* Shinigami Eye Deal Banner */}
+        {/* Shadow Eye Deal Banner */}
         <div className="shinigami-deal-bar">
           {state.player.hasShinigamiEyes ? (
             <div className="shinigami-active-badge">
               <Eye size={14} className="pulse-icon" />
-              <span>{lang === 'ar' ? '👁️ عيون الظل نشطة (الهويات مكشوفة)' : '👁️ Shinigami Eyes Active'}</span>
+              <span>{lang === 'ar' ? '👁️ عيون الظل نشطة (الهويات مكشوفة)' : '👁️ Shadow Sight Active'}</span>
             </div>
           ) : (
             <button
@@ -389,10 +389,10 @@ export function Ledger({
                 sensoryAudio.playKeystroke();
                 setShowEyeDealModal(true);
               }}
-              title={lang === 'ar' ? 'صفقة عيون الشينيغامي: كشف الهويات فوراً' : 'Shinigami Eye Deal: Instant identity reveal'}
+              title={lang === 'ar' ? 'صفقة عيون الظل: كشف الهويات فوراً' : 'Shadow Eye Pact: Instant identity reveal'}
             >
               <Eye size={13} />
-              <span>{lang === 'ar' ? '👁️ عقد صفقة عين الظل' : '👁️ Shinigami Eye Deal'}</span>
+              <span>{lang === 'ar' ? '👁️ عقد صفقة عين الظل' : '👁️ Shadow Eye Deal'}</span>
               <span className="deal-cost-pill">{lang === 'ar' ? '-3 أيام' : '-3 Days'}</span>
             </button>
           )}
