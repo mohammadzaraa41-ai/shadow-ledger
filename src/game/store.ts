@@ -36,6 +36,8 @@ export interface LedgerInput {
   method: DeathMethod;
   hour?: number;
   faction?: Faction;
+  targetRegion?: Region;
+  crypticNote?: string;
 }
 
 export type Action =
@@ -141,7 +143,14 @@ export function buildCommand(s: GameState, input: LedgerInput): ExecutionCommand
 
   const base = { id: `cmd-${p.day}-${p.pending.length}-${target.id}`, targetId: target.id, method: input.method, issuedDay: p.day };
   if (input.method === 'CARDIAC') return { ...base, scheduledDay: p.day, scheduledHour: p.hour };
-  if (input.method === 'FALSE_LEAD') {
+  if (input.method === 'COERCED_LEAK') {
+    return { ...base, scheduledDay: p.day, scheduledHour: p.hour, coercedAction: 'LEAK_CIPHER_INTEL' };
+  }
+  if (input.method === 'CRYPTIC_MSG') {
+    const reg = input.targetRegion || 'WEST';
+    return { ...base, scheduledDay: p.day, scheduledHour: p.hour, targetRegion: reg, crypticNote: input.crypticNote };
+  }
+  if (input.method === 'GANG_WAR' || input.method === 'FALSE_LEAD') {
     if (!input.faction) return { k: 'err.faction' };
     return { ...base, scheduledDay: p.day, scheduledHour: p.hour, faction: input.faction };
   }
@@ -149,7 +158,8 @@ export function buildCommand(s: GameState, input: LedgerInput): ExecutionCommand
   if (!routine) return { k: 'err.routine' };
   if (input.hour === undefined || input.hour < routine.window.from || input.hour >= routine.window.to)
     return { k: 'err.hour' };
-  return { ...base, scheduledDay: p.day + 1, scheduledHour: input.hour };
+  const isAlibi = !p.schedule.freeHours.includes(input.hour);
+  return { ...base, scheduledDay: p.day + 1, scheduledHour: input.hour, alibiCreated: isAlibi };
 }
 
 export const isCommand = (x: ExecutionCommand | Text): x is ExecutionCommand => 'targetId' in x;
@@ -176,6 +186,22 @@ function endDay(s: GameState): GameState {
     return { ok: o.success, name: t.name, reason: o.reason };
   });
 
+  let updatedIntel = { ...p.intelProgress };
+  const hasLeaked = res.outcomes.some((o) => {
+    const c = due.find((x) => x.id === o.commandId);
+    return o.success && c?.method === 'COERCED_LEAK';
+  });
+  if (hasLeaked) {
+    const prevL = updatedIntel['L'] || {};
+    if (!prevL.hasSurname) {
+      updatedIntel['L'] = { ...prevL, hasSurname: true };
+    } else if (!prevL.hasFace) {
+      updatedIntel['L'] = { ...prevL, hasFace: true };
+    } else {
+      updatedIntel['L'] = { ...prevL, hasFirstName: true };
+    }
+  }
+
   const allCorruptDead = targets.filter((t) => t.priority === 'CORRUPT').every((t) => !t.alive);
   const majorCriminalsPurged = targets.filter((t) => t.priority === 'CRIMINAL' && !t.alive).length >= 5;
   const detectiveDead = !targets.find((t) => t.priority === 'DETECTIVE')?.alive;
@@ -190,7 +216,7 @@ function endDay(s: GameState): GameState {
     news: [...res.news, ...s.news],
     records: [...s.records, ...res.newRecords],
     deduction: res.deduction,
-    player: { ...p, day: p.day + 1, hour: 7, kills, pending: remaining, suspicion: clampSusp(res.newSuspicion) },
+    player: { ...p, day: p.day + 1, hour: 7, kills, pending: remaining, suspicion: clampSusp(res.newSuspicion), intelProgress: updatedIntel },
     report: { day: p.day, delta: res.suspicionDelta, breakdown: res.breakdown, lines, notes: res.deduction.notes.slice(0, 2) },
   };
 }

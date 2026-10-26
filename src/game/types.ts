@@ -5,7 +5,7 @@
  */
 
 export type Region = 'NORTH' | 'WEST' | 'EAST' | 'SOUTH' | 'CENTRAL';
-export type DeathMethod = 'CARDIAC' | 'ACCIDENT' | 'FALSE_LEAD';
+export type DeathMethod = 'CARDIAC' | 'ACCIDENT' | 'COERCED_LEAK' | 'CRYPTIC_MSG' | 'GANG_WAR' | 'FALSE_LEAD';
 export type TargetPriority = 'CORRUPT' | 'CRIMINAL' | 'DETECTIVE' | 'DECOY';
 export type Channel = 'NEWS' | 'POLICE' | 'CAMERA' | 'WIRETAP';
 export type Scope = 'NATIONAL' | 'REGIONAL';
@@ -78,6 +78,10 @@ export interface ExecutionCommand {
   scheduledDay: number;
   scheduledHour: number;
   faction?: Faction;
+  targetRegion?: Region;
+  crypticNote?: string;
+  coercedAction?: 'LEAK_CIPHER_INTEL';
+  alibiCreated?: boolean;
 }
 
 export interface PlayerState {
@@ -116,6 +120,10 @@ export interface DeathRecord {
   precinct: L10n;
   method: DeathMethod;
   decoy: boolean;
+  targetRegion?: Region;
+  crypticNote?: string;
+  coercedAction?: 'LEAK_CIPHER_INTEL';
+  alibiCreated?: boolean;
 }
 
 export interface DetectiveDeductionState {

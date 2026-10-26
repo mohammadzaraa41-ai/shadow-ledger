@@ -5,7 +5,7 @@ import { multiplayer } from '../game/multiplayer';
 import { unlockSteamAchievement } from '../game/steam';
 import { buildCommand, getTargetIntel, isCommand } from '../game/store';
 import type { Action, GameState, LedgerInput } from '../game/store';
-import type { DeathMethod, Faction, TargetProfile, Text } from '../game/types';
+import type { DeathMethod, Faction, Region, TargetProfile, Text } from '../game/types';
 import { useLang } from '../i18n';
 import { InteractiveDeathNotePen } from './InteractiveDeathNotePen';
 import { DeathMethodSelector, type ScheduledKillItem } from './ledger/DeathMethodSelector';
@@ -42,6 +42,8 @@ export function Ledger({
   const [method, setMethod] = useState<DeathMethod>('CARDIAC');
   const [hour, setHour] = useState<number | undefined>();
   const [faction, setFaction] = useState<Faction | undefined>();
+  const [targetRegion, setTargetRegion] = useState<Region>('WEST');
+  const [crypticNote, setCrypticNote] = useState<string>('سايفر، هل تعلم أن ملائكة الموت لا تأكل سوى التفاح؟');
   const [delayMode, setDelayMode] = useState<'INSTANT' | 'DELAY_60S'>('INSTANT');
   const [targetCategory, setTargetCategory] = useState<TargetCategory>('ALL');
   const [scheduledKills, setScheduledKills] = useState<
@@ -277,7 +279,9 @@ export function Ledger({
       faceTargetId: selectedTarget.id,
       method,
       hour,
-      faction,
+      faction: (method === 'GANG_WAR' || method === 'FALSE_LEAD') ? (faction || 'SYNDICATE') : undefined,
+      targetRegion: method === 'CRYPTIC_MSG' ? targetRegion : undefined,
+      crypticNote: method === 'CRYPTIC_MSG' ? crypticNote : undefined,
     };
 
     const res = buildCommand(state, input);
@@ -338,7 +342,7 @@ export function Ledger({
       if (method === 'ACCIDENT') {
         unlockSteamAchievement('ACH_ACCIDENT_ARTIST');
       }
-      if (method === 'FALSE_LEAD') {
+      if (method === 'GANG_WAR' || method === 'FALSE_LEAD') {
         unlockSteamAchievement('ACH_FALSE_TRAIL');
       }
       if (selectedTarget.id === 'L' && method === 'ACCIDENT') {
@@ -511,6 +515,11 @@ export function Ledger({
           onSelectHour={setHour}
           faction={faction}
           onSelectFaction={setFaction}
+          targetRegion={targetRegion}
+          onSelectTargetRegion={setTargetRegion}
+          crypticNote={crypticNote}
+          onSelectCrypticNote={setCrypticNote}
+          playerSchedule={state.player.schedule}
           delayMode={delayMode}
           onSelectDelayMode={setDelayMode}
           scheduledKills={scheduledKills}

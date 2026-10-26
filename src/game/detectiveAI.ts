@@ -6,8 +6,11 @@ import type {
 
 /** Tunable balance constants. */
 export const SUSPICION = {
-  CARDIAC: 15,
+  CARDIAC: 12,
   ACCIDENT: 0,
+  COERCED_LEAK: 3,
+  CRYPTIC_MSG: 2,
+  GANG_WAR: -6,
   FALSE_LEAD: -3,
   DETECTIVE_ATTEMPT: 25,
   MASS_KILL_PER_EXTRA: 4,
@@ -66,8 +69,8 @@ export function emptyDeduction(): DetectiveDeductionState {
 
 /** Bayesian-style update: killers are assumed to live near the cluster. */
 function updateGeo(prior: Record<Region, number>, rec: DeathRecord): Record<Region, number> {
-  // Accidents need physical presence => strong locality; false leads blur the picture.
-  const k = rec.method === 'ACCIDENT' ? 1.4 : rec.method === 'FALSE_LEAD' ? 0.3 : 0.7;
+  // Accidents need physical presence => strong locality; gang wars / false leads blur the picture.
+  const k = rec.method === 'ACCIDENT' ? 1.4 : (rec.method === 'GANG_WAR' || rec.method === 'FALSE_LEAD') ? 0.3 : 0.7;
   const post = {} as Record<Region, number>;
   REGIONS.forEach((r) => (post[r] = prior[r] * Math.exp(-k * dist(r, rec.region))));
   return normalize(post);
@@ -100,18 +103,51 @@ function inferProfile(hist: number[], total: number): DetectiveDeductionState['p
 
 /* ------------------------------ news generators ------------------------------ */
 
-function deathNews(rec: DeathRecord, t: TargetProfile, id: string, faction?: ExecutionCommand['faction']): NewsItem {
+function deathNews(
+  rec: DeathRecord,
+  t: TargetProfile,
+  id: string,
+  faction?: ExecutionCommand['faction'],
+  targetRegion?: Region,
+  crypticNote?: string,
+): NewsItem {
   const national = t.priority === 'CORRUPT' || t.priority === 'DETECTIVE';
-  const headline: Text =
-    rec.method === 'CARDIAC' ? { k: 'news.CARDIAC', p: { name: t.name } }
-    : rec.method === 'ACCIDENT' ? { k: 'news.ACCIDENT', p: { name: t.name, place: t.routine.place } }
-    : faction ? { k: 'news.FALSE_LEAD', p: { name: t.name, faction: FACTION_NAME[faction] } }
-    : { k: 'news.FALSE_LEAD.x', p: { name: t.name } };
+  let headline: Text;
+  if (rec.method === 'CARDIAC') {
+    headline = { k: 'news.CARDIAC', p: { name: t.name } };
+  } else if (rec.method === 'ACCIDENT') {
+    headline = { k: 'news.ACCIDENT', p: { name: t.name, place: t.routine.place } };
+  } else if (rec.method === 'COERCED_LEAK') {
+    headline = { k: 'news.COERCED_LEAK', p: { name: t.name } };
+  } else if (rec.method === 'CRYPTIC_MSG') {
+    const rName = targetRegion ? REGION_NAME[targetRegion] : REGION_NAME.WEST;
+    headline = { k: 'news.CRYPTIC_MSG', p: { name: t.name, r: rName } };
+  } else if (rec.method === 'GANG_WAR' || rec.method === 'FALSE_LEAD') {
+    const fName = faction ? FACTION_NAME[faction] : FACTION_NAME.SYNDICATE;
+    headline = { k: 'news.GANG_WAR', p: { name: t.name, faction: fName } };
+  } else {
+    headline = { k: 'news.CARDIAC', p: { name: t.name } };
+  }
+
+  const segments: NewsItem['segments'] = [
+    { kind: 'text', text: { k: 'news.body', p: { precinct: t.precinct } } },
+  ];
+
+  if (rec.method === 'CRYPTIC_MSG' && crypticNote) {
+    segments.push({
+      kind: 'text',
+      text: {
+        ar: `الشرطة: وُجدت عبارة غامضة بدم الضحية: "${crypticNote}"`,
+        en: `Police: A cryptic note written in blood: "${crypticNote}"`,
+      },
+    });
+  }
+
   return {
     id, day: rec.day + 1, channel: 'NEWS', scope: national ? 'NATIONAL' : 'REGIONAL',
     region: national ? undefined : t.region, source: { k: 'src.agency' },
     headline, verified: true, isDecoy: false,
-    segments: [{ kind: 'text', text: { k: 'news.body', p: { precinct: t.precinct } } }],
+    segments,
   };
 }
 
@@ -187,10 +223,27 @@ export function evaluateTurn(actions: ExecutionCommand[], history: TurnHistory):
     const rec: DeathRecord = {
       day: cmd.scheduledDay, hour: cmd.scheduledHour, targetId: t.id, region: t.region,
       precinct: t.precinct, method: cmd.method, decoy,
+      targetRegion: cmd.targetRegion, crypticNote: cmd.crypticNote,
+      coercedAction: cmd.coercedAction, alibiCreated: cmd.alibiCreated,
     };
     newRecords.push(rec);
-    news.push(deathNews(rec, t, nid(), cmd.faction));
-    add({ k: `f.${cmd.method}` }, SUSPICION[cmd.method]);
+    news.push(deathNews(rec, t, nid(), cmd.faction, cmd.targetRegion, cmd.crypticNote));
+    add({ k: `f.${cmd.method}` }, SUSPICION[cmd.method] ?? 0);
+
+    if (cmd.alibiCreated) {
+      add({ k: 'f.alibi' }, -4);
+      d.notes.unshift({
+        ar: `مفارقة محيّرة: وفاة ${t.name.ar} وقعت أثناء تواجد المشتبه به في قاعة العمل/الدراسة، ما يشوش نموذج التوقيت!`,
+        en: `Puzzling paradox: death of ${t.name.en} happened while prime suspect was occupied, confusing the time profile!`,
+      });
+    }
+
+    if (cmd.method === 'COERCED_LEAK') {
+      d.notes.unshift({
+        ar: `تسريب أمني إلكتروني: حاسوب الضحية ${t.name.ar} قام بنسخ وثيقة سرية للمحقق سايفر قبل موته بدقائق!`,
+        en: `Security breach: victim ${t.name.en}'s computer mirrored classified intelligence on Detective Cipher minutes before death!`,
+      });
+    }
 
     // 2) Decoy trap handling.
     if (decoy) {
@@ -218,9 +271,26 @@ export function evaluateTurn(actions: ExecutionCommand[], history: TurnHistory):
     if (rec.decoy) continue;
     if (!d.narrowedRegion) d.geoBelief = updateGeo(d.geoBelief, rec);
     d.hourHistogram[Math.floor(rec.hour) % 24]++;
-    if (rec.method === 'FALSE_LEAD') {
-      // Staged suicides divert police attention: blend toward uniform.
-      REGIONS.forEach((r) => (d.geoBelief[r] = d.geoBelief[r] * 0.75 + 0.25 / REGIONS.length));
+    if (rec.method === 'CRYPTIC_MSG') {
+      const decoyReg = rec.targetRegion || 'WEST';
+      REGIONS.forEach((r) => {
+        if (r !== decoyReg) {
+          const stolen = d.geoBelief[r] * 0.40;
+          d.geoBelief[r] -= stolen;
+          d.geoBelief[decoyReg] += stolen;
+        }
+      });
+      d.notes.unshift({
+        ar: `رسالة دم غامضة في مسرح الجريمة تشير إلى ${REGION_NAME[decoyReg].ar}، فريق التحقيق يعيد تمشيط المنطقة!`,
+        en: `Cryptic blood note at crime scene points to ${REGION_NAME[decoyReg].en}, task force re-sweeps the sector!`,
+      });
+    } else if (rec.method === 'GANG_WAR' || rec.method === 'FALSE_LEAD') {
+      // Staged suicides / gang wars divert police attention: blend toward uniform.
+      REGIONS.forEach((r) => (d.geoBelief[r] = d.geoBelief[r] * 0.70 + 0.30 / REGIONS.length));
+      d.notes.unshift({
+        ar: `اقتتال داخلي عنيف يُغرق الشرطة والإنتربول في تحقيقات حرب عصابات!`,
+        en: `Violent gang warfare mires police and Interpol in syndicate investigations!`,
+      });
     }
   }
   const genuine = [...history.records, ...newRecords].filter((r) => !r.decoy);

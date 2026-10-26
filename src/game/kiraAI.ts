@@ -1,5 +1,5 @@
 import type { GameState } from './store';
-import type { DeathMethod, ExecutionCommand, Region, TargetProfile } from './types';
+import type { DeathMethod, ExecutionCommand, Faction, Region, TargetProfile } from './types';
 
 export interface KiraMastermindState {
   homeRegion: Region;
@@ -126,14 +126,23 @@ export function executeKiraAITurn(
     const target = genuineCandidates[i];
     executedTargets.push(target);
 
-    // Kira chooses execution method:
-    // Mostly CARDIAC for shock value; occasionally ACCIDENT if routine is known
+    // Kira chooses execution method with strategic variety:
     let method: DeathMethod = 'CARDIAC';
     let schedHour = kira.freeHours[Math.floor(Math.random() * kira.freeHours.length)];
+    let targetRegion: Region | undefined;
+    let faction: Faction | undefined;
 
-    if (Math.random() < 0.25 && target.routine.window.to > target.routine.window.from) {
+    const rRoll = Math.random();
+    if (rRoll < 0.25 && target.routine.window.to > target.routine.window.from) {
       method = 'ACCIDENT';
       schedHour = target.routine.window.from;
+    } else if (rRoll < 0.40) {
+      method = 'CRYPTIC_MSG';
+      const regions: Region[] = ['NORTH', 'WEST', 'EAST', 'SOUTH', 'CENTRAL'];
+      targetRegion = regions[Math.floor(Math.random() * regions.length)];
+    } else if (rRoll < 0.55) {
+      method = 'GANG_WAR';
+      faction = 'SYNDICATE';
     }
 
     commands.push({
@@ -143,6 +152,8 @@ export function executeKiraAITurn(
       issuedDay: currentDay,
       scheduledDay: method === 'ACCIDENT' ? currentDay + 1 : currentDay,
       scheduledHour: schedHour,
+      targetRegion,
+      faction,
     });
   }
 

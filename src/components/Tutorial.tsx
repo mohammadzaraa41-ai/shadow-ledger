@@ -47,15 +47,15 @@ const KILLER_STEPS: TutorialStep[] = [
   },
   {
     id: 2,
-    badge: { ar: 'أساليب الإعدام والتضليل', en: 'Execution Methods & Discretion' },
-    title: { ar: 'السكتة، الحادث، أم الانتحار؟', en: 'Cardiac, Staged Accident, or Framing?' },
+    badge: { ar: 'أساليب الإعدام والتلاعب النفسي', en: 'Execution Rituals & Mind Games' },
+    title: { ar: '5 أساليب تكتيكية للسيطرة والتضليل', en: '5 Strategic Execution Methods' },
     desc: {
-      ar: '• السكتة القلبية (فورية 100%): سلاحك الأسرع، ولكنها ترفع نسبة شك المحقق (+15%).\n• الحادث المدبر (0% شك): يحتاج لمراقبة روتين الضحية عبر الكاميرات وتحديد موعد تنفيذ دقيق.\n• الانتحار وتوريط فصيل (-3% شك): يضلل تحقيقات الشرطة ويخفض مؤشر الشك.',
-      en: '• Cardiac Arrest (Instant 100%): Fast lethality, but spikes detective suspicion (+15%).\n• Staged Accident (0% suspicion): Requires scouting target routine windows via street cameras.\n• False Lead / Suicide (-3% suspicion): Confuses law enforcement and lowers suspicion.',
+      ar: '• السكتة القلبية المميزة (+12% شك): بصمتك الصريحة لفرض الهيبة، فورية ومضمونة 100%.\n• الحادث وحجة الغياب (0% شك): يطابق روتين الهدف. إذا اخترت ساعة تقع أثناء انشغالك (خارج وقت فراغك)، تصنع حجة غياب قاطعة (-4% شك) تحطم نموذج المحقق الزمني!\n• تسريب الوثائق (+3% شك): إجبار الضحية على اختراق خوادم المباحث وسرقة وثيقة سرية عن المحقق L قبل انتحارها (تكسب شظية هوية عن L مجاناً)!\n• رسالة الدم (+2% شك): كتابة لغز دامي ينقل 40% من رادار وشكوك المحقق الجغرافية نحو قطاع وهمي تختاره.\n• حرب العصابات (-6% شك): دفع الضحية لمهاجمة فصيل معادي لإغراق الشرطة في فوضى شوارع وتخفيض الشك العام.',
+      en: '• Signature Cardiac Arrest (+12% susp): Instant, absolute shock value.\n• Staged Accident & Alibi (0% susp): Matches routine. Timing it during your busy hours crafts an airtight alibi (-4% susp) that shatters the detective’s timetable correlation!\n• Coerced Intel Leak (+3% susp): Forces the victim to exfiltrate classified police dossiers on Detective L before dying, granting free identity intel!\n• Cryptic Blood Message (+2% susp): Scrawls a riddle in blood diverting 40% of detective radar to a decoy sector.\n• Faction Crossfire (-6% susp): Ignites a violent turf war, overwhelming police resources and dropping suspicion.',
     },
     tip: {
-      ar: '💡 لا تعتمد على السكتة القلبية دائماً حتى لا يصل الشك إلى 100% وتتم مداهمتك.',
-      en: '💡 Do not spam cardiac arrests, or suspicion will peak at 100% triggering an instant police raid.',
+      ar: '💡 استخدم حجة الغياب ورسالة الدم للتلاعب بتفكير المحقق وحماية نفسك من المداهمة.',
+      en: '💡 Leverage Alibi Timing and Blood Riddles to manipulate the detective’s deductions.',
     },
     iconType: 'methods',
   },

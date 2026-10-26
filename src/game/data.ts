@@ -16,7 +16,22 @@ export const FACTION_NAME: Record<Faction, L10n> = {
   CORPORATE: { ar: 'كارتل الشركات', en: 'Corporate Cartel' },
 };
 
-export const METHODS: DeathMethod[] = ['CARDIAC', 'ACCIDENT', 'FALSE_LEAD'];
+export const METHODS: DeathMethod[] = ['CARDIAC', 'ACCIDENT', 'COERCED_LEAK', 'CRYPTIC_MSG', 'GANG_WAR'];
+
+export const CRYPTIC_PRESETS = [
+  {
+    ar: 'سايفر، هل تعلم أن ملائكة الموت لا تأكل سوى التفاح؟',
+    en: 'Cipher, do you know gods of death only eat apples?',
+  },
+  {
+    ar: 'العدالة الحقيقية لا تسكن مقرك المحصن، بل أزقة هذا القطاع!',
+    en: 'True justice does not dwell in your bunker, but in the alleys of this sector!',
+  },
+  {
+    ar: 'أيها المحقق المتغطرس.. خطوتك القادمة كانت مسطورة هنا مسبقاً!',
+    en: 'Arrogant detective.. your very next move was already scripted here!',
+  },
+];
 
 interface TargetSpec {
   profile: Omit<TargetProfile, 'alive'>;
