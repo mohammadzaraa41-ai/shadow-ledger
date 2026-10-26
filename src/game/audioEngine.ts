@@ -7,6 +7,20 @@ class SensoryAudioEngine {
   private heartbeatInterval: number | null = null;
   private isRainPlaying: boolean = false;
 
+  constructor() {
+    if (typeof window !== 'undefined') {
+      const unlockAudio = () => {
+        this.initCtx();
+        ['touchstart', 'touchend', 'pointerdown', 'keydown'].forEach((e) =>
+          window.removeEventListener(e, unlockAudio)
+        );
+      };
+      ['touchstart', 'touchend', 'pointerdown', 'keydown'].forEach((e) =>
+        window.addEventListener(e, unlockAudio, { passive: true, once: true })
+      );
+    }
+  }
+
   private initCtx() {
     if (!this.ctx && typeof window !== 'undefined') {
       const AudioCtx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
@@ -144,31 +158,77 @@ class SensoryAudioEngine {
     }
   }
 
+  // Acoustic mobile heartbeat with psychoacoustic harmonics for phone speakers
   private playHeartbeatThump() {
     if (this.isMuted) return;
     this.initCtx();
     if (!this.ctx) return;
 
-    const now = this.ctx.currentTime;
+    try {
+      if (this.ctx.state === 'suspended') {
+        this.ctx.resume().catch(() => {});
+      }
+      const now = this.ctx.currentTime;
 
-    // Double lub-dub thump
-    [0, 0.12].forEach((offset, idx) => {
-      if (!this.ctx) return;
-      const osc = this.ctx.createOscillator();
-      const gain = this.ctx.createGain();
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(idx === 0 ? 55 : 45, now + offset);
-      osc.frequency.exponentialRampToValueAtTime(20, now + offset + 0.15);
+      // Realistic physiological Lub-Dub timing
+      // Beat 1: S1 "Lub" (lower pitch, warm body, softer)
+      // Beat 2: S2 "Dub" (sharper, punchier aortic snap)
+      const beats = [
+        { offset: 0.0, baseFreq: 110, harmonicFreq: 165, gainVal: 0.35, duration: 0.14 },
+        { offset: 0.14, baseFreq: 135, harmonicFreq: 210, gainVal: 0.44, duration: 0.16 },
+      ];
 
-      gain.gain.setValueAtTime(idx === 0 ? 0.35 : 0.25, now + offset);
-      gain.gain.exponentialRampToValueAtTime(0.001, now + offset + 0.15);
+      beats.forEach(({ offset, baseFreq, harmonicFreq, gainVal, duration }, bIdx) => {
+        if (!this.ctx) return;
+        const tStart = now + offset;
 
-      osc.connect(gain);
-      gain.connect(this.ctx.destination);
+        // 1. Resonant Chest Cavity Carrier (Warm Sine)
+        const osc1 = this.ctx.createOscillator();
+        const gain1 = this.ctx.createGain();
+        osc1.type = 'sine';
+        osc1.frequency.setValueAtTime(baseFreq, tStart);
+        osc1.frequency.exponentialRampToValueAtTime(baseFreq * 0.65, tStart + duration);
 
-      osc.start(now + offset);
-      osc.stop(now + offset + 0.16);
-    });
+        // Smooth 12ms attack prevents speaker pops/clicks on mobile
+        gain1.gain.setValueAtTime(0.001, tStart);
+        gain1.gain.linearRampToValueAtTime(gainVal, tStart + 0.012);
+        gain1.gain.exponentialRampToValueAtTime(0.001, tStart + duration);
+
+        osc1.connect(gain1);
+        gain1.connect(this.ctx.destination);
+        osc1.start(tStart);
+        osc1.stop(tStart + duration + 0.01);
+
+        // 2. Audible Phone Speaker Harmonic (Overtone so tiny mobile speakers resonate cleanly)
+        const osc2 = this.ctx.createOscillator();
+        const gain2 = this.ctx.createGain();
+        osc2.type = 'triangle';
+        osc2.frequency.setValueAtTime(harmonicFreq, tStart);
+        osc2.frequency.exponentialRampToValueAtTime(harmonicFreq * 0.7, tStart + duration * 0.8);
+
+        gain2.gain.setValueAtTime(0.001, tStart);
+        gain2.gain.linearRampToValueAtTime(gainVal * 0.28, tStart + 0.01);
+        gain2.gain.exponentialRampToValueAtTime(0.001, tStart + duration * 0.85);
+
+        // Lowpass filter to keep it organic and deep
+        const filter = this.ctx.createBiquadFilter();
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(340, tStart);
+
+        osc2.connect(filter);
+        filter.connect(gain2);
+        gain2.connect(this.ctx.destination);
+        osc2.start(tStart);
+        osc2.stop(tStart + duration + 0.01);
+
+        // Mobile haptic vibration synchronous with cardiac thumps
+        if (bIdx === 0) {
+          hapticEngine.trigger('tap');
+        } else {
+          setTimeout(() => hapticEngine.trigger('tension'), 130);
+        }
+      });
+    } catch {}
   }
 
   // Distant police sirens when suspicion > 70%
@@ -287,8 +347,8 @@ class SensoryAudioEngine {
     } catch {}
   }
 
-  // Authentic Police Radio Squelch & Intercepted Transmission Static
-  public playRadioStatic(durationSeconds: number = 2.0) {
+  // Tactical Encrypted Transmission Squelch (Subtle & clean, non-piercing)
+  public playRadioStatic(durationSeconds: number = 0.35) {
     if (this.isMuted) return;
     this.initCtx();
     if (!this.ctx) return;
@@ -299,48 +359,29 @@ class SensoryAudioEngine {
       }
       const now = this.ctx.currentTime;
 
-      // 1. Dual-tone Police Dispatch Alert Beeps (Two-tone paging chime)
-      const tone1 = this.ctx.createOscillator();
-      const tone2 = this.ctx.createOscillator();
-      const toneGain = this.ctx.createGain();
-      tone1.type = 'sine';
-      tone2.type = 'sine';
-      tone1.frequency.setValueAtTime(880, now);
-      tone2.frequency.setValueAtTime(1320, now + 0.08);
-
-      toneGain.gain.setValueAtTime(0.25, now);
-      toneGain.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
-
-      tone1.connect(toneGain);
-      tone2.connect(toneGain);
-      toneGain.connect(this.ctx.destination);
-
-      tone1.start(now);
-      tone1.stop(now + 0.08);
-      tone2.start(now + 0.08);
-      tone2.stop(now + 0.18);
-
-      // 2. Radio Opener Squelch Chirp (Walkie-talkie mic key-in)
+      // 1. Gentle Walkie-talkie Key-in Chirp (Subtle, professional)
       const chirp = this.ctx.createOscillator();
       const chirpGain = this.ctx.createGain();
-      chirp.type = 'sawtooth';
-      chirp.frequency.setValueAtTime(1400, now + 0.12);
-      chirp.frequency.exponentialRampToValueAtTime(600, now + 0.22);
-      chirpGain.gain.setValueAtTime(0.18, now + 0.12);
-      chirpGain.gain.exponentialRampToValueAtTime(0.001, now + 0.22);
+      chirp.type = 'sine';
+      chirp.frequency.setValueAtTime(1100, now);
+      chirp.frequency.exponentialRampToValueAtTime(750, now + 0.08);
+
+      chirpGain.gain.setValueAtTime(0.001, now);
+      chirpGain.gain.linearRampToValueAtTime(0.08, now + 0.01);
+      chirpGain.gain.exponentialRampToValueAtTime(0.001, now + 0.09);
+
       chirp.connect(chirpGain);
       chirpGain.connect(this.ctx.destination);
-      chirp.start(now + 0.12);
-      chirp.stop(now + 0.23);
+      chirp.start(now);
+      chirp.stop(now + 0.1);
 
-      // 3. Radio frequency static & telemetry noise
-      const bufferSize = Math.floor(this.ctx.sampleRate * durationSeconds);
+      // 2. Soft, filtered tactical radio burst (very low volume, no harsh clipping)
+      const actualDur = Math.min(0.45, durationSeconds);
+      const bufferSize = Math.floor(this.ctx.sampleRate * actualDur);
       const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
       const data = buffer.getChannelData(0);
       for (let i = 0; i < bufferSize; i++) {
-        // Amplitude modulated white noise with 38Hz radio telemetry flutter
-        const flutter = 0.65 + 0.35 * Math.sin((i / this.ctx.sampleRate) * 2 * Math.PI * 38);
-        data[i] = (Math.random() * 2 - 1) * flutter;
+        data[i] = Math.random() * 2 - 1;
       }
 
       const noise = this.ctx.createBufferSource();
@@ -348,33 +389,35 @@ class SensoryAudioEngine {
 
       const bandpass = this.ctx.createBiquadFilter();
       bandpass.type = 'bandpass';
-      bandpass.frequency.setValueAtTime(1750, now + 0.18);
-      bandpass.Q.setValueAtTime(2.0, now + 0.18);
+      bandpass.frequency.setValueAtTime(1400, now + 0.04);
+      bandpass.Q.setValueAtTime(2.5, now + 0.04);
 
       const noiseGain = this.ctx.createGain();
-      noiseGain.gain.setValueAtTime(0.001, now + 0.18);
-      noiseGain.gain.linearRampToValueAtTime(0.32, now + 0.24);
-      noiseGain.gain.setValueAtTime(0.28, now + durationSeconds - 0.15);
-      noiseGain.gain.exponentialRampToValueAtTime(0.001, now + durationSeconds);
+      noiseGain.gain.setValueAtTime(0.001, now + 0.04);
+      noiseGain.gain.linearRampToValueAtTime(0.045, now + 0.08);
+      noiseGain.gain.setValueAtTime(0.04, now + actualDur - 0.06);
+      noiseGain.gain.exponentialRampToValueAtTime(0.001, now + actualDur);
 
       noise.connect(bandpass);
       bandpass.connect(noiseGain);
       noiseGain.connect(this.ctx.destination);
 
-      noise.start(now + 0.18);
-      noise.stop(now + durationSeconds + 0.02);
+      noise.start(now + 0.04);
+      noise.stop(now + actualDur + 0.01);
 
-      // 4. Radio Roger beep at end
+      // 3. Subtle micro-roger blip at the end
       const roger = this.ctx.createOscillator();
       const rogerGain = this.ctx.createGain();
       roger.type = 'sine';
-      roger.frequency.setValueAtTime(780, now + durationSeconds - 0.1);
-      rogerGain.gain.setValueAtTime(0.2, now + durationSeconds - 0.1);
-      rogerGain.gain.exponentialRampToValueAtTime(0.001, now + durationSeconds);
+      roger.frequency.setValueAtTime(920, now + actualDur);
+      rogerGain.gain.setValueAtTime(0.001, now + actualDur);
+      rogerGain.gain.linearRampToValueAtTime(0.05, now + actualDur + 0.01);
+      rogerGain.gain.exponentialRampToValueAtTime(0.001, now + actualDur + 0.05);
+
       roger.connect(rogerGain);
       rogerGain.connect(this.ctx.destination);
-      roger.start(now + durationSeconds - 0.1);
-      roger.stop(now + durationSeconds);
+      roger.start(now + actualDur);
+      roger.stop(now + actualDur + 0.06);
 
       hapticEngine.trigger('tap');
     } catch {}
@@ -468,41 +511,101 @@ class SensoryAudioEngine {
     } catch {}
   }
 
-  // Emergency TV Broadcast Alert Sting (Iconic Breaking News Chime & Urgency Tones)
+  // Cinematic TV Emergency Broadcast Sting (Authentic Japanese Breaking News Chime & Orchestral Gong)
   public playEmergencyBroadcastSting() {
     if (this.isMuted) return;
     this.initCtx();
     if (!this.ctx) return;
 
     try {
+      if (this.ctx.state === 'suspended') {
+        this.ctx.resume().catch(() => {});
+      }
       const now = this.ctx.currentTime;
-      // High-urgency alert dual beeps
-      [0, 0.22, 0.44].forEach((offset) => {
+
+      // 1. Iconic 3-Note Japanese Television Emergency Chime (D5 -> G5 -> B5)
+      const chimeNotes = [
+        { freq: 587.33, offset: 0.00 }, // D5
+        { freq: 783.99, offset: 0.18 }, // G5
+        { freq: 987.77, offset: 0.36 }, // B5
+      ];
+
+      chimeNotes.forEach(({ freq, offset }) => {
         if (!this.ctx) return;
+        const tStart = now + offset;
+
+        // Primary bell tone
         const osc = this.ctx.createOscillator();
         const gain = this.ctx.createGain();
         osc.type = 'sine';
-        osc.frequency.setValueAtTime(880, now + offset);
-        gain.gain.setValueAtTime(0.2, now + offset);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + offset + 0.18);
+        osc.frequency.setValueAtTime(freq, tStart);
+
+        gain.gain.setValueAtTime(0.001, tStart);
+        gain.gain.linearRampToValueAtTime(0.25, tStart + 0.015);
+        gain.gain.exponentialRampToValueAtTime(0.001, tStart + 0.45);
+
         osc.connect(gain);
         gain.connect(this.ctx.destination);
-        osc.start(now + offset);
-        osc.stop(now + offset + 0.2);
+        osc.start(tStart);
+        osc.stop(tStart + 0.48);
+
+        // Harmonic shimmer overtone
+        const oscH = this.ctx.createOscillator();
+        const gainH = this.ctx.createGain();
+        oscH.type = 'triangle';
+        oscH.frequency.setValueAtTime(freq * 2.0, tStart);
+
+        gainH.gain.setValueAtTime(0.001, tStart);
+        gainH.gain.linearRampToValueAtTime(0.08, tStart + 0.01);
+        gainH.gain.exponentialRampToValueAtTime(0.001, tStart + 0.35);
+
+        oscH.connect(gainH);
+        gainH.connect(this.ctx.destination);
+        oscH.start(tStart);
+        oscH.stop(tStart + 0.38);
       });
 
-      // Dramatic deep news crash hit
-      const hitOsc = this.ctx.createOscillator();
-      const hitGain = this.ctx.createGain();
-      hitOsc.type = 'triangle';
-      hitOsc.frequency.setValueAtTime(120, now + 0.7);
-      hitOsc.frequency.exponentialRampToValueAtTime(35, now + 2.0);
-      hitGain.gain.setValueAtTime(0.35, now + 0.7);
-      hitGain.gain.exponentialRampToValueAtTime(0.001, now + 2.0);
-      hitOsc.connect(hitGain);
-      hitGain.connect(this.ctx.destination);
-      hitOsc.start(now + 0.7);
-      hitOsc.stop(now + 2.1);
+      // 2. Ominous Orchestral Brass Impact & Low Gong Strike (Audible on mobile phones)
+      const hitStart = now + 0.55;
+      const gongBody = this.ctx.createOscillator();
+      const gongGain = this.ctx.createGain();
+      gongBody.type = 'sawtooth';
+      gongBody.frequency.setValueAtTime(160, hitStart);
+      gongBody.frequency.exponentialRampToValueAtTime(75, hitStart + 1.8);
+
+      const gongFilter = this.ctx.createBiquadFilter();
+      gongFilter.type = 'lowpass';
+      gongFilter.frequency.setValueAtTime(450, hitStart);
+      gongFilter.frequency.exponentialRampToValueAtTime(110, hitStart + 1.8);
+
+      gongGain.gain.setValueAtTime(0.001, hitStart);
+      gongGain.gain.linearRampToValueAtTime(0.38, hitStart + 0.02);
+      gongGain.gain.exponentialRampToValueAtTime(0.001, hitStart + 2.0);
+
+      gongBody.connect(gongFilter);
+      gongFilter.connect(gongGain);
+      gongGain.connect(this.ctx.destination);
+
+      gongBody.start(hitStart);
+      gongBody.stop(hitStart + 2.1);
+
+      // 3. Subtle Urgent Broadcast Tone Pair (1046Hz & 1318Hz, gentle volume)
+      [1046.5, 1318.5].forEach((freq) => {
+        if (!this.ctx) return;
+        const alertOsc = this.ctx.createOscillator();
+        const alertGain = this.ctx.createGain();
+        alertOsc.type = 'sine';
+        alertOsc.frequency.setValueAtTime(freq, hitStart + 0.2);
+
+        alertGain.gain.setValueAtTime(0.001, hitStart + 0.2);
+        alertGain.gain.linearRampToValueAtTime(0.06, hitStart + 0.25);
+        alertGain.gain.exponentialRampToValueAtTime(0.001, hitStart + 1.2);
+
+        alertOsc.connect(alertGain);
+        alertGain.connect(this.ctx.destination);
+        alertOsc.start(hitStart + 0.2);
+        alertOsc.stop(hitStart + 1.25);
+      });
 
       hapticEngine.trigger('tension');
     } catch {}
@@ -534,7 +637,6 @@ class SensoryAudioEngine {
   public playScrambledVoice(phraseText?: string) {
     if (this.isMuted) return;
     this.initCtx();
-    this.playRadioStatic(1.6);
 
     try {
       if (typeof window !== 'undefined' && 'speechSynthesis' in window && phraseText) {

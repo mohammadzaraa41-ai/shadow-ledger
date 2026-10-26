@@ -255,7 +255,6 @@ export default function App() {
               hasAudioScramble: opponentRole === 'DETECTIVE',
             },
           });
-          sensoryAudio.playRadioStatic(0.6);
         }, 2000);
       }
 
@@ -282,7 +281,6 @@ export default function App() {
               hasAudioScramble: opponentRole === 'DETECTIVE',
             },
           });
-          sensoryAudio.playRadioStatic(0.7);
         }, 1500);
       }
     }

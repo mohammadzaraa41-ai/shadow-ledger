@@ -71,7 +71,7 @@ export function PsychologicalChat({
     const unsub = multiplayer.onChat((msg, all) => {
       setMessages([...all]);
       if (msg.senderRole !== myRole) {
-        sensoryAudio.playRadioStatic(0.6);
+        sensoryAudio.playRadioStatic(0.2);
         if (!open) {
           setUnreadCount((c) => c + 1);
         }
@@ -145,7 +145,6 @@ export function PsychologicalChat({
       };
 
       multiplayer.send({ type: 'CHAT', message: aiMsg });
-      sensoryAudio.playRadioStatic(0.7);
       if (opponentRole === 'DETECTIVE') {
         sensoryAudio.playScrambledVoice(replyText);
       }
