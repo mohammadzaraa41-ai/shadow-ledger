@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { HelpCircle, Moon, Skull, Trophy, Users, Volume2, VolumeX } from 'lucide-react';
+import { HelpCircle, Moon, ShieldAlert, Skull, Trophy, Users, Volume2, VolumeX } from 'lucide-react';
 import { sensoryAudio } from '../game/audioEngine';
 import { getUnlockedAchievements } from '../game/steam';
 import type { GameState } from '../game/store';
@@ -15,6 +15,8 @@ export function StatusBar({
   onHelp,
   onOpenSteam,
   onOpenMultiplayer,
+  activeChapter = 1,
+  onOpenChapters,
 }: {
   state: GameState;
   onAdvance: () => void;
@@ -22,6 +24,8 @@ export function StatusBar({
   onHelp: () => void;
   onOpenSteam: () => void;
   onOpenMultiplayer?: () => void;
+  activeChapter?: number;
+  onOpenChapters?: () => void;
 }) {
   const { t, tx, lang } = useLang();
   const { player, news } = state;
@@ -50,6 +54,19 @@ export function StatusBar({
         <div className="kills" title={lang === 'ar' ? 'الأهداف التي تمت تصفيتها من إجمالي المطلوبين' : 'Targets eliminated out of total wanted'}>
           <Skull size={13} /> {player.kills.length}/{state.targets.filter((t) => t.priority !== 'DECOY').length}
         </div>
+
+        {onOpenChapters && (
+          <button
+            id="btn-chapter-indicator"
+            type="button"
+            className="chapter-status-pill"
+            onClick={onOpenChapters}
+            title={lang === 'ar' ? 'خريطة فصول ومراحل القصة' : 'Story Chapters Map'}
+          >
+            <ShieldAlert size={12} className="chapter-pill-glyph" />
+            <span>{lang === 'ar' ? `فصل ${activeChapter}` : `Ch. ${activeChapter}`}</span>
+          </button>
+        )}
 
         <div className="time-btns">
           {/* Steam Hub Button */}

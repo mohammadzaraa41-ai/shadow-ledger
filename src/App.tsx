@@ -21,6 +21,15 @@ import { generateProactiveAIMessage } from './game/psychologicalChatAI';
 import { unlockSteamAchievement } from './game/steam';
 import type { Action } from './game/store';
 import { useGame } from './game/store';
+import { ChapterSelectModal } from './components/ChapterSelectModal';
+import { ChapterClearedModal } from './components/ChapterClearedModal';
+import {
+  getChapterProgress,
+  saveChapterProgress,
+  checkChapterCompletion,
+  calculateChapterRank,
+  type ChapterProgressState,
+} from './game/chapters';
 import type { Region } from './game/types';
 import { useLang } from './i18n';
 import { useRef } from 'react';
@@ -34,6 +43,16 @@ export default function App() {
   const [showMultiplayer, setShowMultiplayer] = useState(false);
   const [showSoloRoleModal, setShowSoloRoleModal] = useState(false);
   const [kiraAIState, setKiraAIState] = useState<KiraMastermindState>(() => createKiraAI());
+
+  // Chapter Progression State
+  const [chapterProgress, setChapterProgress] = useState<ChapterProgressState>(() => getChapterProgress());
+  const [showChapterSelect, setShowChapterSelect] = useState(false);
+  const [clearedChapterData, setClearedChapterData] = useState<{
+    chapterId: number;
+    rank: 'S' | 'A' | 'B';
+    suspicion: number;
+    clearedAtDay: number;
+  } | null>(null);
 
   const [activeLindBroadcast, setActiveLindBroadcast] = useState<{
     region: Region;
@@ -230,6 +249,42 @@ export default function App() {
       unlockSteamAchievement('ACH_GHOST');
     }
 
+    // Monitor story chapter completion
+    if (started && state.status === 'PLAYING') {
+      const activeCh = chapterProgress.activeChapter;
+      if (activeCh && !chapterProgress.completed[activeCh]?.cleared) {
+        const res = checkChapterCompletion(activeCh, state);
+        if (res.isComplete) {
+          const rank = calculateChapterRank(state.player.suspicion, state.player.spellingErrors || 0);
+          const nextUnlocked = Math.max(chapterProgress.unlockedChapter, activeCh + 1);
+          const updatedProgress: ChapterProgressState = {
+            ...chapterProgress,
+            unlockedChapter: nextUnlocked,
+            completed: {
+              ...chapterProgress.completed,
+              [activeCh]: {
+                cleared: true,
+                rank,
+                clearedAtDay: state.player.day,
+                suspicion: state.player.suspicion,
+                timestamp: new Date().toISOString(),
+              },
+            },
+          };
+          setChapterProgress(updatedProgress);
+          saveChapterProgress(updatedProgress);
+          setClearedChapterData({
+            chapterId: activeCh,
+            rank,
+            suspicion: state.player.suspicion,
+            clearedAtDay: state.player.day,
+          });
+          sensoryAudio.playEmergencyBroadcastSting();
+          sensoryAudio.playThunder();
+        }
+      }
+    }
+
     // Proactive AI triggers in Single Player Mode
     if (started && !multiplayerConfig.active && state.status === 'PLAYING') {
       // 1. Day advance reaction from AI
@@ -355,6 +410,8 @@ export default function App() {
         onHelp={() => setHelp(true)}
         onOpenSteam={() => setShowSteam(true)}
         onOpenMultiplayer={() => setShowMultiplayer(true)}
+        activeChapter={chapterProgress.activeChapter}
+        onOpenChapters={() => setShowChapterSelect(true)}
       />
 
       {/* Live Breaking News Ticker Bar */}
@@ -465,6 +522,46 @@ export default function App() {
             setStarted(true);
             sensoryAudio.startRain();
           }}
+        />
+      )}
+
+      {/* Story Chapter Selection Modal */}
+      <ChapterSelectModal
+        isOpen={showChapterSelect}
+        onClose={() => setShowChapterSelect(false)}
+        gameState={state}
+        progress={chapterProgress}
+        onSelectChapter={(chId) => {
+          const updated: ChapterProgressState = {
+            ...chapterProgress,
+            activeChapter: chId,
+          };
+          setChapterProgress(updated);
+          saveChapterProgress(updated);
+        }}
+      />
+
+      {/* Story Chapter Cleared Cinematic Modal */}
+      {clearedChapterData && (
+        <ChapterClearedModal
+          chapterId={clearedChapterData.chapterId}
+          rank={clearedChapterData.rank}
+          suspicion={clearedChapterData.suspicion}
+          clearedAtDay={clearedChapterData.clearedAtDay}
+          onProceed={() => {
+            const nextCh = clearedChapterData.chapterId + 1;
+            setClearedChapterData(null);
+            if (nextCh <= 4) {
+              const updated: ChapterProgressState = {
+                ...chapterProgress,
+                activeChapter: nextCh,
+                unlockedChapter: Math.max(chapterProgress.unlockedChapter, nextCh),
+              };
+              setChapterProgress(updated);
+              saveChapterProgress(updated);
+            }
+          }}
+          onClose={() => setClearedChapterData(null)}
         />
       )}
     </div>
