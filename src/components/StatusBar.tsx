@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { HelpCircle, Moon, ShieldAlert, Skull, Trophy, Users, Volume2, VolumeX } from 'lucide-react';
+import { Briefcase, Crosshair, HelpCircle, Moon, ShieldAlert, Skull, Trophy, Users, Volume2, VolumeX } from 'lucide-react';
 import { sensoryAudio } from '../game/audioEngine';
 import { getUnlockedAchievements } from '../game/steam';
 import type { GameState } from '../game/store';
@@ -17,6 +17,8 @@ export function StatusBar({
   onOpenMultiplayer,
   activeChapter = 1,
   onOpenChapters,
+  onOpenSagas,
+  onOpenBounties,
 }: {
   state: GameState;
   onAdvance: () => void;
@@ -26,6 +28,8 @@ export function StatusBar({
   onOpenMultiplayer?: () => void;
   activeChapter?: number;
   onOpenChapters?: () => void;
+  onOpenSagas?: () => void;
+  onOpenBounties?: () => void;
 }) {
   const { t, tx, lang } = useLang();
   const { player, news } = state;
@@ -65,6 +69,32 @@ export function StatusBar({
           >
             <ShieldAlert size={12} className="chapter-pill-glyph" />
             <span>{lang === 'ar' ? `فصل ${activeChapter}` : `Ch. ${activeChapter}`}</span>
+          </button>
+        )}
+
+        {onOpenSagas && (
+          <button
+            id="btn-sagas-indicator"
+            type="button"
+            className="chapter-status-pill saga-status-pill"
+            onClick={onOpenSagas}
+            title={lang === 'ar' ? 'ملفات القضايا الكبرى الثلاث (1h 45m)' : '3 Major Sagas Campaign (~1h 45m)'}
+          >
+            <Briefcase size={12} className="chapter-pill-glyph" />
+            <span>{lang === 'ar' ? 'القضايا' : 'Sagas'}</span>
+          </button>
+        )}
+
+        {onOpenBounties && (
+          <button
+            id="btn-bounties-indicator"
+            type="button"
+            className="chapter-status-pill bounty-status-pill"
+            onClick={onOpenBounties}
+            title={lang === 'ar' ? 'عقود الإعدام اليومية المتجددة' : 'Daily Retribution Bounties'}
+          >
+            <Crosshair size={12} className="chapter-pill-glyph" />
+            <span>{lang === 'ar' ? 'العقود' : 'Bounties'}</span>
           </button>
         )}
 

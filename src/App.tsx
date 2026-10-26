@@ -23,6 +23,8 @@ import type { Action } from './game/store';
 import { useGame } from './game/store';
 import { ChapterSelectModal } from './components/ChapterSelectModal';
 import { ChapterClearedModal } from './components/ChapterClearedModal';
+import { SagaSelectModal } from './components/SagaSelectModal';
+import { DailyBountiesModal } from './components/DailyBountiesModal';
 import {
   getChapterProgress,
   saveChapterProgress,
@@ -30,6 +32,11 @@ import {
   calculateChapterRank,
   type ChapterProgressState,
 } from './game/chapters';
+import {
+  getSagaProgress,
+  saveSagaProgress,
+  type SagaProgressState,
+} from './game/sagas';
 import type { Region } from './game/types';
 import { useLang } from './i18n';
 import { useRef } from 'react';
@@ -43,6 +50,13 @@ export default function App() {
   const [showMultiplayer, setShowMultiplayer] = useState(false);
   const [showSoloRoleModal, setShowSoloRoleModal] = useState(false);
   const [kiraAIState, setKiraAIState] = useState<KiraMastermindState>(() => createKiraAI());
+
+  // Major Sagas Campaign State
+  const [sagaProgress, setSagaProgress] = useState<SagaProgressState>(() => getSagaProgress());
+  const [showSagasModal, setShowSagasModal] = useState(false);
+
+  // Daily Retribution Bounties State
+  const [showBountiesModal, setShowBountiesModal] = useState(false);
 
   // Chapter Progression State
   const [chapterProgress, setChapterProgress] = useState<ChapterProgressState>(() => getChapterProgress());
@@ -359,6 +373,8 @@ export default function App() {
           onStart={() => setShowSoloRoleModal(true)}
           onHowTo={() => setHelp(true)}
           onMultiplayer={() => setShowMultiplayer(true)}
+          onSagas={() => setShowSagasModal(true)}
+          onDailyBounties={() => setShowBountiesModal(true)}
         />
         {showSoloRoleModal && (
           <SoloRoleModal
@@ -384,6 +400,24 @@ export default function App() {
             }}
           />
         )}
+
+        {/* Major Sagas Campaign Selection Modal */}
+        <SagaSelectModal
+          isOpen={showSagasModal}
+          onClose={() => setShowSagasModal(false)}
+          progress={sagaProgress}
+          onSelectSaga={(sagaId) => {
+            const updated = { ...sagaProgress, activeSagaId: sagaId };
+            setSagaProgress(updated);
+            saveSagaProgress(updated);
+          }}
+        />
+
+        {/* Daily Retribution Bounties Modal */}
+        <DailyBountiesModal
+          isOpen={showBountiesModal}
+          onClose={() => setShowBountiesModal(false)}
+        />
       </div>
     );
   }
@@ -412,6 +446,8 @@ export default function App() {
         onOpenMultiplayer={() => setShowMultiplayer(true)}
         activeChapter={chapterProgress.activeChapter}
         onOpenChapters={() => setShowChapterSelect(true)}
+        onOpenSagas={() => setShowSagasModal(true)}
+        onOpenBounties={() => setShowBountiesModal(true)}
       />
 
       {/* Live Breaking News Ticker Bar */}
@@ -564,6 +600,24 @@ export default function App() {
           onClose={() => setClearedChapterData(null)}
         />
       )}
+
+      {/* Major Sagas Campaign Selection Modal */}
+      <SagaSelectModal
+        isOpen={showSagasModal}
+        onClose={() => setShowSagasModal(false)}
+        progress={sagaProgress}
+        onSelectSaga={(sagaId) => {
+          const updated = { ...sagaProgress, activeSagaId: sagaId };
+          setSagaProgress(updated);
+          saveSagaProgress(updated);
+        }}
+      />
+
+      {/* Daily Retribution Bounties Modal */}
+      <DailyBountiesModal
+        isOpen={showBountiesModal}
+        onClose={() => setShowBountiesModal(false)}
+      />
     </div>
   );
 }

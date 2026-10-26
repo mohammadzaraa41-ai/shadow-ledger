@@ -5,12 +5,14 @@ interface Props {
   onStart: () => void;
   onHowTo?: () => void;
   onMultiplayer?: () => void;
+  onSagas?: () => void;
+  onDailyBounties?: () => void;
   ended?: { title: string; desc: string } | null;
   onRestart?: () => void;
 }
 
 /** Title / ending screen built around the key art. */
-export function Splash({ onStart, onHowTo, onMultiplayer, ended, onRestart }: Props) {
+export function Splash({ onStart, onHowTo, onMultiplayer, onSagas, onDailyBounties, ended, onRestart }: Props) {
   const { t, lang } = useLang();
   return (
     <div className={`splash ${ended ? 'ended' : ''}`}>
@@ -32,6 +34,27 @@ export function Splash({ onStart, onHowTo, onMultiplayer, ended, onRestart }: Pr
             </ul>
             <div className="splash-buttons-col">
               <button id="btn-start" className="stamp" onClick={onStart}>{t('splash.start')}</button>
+              
+              {onSagas && (
+                <button
+                  id="btn-sagas-hub"
+                  className="stamp stamp-saga"
+                  onClick={onSagas}
+                >
+                  📁 {lang === 'ar' ? 'ملفات القضايا الكبرى (3 قضايا — 1h 45m)' : '3 Major Sagas Campaign (~1h 45m)'}
+                </button>
+              )}
+
+              {onDailyBounties && (
+                <button
+                  id="btn-daily-bounties"
+                  className="stamp stamp-bounty"
+                  onClick={onDailyBounties}
+                >
+                  🎯 {lang === 'ar' ? 'عقود الإعدام اليومية المتجددة (+500 XP)' : 'Daily Retribution Bounties (+500 XP)'}
+                </button>
+              )}
+
               {onMultiplayer && (
                 <button
                   id="btn-multiplayer-start"
