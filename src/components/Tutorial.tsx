@@ -115,6 +115,20 @@ const KILLER_STEPS: TutorialStep[] = [
     },
     iconType: 'eyes',
   },
+  {
+    id: 7,
+    badge: { ar: 'القضايا الكبرى والعقود اليومية', en: 'Grand Sagas & Daily Bounties' },
+    title: { ar: 'حملة الـ 1h 45m وعقود الإعدام المتجددة', en: '1h 45m Campaign & Daily Bounties' },
+    desc: {
+      ar: '• ملفات القضايا الكبرى الثلاث: خُض حملة تمتد لأكثر من ساعة و45 دقيقة ضد 3 خصوم كبار (المحقق سايفر L، ثم كارتل الشركات وحرب الأقمار الصناعية، وصولاً لصراع الورثة المزدوج Neo & Viper).\n• عقود الإعدام اليومية: احصد كل يوم عقداً جديداً لمجرم فارّ، واكسب نقاط الصياد (Hunter XP) لترقية رتبتك من مستجد إلى رتبة «إله الموت (God of Death)» الأسطورية!',
+      en: '• The 3 Major Sagas: Embark on a grand campaign lasting over 1h 45m against 3 unique masterminds (Chief Detective Cipher, Corporate Syndicate & Satellites, and Twin Successors Neo & Viper).\n• Daily Retribution Bounties: Hunt a fresh daily fugitive contract every day, earning Hunter XP to ascend from Novice to the legendary God of Death rank!',
+    },
+    tip: {
+      ar: '💡 افتح نافذة «القضايا» أو «العقود» في أي وقت من شاشة البداية أو من شريط الحالة العلوي.',
+      en: '💡 Access Sagas or Daily Bounties anytime via the Splash screen or top Status Bar.',
+    },
+    iconType: 'sagas_bounties',
+  },
 ];
 
 const DETECTIVE_STEPS: TutorialStep[] = [
@@ -287,7 +301,13 @@ export function Tutorial({ onClose }: { onClose: () => void }) {
             {current.iconType === 'methods' && (
               <div className="art-item-glow amber">
                 <Skull size={44} />
-                <span className="art-caption">{isRtl ? 'سكتة (+15%) · حادث (0%) · تضليل (-3%)' : 'Cardiac · Accident · False Lead'}</span>
+                <span className="art-caption">{isRtl ? 'سكتة (+12%) · حادث وغياب (-4%) · تسريب · لغز دم · حرب عصابات (-6%)' : 'Cardiac · Accident & Alibi (-4%) · Leak · Blood Riddle · Crossfire'}</span>
+              </div>
+            )}
+            {current.iconType === 'sagas_bounties' && (
+              <div className="art-item-glow blue">
+                <Flame size={48} />
+                <span className="art-caption">{isRtl ? '📁 3 قضايا كبرى (~1h 45m) + 🎯 عقود إعدام يومية (+XP)' : '3 Major Sagas (~1h 45m) + Daily Retribution Bounties'}</span>
               </div>
             )}
             {current.iconType === 'camouflage' && (
