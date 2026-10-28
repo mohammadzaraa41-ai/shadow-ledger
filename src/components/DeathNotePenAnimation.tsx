@@ -97,7 +97,7 @@ export function DeathNotePenAnimation({ name, onComplete }: Props) {
   }, []); // Stable lifetime
 
   return (
-    <div className={`dn-cutscene ${phase}`} role="dialog" aria-label="Writing in Death Note">
+    <div className={`dn-cutscene ${phase}`} role="dialog" aria-label="Writing in Shadow Ledger">
       {/* Dynamic speedlines background */}
       <div className="dn-speedlines" />
       <div className="dn-vignette" />

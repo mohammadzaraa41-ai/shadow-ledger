@@ -141,8 +141,8 @@ export function PinnedTargetBoard({
               </div>
               <p className="warning-text">
                 {lang === 'ar'
-                  ? 'لن يستجيب دفتر الموت ما لم تكتمل الهوية (اللقب، صورة الوجه، والروتين):'
-                  : 'Death Note will not take effect without a complete identity:'}
+                  ? 'لن يستجيب دفتر الظل ما لم تكتمل الهوية (اللقب، صورة الوجه، والروتين):'
+                  : 'Shadow Ledger will not take effect without a complete identity:'}
               </p>
               <div className="missing-clues-list">
                 {!targetIntel?.hasSurname && (

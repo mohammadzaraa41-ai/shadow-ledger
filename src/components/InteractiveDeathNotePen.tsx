@@ -93,7 +93,7 @@ export function InteractiveDeathNotePen({ x, y, isWriting, isExecuting, isRtl = 
         {/* AUTHENTIC DEATH NOTE ANIME HAND & PEN SPRITE */}
         <img
           src="/death_note_anime_hand_master.png"
-          alt="Death Note Writing Hand"
+          alt="Shadow Ledger Writing Hand"
           className="dn-anime-hand-img"
           draggable={false}
         />
