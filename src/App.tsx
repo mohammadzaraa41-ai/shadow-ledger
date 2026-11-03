@@ -5,7 +5,15 @@ import { Home, HowTo } from './components/Home';
 import { Final, Result } from './components/Result';
 import { Setup } from './components/Setup';
 import { Guess, Vote } from './components/VoteGuess';
-import { createRound, DEFAULT_SETTINGS, loadJSON, saveJSON, scoreRound } from './game/engine';
+import {
+  AVATARS,
+  buildCustomCategory,
+  createRound,
+  DEFAULT_SETTINGS,
+  loadJSON,
+  saveJSON,
+  scoreRound,
+} from './game/engine';
 import { hostLine, speak } from './game/host';
 import type { Outcome, Player, Round, Settings } from './game/types';
 import { CATEGORIES } from './game/words';
@@ -13,12 +21,19 @@ import { useLang } from './i18n';
 
 type Screen = 'home' | 'setup' | 'handoff' | 'discuss' | 'vote' | 'guess' | 'result' | 'final';
 
-const defaultPlayers = (): Player[] => [0, 1, 2, 3].map((id) => ({ id, name: '', score: 0 }));
+const defaultPlayers = (): Player[] =>
+  [0, 1, 2, 3].map((id, i) => ({ id, name: '', score: 0, avatar: AVATARS[i % AVATARS.length] }));
 
 export default function App() {
   const { t, lang } = useLang();
   const [screen, setScreen] = useState<Screen>('home');
-  const [showHow, setShowHow] = useState(false);
+  const [showHow, setShowHow] = useState<boolean>(() => {
+    try {
+      return !localStorage.getItem('lq_onboarded');
+    } catch {
+      return false;
+    }
+  });
 
   const [players, setPlayers] = useState<Player[]>(() => loadJSON<Player[]>('lq_players', defaultPlayers()));
   const [settings, setSettings] = useState<Settings>(() => loadJSON<Settings>('lq_settings', DEFAULT_SETTINGS));
@@ -34,13 +49,25 @@ export default function App() {
   useEffect(() => saveJSON('lq_settings', settings), [settings]);
   useEffect(() => saveJSON('lq_players', players.map((p) => ({ ...p, score: 0 }))), [players]);
 
+  const closeHow = () => {
+    try {
+      localStorage.setItem('lq_onboarded', '1');
+    } catch {
+      /* ignore */
+    }
+    setShowHow(false);
+  };
+
   const activeCategories = () => {
-    const picked = CATEGORIES.filter((c) => settings.cats.includes(c.id));
+    const all = [...CATEGORIES, buildCustomCategory(settings.customWords)];
+    const picked = all.filter((c) => settings.cats.includes(c.id));
     return picked.length ? picked : CATEGORIES;
   };
 
   const beginRound = (ps: Player[], no: number) => {
-    setRound(createRound(ps, activeCategories(), settings.chaos, used.current));
+    const code = settings.roomCode?.trim().toUpperCase();
+    const seed = code ? `${code}-R${no}-P${ps.length}` : undefined;
+    setRound(createRound(ps, activeCategories(), settings.chaos, used.current, settings.roles ?? true, seed));
     setRoundNo(no);
     setHandIdx(0);
     setAccused(null);
@@ -50,6 +77,7 @@ export default function App() {
   const startGame = () => {
     const fresh = players.map((p, i) => ({
       ...p,
+      avatar: p.avatar ?? AVATARS[i % AVATARS.length],
       name: p.name.trim() || t('setup.player', { n: i + 1 }),
       score: 0,
     }));
@@ -111,10 +139,14 @@ export default function App() {
         <Handoff
           key={`${roundNo}-${handIdx}`}
           player={players[handIdx]}
+          players={players}
           round={round}
           roundNo={roundNo}
           totalRounds={settings.rounds}
+          roomCode={settings.roomCode?.trim().toUpperCase() || undefined}
           isLast={handIdx === players.length - 1}
+          onSelectPlayer={(idx) => setHandIdx(idx)}
+          onSkipToDiscuss={() => setScreen('discuss')}
           onNext={() => (handIdx < players.length - 1 ? setHandIdx(handIdx + 1) : setScreen('discuss'))}
         />
       )}
@@ -152,8 +184,7 @@ export default function App() {
         <Final players={players} settings={settings} onAgain={playAgain} onHome={() => setScreen('home')} />
       )}
 
-      {showHow && <HowTo onClose={() => setShowHow(false)} />}
+      {showHow && <HowTo onClose={closeHow} />}
     </div>
   );
 }
-

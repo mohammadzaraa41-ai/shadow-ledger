@@ -728,3 +728,226 @@ input {
   }
 }
 
+
+/* ---------- new interactive features ---------- */
+.avatar-btn {
+  border: 2px solid rgba(255, 255, 255, 0.25);
+  cursor: pointer;
+  font-size: 20px;
+  padding: 0;
+  transition: transform 0.12s ease;
+}
+.avatar-btn:active {
+  transform: scale(0.88);
+}
+
+.custom-words-box {
+  margin-top: 6px;
+  padding-top: 10px;
+  border-top: 1px dashed var(--line);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.custom-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 210, 63, 0.15);
+  border: 1px solid var(--yellow);
+  color: var(--text);
+  border-radius: 999px;
+  padding: 5px 12px;
+  font-size: 13px;
+  font-weight: 700;
+}
+.custom-tag button {
+  border: 0;
+  background: transparent;
+  color: var(--yellow);
+  font-size: 16px;
+  font-weight: 800;
+  cursor: pointer;
+  padding: 0 2px;
+}
+
+.room-input {
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  font-weight: 800;
+  text-align: center;
+}
+
+.room-sync-box {
+  width: 100%;
+  background: rgba(255, 210, 63, 0.1);
+  border: 1px dashed var(--yellow);
+  border-radius: 18px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.room-sync-box small {
+  color: var(--yellow);
+  font-weight: 700;
+}
+.center-chips {
+  justify-content: center;
+}
+
+.special-role-badge {
+  margin-top: 10px;
+  padding: 10px 14px;
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 100%;
+  text-align: center;
+}
+.special-role-badge.jester {
+  background: rgba(255, 77, 141, 0.22);
+  border: 1px solid var(--pink);
+}
+.special-role-badge.witness {
+  background: rgba(61, 220, 151, 0.2);
+  border: 1px solid var(--green);
+}
+.special-role-badge b {
+  color: var(--yellow);
+  font-size: 16px;
+}
+.special-role-badge small {
+  color: var(--text);
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+/* ---------- interactive tutorial demo ---------- */
+.demo-card-box {
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  text-align: center;
+}
+.demo-label {
+  color: var(--yellow);
+  font-weight: 800;
+}
+.demo-secret-card {
+  border: 2px dashed var(--yellow);
+  border-radius: 16px;
+  padding: 18px 12px;
+  background: rgba(255, 210, 63, 0.08);
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  font-weight: 800;
+  touch-action: none;
+  transition: transform 0.12s ease, background 0.15s ease;
+}
+.demo-secret-card.open {
+  border-style: solid;
+  background: linear-gradient(135deg, #4c1d95, #2a1452);
+  transform: scale(1.02);
+}
+.demo-word {
+  font-size: 24px;
+  color: var(--yellow);
+}
+
+.how-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.info-card {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.info-card h3 {
+  margin: 0;
+  color: var(--yellow);
+  font-size: 18px;
+}
+.info-card p {
+  margin: 0;
+  color: var(--text);
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+/* ---------- punishment wheel ---------- */
+.wheel-stage {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin: 8px 0;
+}
+.wheel-pointer {
+  font-size: 26px;
+  color: var(--yellow);
+  margin-bottom: -10px;
+  z-index: 2;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.6);
+}
+.wheel-disc {
+  width: 170px;
+  height: 170px;
+  border-radius: 50%;
+  border: 6px solid var(--yellow);
+  background: conic-gradient(
+    #ff4d8d 0deg 60deg,
+    #8a4dff 60deg 120deg,
+    #ffd23f 120deg 180deg,
+    #3ddc97 180deg 240deg,
+    #ff5a5f 240deg 300deg,
+    #38bdf8 300deg 360deg
+  );
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+  cursor: pointer;
+  transition: transform 1.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.wheel-center-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--card-solid);
+  border: 3px solid var(--yellow);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+}
+.dare-result-box {
+  background: linear-gradient(135deg, rgba(255, 77, 141, 0.25), rgba(138, 77, 255, 0.25));
+  border: 2px solid var(--yellow);
+  border-radius: 18px;
+  padding: 14px;
+  animation: pop 0.4s ease;
+}
+.dare-text {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--text);
+  line-height: 1.5;
+}

@@ -22,7 +22,7 @@ export function Vote({ players, onConfirm }: { players: Player[]; onConfirm: (ac
               setSel(p.id);
             }}
           >
-            <span className="avatar big">{p.name.slice(0, 1).toUpperCase()}</span>
+            <span className="avatar big">{p.avatar ?? p.name.slice(0, 1).toUpperCase()}</span>
             <span>{p.name}</span>
           </button>
         ))}
@@ -69,9 +69,16 @@ export function Guess({
   if (!ready) {
     return (
       <div className="screen center">
+        <div className="logo-emoji" style={{ fontSize: 64 }}>{accused.avatar ?? '🤥'}</div>
         <p className="kicker">{t('guess.pass', { name: accused.name })}</p>
         <h2 className="big-name">{accused.name}</h2>
-        <button className="btn btn-primary btn-xl" onClick={() => { sound.tap(); setReady(true); }}>
+        <button
+          className="btn btn-primary btn-xl"
+          onClick={() => {
+            sound.tap();
+            setReady(true);
+          }}
+        >
           {t('guess.ready', { name: accused.name })}
         </button>
       </div>
@@ -101,4 +108,3 @@ export function Guess({
     </div>
   );
 }
-
