@@ -1,11 +1,11 @@
 {
-  "name": "دفتر الظل — Shadow Ledger",
-  "short_name": "Shadow Ledger",
-  "description": "لعبة استنتاج نفسي وصراع فكري بين قاضي الظل وفرقة التحقيق الخاصة.",
+  "name": "الكذّاب بيننا — The Liar Among Us",
+  "short_name": "الكذّاب بيننا",
+  "description": "لعبة جلسات للأصدقاء والعائلة: واحد منكم يكذب.. اكشفه قبل ما يخدعكم!",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#07070a",
-  "theme_color": "#07070a",
+  "background_color": "#1a0b3b",
+  "theme_color": "#1a0b3b",
   "orientation": "portrait",
   "icons": [
     {

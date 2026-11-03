@@ -1,191 +1,230 @@
 import { createContext, createElement, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
-import type { L10n, Msg, TargetProfile, Text } from './game/types';
+import type { Lang } from './game/types';
 
-export type Lang = 'ar' | 'en';
+export type { Lang };
 
 type Dict = Record<string, string>;
 
 const ar: Dict = {
-  // splash
-  'splash.title': 'دفتر الظل', 'splash.sub': 'كل اسم تكتبه… يقرؤه أحدهم.',
-  'splash.r1': 'اكتب الاسم الصحيح مع وجهه، لتُسقط نفوذه وتُخضعه للعدالة.',
-  'splash.r2': 'كل خطوة تترك أثراً. المحقق يراقب النمط.',
-  'splash.r3': 'لا تثق بكل خبر. بعضه فخّ.',
-  'splash.start': 'افتح الدفتر', 'splash.howto': 'كيف تلعب', 'splash.restart': 'ابدأ من جديد',
-  // status
-  'st.day': 'اليوم', 'st.endDay': 'إنهاء اليوم', 'st.suspects': 'اشتباه المحقق بك', 'st.help': 'شرح',
-  // terminal
-  'tab.investigate': 'التحرّي', 'chan.NEWS': 'الأخبار', 'chan.POLICE': 'الشرطة', 'chan.CAMERA': 'المراقبة', 'chan.WIRETAP': 'تنصت الشرطة 📡',
-  'hint': 'المس الاسم أو الوجه أو الموقع لتدوينه. الخبر بلا ملف شرطة… قد يكون فخّاً.',
-  'unverified': 'غير مؤكد', 'scope.national': 'وطني', 'scope.local': 'محلي · {r}',
-  'l.typing': 'المحقق يحلل…', 'case.title': 'ملف القضية', 'case.none': 'لا يوجد نمط بعد.',
-  'case.profile': 'الفاعل على الأرجح: {occ} — ينشط بين {from}:00 و{to}:00',
-  'case.conf': 'ثقة المحقق: {n}%', 'map.title': 'خريطة الاشتباه', 'map.hint': 'المس منطقة لعرض التفاصيل.',
-  'map.info': '{r}: اشتباه {p}% · أهداف ساقطة: {k}', 'map.narrowed': '⚠ حصر المحقق منطقتك في {r}', 'hist.title': 'توقيت الأحكام',
-  'face.default': 'صورة هوية', 'face.hidden': 'الاسم: [محجوب]', 'face.tv': 'صورة بثّتها القناة', 'face.mask': 'القناع سقط',
-  // ledger
-  'cover.pending': 'قيد التنفيذ {n}', 'cover.swipe': 'اسحب لأعلى',
-  'led.name': 'الاسم', 'led.paste': 'استحضار الهوية 👁️', 'led.face': 'صورة الوجه', 'led.attach': 'تثبيت الوجه بالذاكرة', 'led.cause': 'أسلوب الإدانة والإسقاط',
-  'led.place': 'المكان: {p}', 'led.needRoutine': 'اكتب الاسم، ثم اكتشف روتينه من المراقبة.',
-  'led.frame': 'ألصق التهمة بـ', 'led.write': 'إصدار الحكم والإدانة',
-  'whisper.btn': 'همس الظل 👁️', 'whisper.title': 'همس قرين الظل',
-  'rules.btn': 'قواعد الدفتر', 'rules.title': 'قواعد دفتر الظل المحرّمة',
-  'method.CARDIAC.title': 'إدانة قاطعة وصدمة', 'method.CARDIAC.desc': 'بصمة قاضي الظل — فوري ومضمون', 'method.CARDIAC.risk': '+12% شبهة',
-  'method.ACCIDENT.title': 'حادث مُدبَّر وحجة غياب', 'method.ACCIDENT.desc': 'يطابق روتين الهدف — يصنع حجة غياب قاطعة', 'method.ACCIDENT.risk': '0% شبهة',
-  'method.COERCED_LEAK.title': 'تسريب وثائق واعتراف', 'method.COERCED_LEAK.desc': 'إجبار الهدف على فك شفرة أمنية قبل عزله', 'method.COERCED_LEAK.risk': '+3% شبهة (يكشف هوية L)',
-  'method.CRYPTIC_MSG.title': 'شفرة سرية تضليلية', 'method.CRYPTIC_MSG.desc': 'كتابة شفرة غامضة تشتت شكوك المحقق لقطاع آخر', 'method.CRYPTIC_MSG.risk': '+2% شبهة (تشتيت جغرافي)',
-  'method.GANG_WAR.title': 'صراع نفوذ وفصائل', 'method.GANG_WAR.desc': 'دفع الهدف لمهاجمة فصيل معادي لإغراق الشرطة في تحقيقات', 'method.GANG_WAR.risk': '−6% شبهة (فوضى)',
-  'method.FALSE_LEAD.title': 'استقالة وتضليل / خيط كاذب', 'method.FALSE_LEAD.desc': 'يُلصق الشبهة بفصيل آخر', 'method.FALSE_LEAD.risk': '−3% شبهة',
-  // errors
-  'err.empty': 'الدفتر فارغ. اكتب اسماً.', 'err.nomatch': 'لا هوية موثقة بهذا الاسم. الدفتر لا يستجيب.',
-  'err.noface': 'أرفق صورة الوجه. الاسم وحده لا يكفي.', 'err.mismatch': 'الوجه لا يطابق الاسم. الدفتر يرفض.',
-  'err.written': 'هذا الاسم مكتوب مسبقاً.', 'err.faction': 'اختر الفصيل الذي ستُلصق به التهمة.',
-  'err.routine': 'لا تعرف روتين الهدف. ابحث في كاميرات المراقبة.', 'err.hour': 'اختر ساعة ضمن نافذة روتين الهدف.',
-  // report
-  'rep.title': 'اليوم {d} — انتهى', 'rep.none': 'لا أسماء كُتبت اليوم.', 'rep.susp': 'الشبهة', 'rep.continue': 'متابعة',
-  'rep.ok': '✓ {name} — تم التنفيذ', 'rep.fail': '✗ {name} — {reason}',
-  // endings
-  'end.WON.t': 'العدالة تحققت', 'end.WON.d': 'سقط الفاسدون وسقط المحقق. العالم الجديد لك.',
-  'end.ARRESTED.t': 'انتهى الأمر', 'end.ARRESTED.d': 'بلغت الشبهة 100%. اقتحمت الشرطة غرفتك.',
-  'end.TRAPPED.t': 'وقعتَ في الفخ', 'end.TRAPPED.d': 'عضضتَ الطُّعم الإقليمي مرتين. المحقق عرف عنوانك.',
-  'end.TIMEOUT.t': 'تلاشى الزخم', 'end.TIMEOUT.d': 'مرّت الأيام ولم تكتمل مهمتك.',
-  // engine messages
-  'f.detAttempt': 'محاولة فاشلة ضد المحقق', 'f.CARDIAC': 'أسلوب: إدانة مباشرة', 'f.ACCIDENT': 'أسلوب: حادث مُدبَّر', 'f.COERCED_LEAK': 'أسلوب: تسريب واعتراف قسري', 'f.CRYPTIC_MSG': 'أسلوب: شفرة تضليلية', 'f.GANG_WAR': 'أسلوب: صراع فصائل', 'f.FALSE_LEAD': 'أسلوب: خيط كاذب', 'f.alibi': 'حجة غياب: توقيت الحادث خادع',
-  'f.regional': 'فخ إقليمي: المنطقة كُشفت', 'f.national': 'استجاب لخبر وطني كاذب', 'f.mass': 'إدانات متزامنة كثيرة',
-  'f.geo': 'تجمّع جغرافي للأهداف', 'f.time': 'ارتباط توقيت الأحكام بجدولك',
-  'r.immune': 'المحقق محصّن ضد الإدانة المباشرة',
-  'note.initial': 'لا بيانات كافية بعد. سأنتظر خطأك الأول.',
-  'note.attempt': 'أحدهم حاول إسقاطي… لكن ليس بهذه الطريقة. أنت تعرف اسمي إذن.',
-  'note.regional': 'الخبر بُثّ في {r} فقط… والفاعل تصرّف بناءً عليه.',
-  'note.national': 'الفاعل يتابع الإعلام الوطني. معلومة مفيدة.',
-  'note.estimate': 'صاحب الظل على الأرجح {occ}، من {r}، ينشط حوالي {h}:00.',
-  'news.CARDIAC': 'سقوط وإدانة مفاجئة: {name}', 'news.ACCIDENT': 'سقوط {name} في حادث غامض عند {place}',
-  'news.COERCED_LEAK': 'سقوط وعزل {name} بعد تسريب وثيقة أمنية مشفرة!',
-  'news.CRYPTIC_MSG': 'قضية غامضة: سقوط {name} والعثور على شفرة تشير إلى {r}!',
-  'news.GANG_WAR': 'صراع نفوذ: سقوط {name} في فضيحة منسوبة إلى {faction}!',
-  'news.FALSE_LEAD': 'استقالة واختفاء {name}.. والشرطة تحقق في صلة بـ{faction}', 'news.FALSE_LEAD.x': 'استقالة واختفاء {name}.. والشرطة تحقق في صلة بجهة مجهولة',
-  'news.body': '{precinct} تفتح ملفاً.',
-  'news.decoy.n': 'عاجل وطنياً: {name} يفلت من العدالة', 'news.decoy.r': 'خبر محلي حصري في {r}: {name} يُطلق سراحه',
-  'news.unconfirmed': 'مصدر غير مؤكد: ',
-  'src.agency': 'وكالة الأنباء — عاجل', 'src.tv': 'القناة الوطنية — مباشر', 'src.radio': 'إذاعة {r} المحلية', 'src.presser': 'مؤتمر صحفي — فرقة التحقيق',
-  'news.presser': 'المحقق يعلن ملامح الفاعل',
-  'cam.spotted': 'رُصد {title} هنا: ', 'cam.pattern': 'نمط ثابت: ', 'roster.lead': 'كبير المحققين (Cipher): ',
-  // tutorial
-  'tut.title': 'كيف تلعب', 'tut.next': 'التالي', 'tut.prev': 'السابق', 'tut.done': 'ابدأ اللعب', 'tut.skip': 'إغلاق',
-  'tut.1.t': 'هدفك', 'tut.1.b': 'أنت العقل المدبّر. تملك دفتراً يسقط من تُكتب هويته فيه. قضِ على كل الفاسدين (وزير، قاضٍ، مدير شرطة) ثم على المحقق، قبل أن تصل الشبهة إلى 100%.',
-  'tut.2.t': 'اجمع الهوية', 'tut.2.b': 'لإسقاط أي هدف تحتاج شيئين: اسمه الكامل ووجهه. في تبويب «التحرّي» ابحث في الأخبار، ملفات الشرطة، وكاميرات المراقبة. المس الاسم (الدائرة الحمراء) والوجه (الصورة) لنسخهما.',
-  'tut.3.t': 'اكتب في الدفتر', 'tut.3.b': 'اسحب الدفتر من الأسفل. الصق الاسم، أرفق الوجه، اختر أسلوب الإدانة ثم اضغط «اكتب». إن لم يتطابق الاسم مع الوجه يرفض الدفتر.',
-  'tut.4.t': 'طرق الإسقاط', 'tut.4.b': 'إدانة مباشرة: فورية لكن +15% شبهة. حادث مُدبَّر: بلا شبهة، لكنه يحتاج روتين الهدف (المس الموقع في المراقبة) وينفّذ غداً. خيط كاذب: يلصق التهمة بفصيل ويخفّض الشبهة قليلاً.',
-  'tut.5.t': 'كيف يطاردك المحقق', 'tut.5.b': 'يحلل المحقق ساعات الأحكام فيستنتج جدولك، ويرصد تجمّع الأهداف في منطقة واحدة لتحديد مكانك. وزّع الأوقات والمناطق، وتابع «مرصد التحقيق» لتعرف ما يظنه عنك.',
-  'tut.6.t': 'الفخاخ الإعلامية', 'tut.6.b': 'يبثّ المحقق أخباراً كاذبة. الخبر بلا ملف شرطة يؤكده فخ محتمل. تنفيذ خبر إقليمي كاذب يكشف منطقتك، والمرة الثانية تعني الهزيمة.',
-  'tut.7.t': 'الوقت والفوز', 'tut.7.b': 'زر +1H يقدّم الساعة، و«إنهاء اليوم» ينفّذ الأسماء ويبدأ دور المحقق. المحقق محصّن ضد الإدانة المباشرة، فأسقطه بحادث وحجة غياب. تفوز بإسقاط كل الفاسدين والمحقق، وتخسر إن بلغت الشبهة 100% أو انتهت 24 يوماً.',
+  'app.name': 'الكذّاب بيننا',
+  'app.tag': 'واحد منكم يكذب.. اكشفه قبل ما يخدعكم!',
+  'home.play': 'ابدأ اللعب',
+  'home.how': 'كيف تلعب؟',
+  'home.footer': 'لعبة جلسات للأصدقاء والعائلة · مرّروا الجوال بينكم',
+
+  'setup.title': 'جهّز الجلسة',
+  'setup.players': 'اللاعبون',
+  'setup.player': 'لاعب {n}',
+  'setup.add': 'إضافة لاعب',
+  'setup.min': 'تحتاجون {n} لاعبين على الأقل',
+  'setup.cats': 'الفئات',
+  'setup.rounds': 'عدد الجولات',
+  'setup.time': 'وقت النقاش',
+  'setup.sec': '{n} ث',
+  'setup.chaos': 'بطاقات الفوضى 🌪️',
+  'setup.chaosHint': 'مفاجآت عشوائية تقلب الجولة',
+  'setup.voice': 'صوت المذيع الساخر 🎙️',
+  'setup.voiceHint': 'يعلّق بصوت الجهاز',
+  'setup.start': 'يلا نبدأ!',
+  'setup.back': 'رجوع',
+  'setup.needCat': 'اختر فئة واحدة على الأقل',
+
+  'hand.round': 'الجولة {n} من {total}',
+  'hand.pass': 'مرّر الجوال إلى',
+  'hand.ready': 'أنا {name}، اعرض دوري',
+  'hand.hold': 'اضغط مطولاً لتشوف دورك 👆',
+  'hand.release': 'ارفع إصبعك لإخفاء الدور',
+  'hand.done': 'تم، أخفِ ومرّر',
+  'hand.start': 'ابدأوا النقاش!',
+  'hand.liar': 'أنت الكذّاب! 🤥',
+  'hand.liarHint': 'لا تعرف الكلمة. اسمع الباقين وتصرّف وكأنك تعرفها.',
+  'hand.liarDecoyHint': 'اللعبة بدأت.. حاول تفهم إذا كلمتك مثل كلمة الباقين.',
+  'hand.word': 'الكلمة السرية',
+  'hand.cat': 'الفئة',
+  'hand.wordHint': 'لا تقولها مباشرة! لمّح لها بذكاء.',
+
+  'chaos.DOUBLE': 'كذّابان! 🤥🤥',
+  'chaos.DOUBLEd': 'هذه الجولة فيها كذّابان، ولا يعرفان بعضهما!',
+  'chaos.SPEED': 'جولة سريعة ⚡',
+  'chaos.SPEEDd': 'وقت النقاش نصف المعتاد!',
+  'chaos.WHISPER': 'جولة الهمس 🤫',
+  'chaos.WHISPERd': 'الكل يتكلم بصوت منخفض جداً طوال الجولة.',
+
+  'disc.starter': '{name} يبدأ الكلام',
+  'disc.prompt': 'فكرة للنقاش',
+  'disc.newPrompt': 'فكرة ثانية',
+  'disc.vote': 'جاهزون للتصويت',
+  'disc.liars1': 'يوجد كذّاب واحد بينكم',
+  'disc.liars2': 'يوجد كذّابان بينكم',
+
+  'vote.title': 'مين الكذّاب؟',
+  'vote.sub': 'اتفقوا كمجموعة ثم اختاروا المتهم',
+  'vote.none': 'ما في كذّاب 🤷',
+  'vote.confirm': 'تأكيد الاتهام',
+  'vote.pick': 'اختر متهماً',
+  'vote.confirmNone': 'تأكيد: ما في كذّاب',
+
+  'guess.pass': 'انكشفت! مرّر الجوال إلى {name}',
+  'guess.ready': 'أنا {name}',
+  'guess.title': 'آخر فرصة! خمّن الكلمة السرية',
+  'guess.sub': 'إذا خمّنتها صح تسرق النصر',
+
+  'res.liarWas': 'الكذّاب كان…',
+  'res.liarsWere': 'الكذّابان كانا…',
+  'res.nobody': 'ما كان في كذّاب أصلاً!',
+  'res.word': 'الكلمة كانت',
+  'res.decoy': 'وكلمة الكذّاب كانت',
+  'res.next': 'الجولة التالية',
+  'res.final': 'النتيجة النهائية',
+  'res.scores': 'النقاط',
+
+  'out.CAUGHT_GUESS_WRONG': 'انكشف الكذّاب وفشل بالتخمين! الصادقون +1',
+  'out.CAUGHT_GUESS_RIGHT': 'انكشف لكنه خمّن الكلمة! سرق النصر',
+  'out.ESCAPED': 'الكذّاب نجا! كسب النقاط',
+  'out.NO_LIAR_OK': 'ذكاء جماعي! الكل +2',
+  'out.NO_LIAR_WRONG': 'اتهمتوا بريئاً! خسر نقطة',
+
+  'final.title': 'النتيجة النهائية',
+  'final.winner': 'البطل',
+  'final.again': 'جولة جديدة بنفس اللاعبين',
+  'final.home': 'القائمة الرئيسية',
+  'final.share': 'شارك النتيجة',
+  'final.copied': 'تم نسخ النتيجة!',
+  'final.shareText': '🤥 «الكذّاب بيننا» — البطل: {winner} بـ {pts} نقطة! جرّبوا تغلبوني.',
+
+  'how.title': 'كيف تلعب؟',
+  'how.1t': 'الكل يعرف الكلمة… إلا الكذّاب',
+  'how.1b': 'مرّروا الجوال، وكل لاعب يضغط مطولاً ليرى دوره سراً. واحد فقط لا يعرف الكلمة، وهو الكذّاب.',
+  'how.2t': 'تكلموا وتلمّحوا',
+  'how.2b': 'كل واحد يلمّح للكلمة بدون ما يقولها. الكذّاب يحاول يخمّن ويتصرف وكأنه يعرفها.',
+  'how.3t': 'صوّتوا',
+  'how.3b': 'اتفقوا على من تظنونه الكذّاب. إذا انكشف يحصل على فرصة أخيرة لتخمين الكلمة.',
+  'how.4t': 'احذروا الفوضى',
+  'how.4b': 'أحياناً تظهر مفاجآت: كذّابان، وقت أقل، همس، أو حتى جولة بلا كذّاب!',
+  'how.5t': 'النقاط',
+  'how.5b': 'الكذّاب الناجي +3. الصادقون +1 إذا كشفوه. الكذّاب المكشوف +2 إذا خمّن الكلمة.',
+  'how.close': 'فهمت!',
+
+  'common.mute': 'الصوت',
 };
 
 const en: Dict = {
-  'splash.title': 'Shadow Ledger', 'splash.sub': 'Every name you write… someone reads.',
-  'splash.r1': 'Write the right name with their face to neutralize their power.',
-  'splash.r2': 'Every move leaves a trace. The detective watches for patterns.',
-  'splash.r3': "Don't trust every headline. Some are traps.",
-  'splash.start': 'Open the ledger', 'splash.howto': 'How to play', 'splash.restart': 'Start over',
-  // status
-  'st.day': 'DAY', 'st.endDay': 'End day', 'st.suspects': 'DETECTIVE SUSPECTS YOU', 'st.help': 'Help',
-  'tab.investigate': 'Investigate', 'chan.NEWS': 'News', 'chan.POLICE': 'Police', 'chan.CAMERA': 'Cameras', 'chan.WIRETAP': 'Police Wiretap 📡',
-  'hint': 'Tap a name, face or location to copy it. A story with no police file… may be a trap.',
-  'unverified': 'UNVERIFIED', 'scope.national': 'National', 'scope.local': 'Local · {r}',
-  'l.typing': 'typing…', 'case.title': 'Case file', 'case.none': 'No pattern yet.',
-  'case.profile': 'Likely culprit: {occ} — active between {from}:00 and {to}:00',
-  'case.conf': "Detective's confidence: {n}%", 'map.title': 'Suspicion map', 'map.hint': 'Tap a region for details.',
-  'map.info': '{r}: suspicion {p}% · neutralized: {k}', 'map.narrowed': '⚠ Detective has narrowed you down to {r}', 'hist.title': 'Time of verdicts',
-  'face.default': 'ID PHOTO', 'face.hidden': 'Name: [REDACTED]', 'face.tv': 'Photo aired by the channel', 'face.mask': 'Mask is off',
-  'cover.pending': '{n} pending', 'cover.swipe': 'Swipe up',
-  'led.name': 'Name', 'led.paste': 'Channel Identity 👁️', 'led.face': 'Face ID', 'led.attach': 'Imprint in Mind', 'led.cause': 'Elimination method',
-  'led.place': 'Place: {p}', 'led.needRoutine': 'Write a name, then discover its routine via the cameras.',
-  'led.frame': 'Frame', 'led.write': 'EXECUTE VERDICT',
-  'whisper.btn': 'Shadow Whisper 👁️', 'whisper.title': 'Whisper of the Shadow Entity',
-  'rules.btn': 'Ledger Rules', 'rules.title': 'Forbidden Rules of the Shadow Ledger',
-  'method.CARDIAC.title': 'Direct Judgment', 'method.CARDIAC.desc': 'The Shadow signature — instant, guaranteed', 'method.CARDIAC.risk': '+12% suspicion',
-  'method.ACCIDENT.title': 'Staged accident & alibi', 'method.ACCIDENT.desc': "Matches routine — crafts an airtight alibi", 'method.ACCIDENT.risk': '0% suspicion',
-  'method.COERCED_LEAK.title': 'Coerced intel leak', 'method.COERCED_LEAK.desc': 'Forces target to breach police servers before downfall', 'method.COERCED_LEAK.risk': '+3% suspicion (Unlocks L intel)',
-  'method.CRYPTIC_MSG.title': 'Cryptic cipher', 'method.CRYPTIC_MSG.desc': 'Leaves a cryptic cipher diverting detective to decoy sector', 'method.CRYPTIC_MSG.risk': '+2% suspicion (Diverts radar)',
-  'method.GANG_WAR.title': 'Faction conflict', 'method.GANG_WAR.desc': 'Target exposes rival syndicate, overwhelming task force', 'method.GANG_WAR.risk': '−6% suspicion (Chaos)',
-  'method.FALSE_LEAD.title': 'Resignation / false lead', 'method.FALSE_LEAD.desc': 'Pins suspicion on another faction', 'method.FALSE_LEAD.risk': '−3% suspicion',
-  'err.empty': 'The ledger is empty. Write a name.', 'err.nomatch': 'No known identity with that name. The ledger stays silent.',
-  'err.noface': 'Attach a face. A name alone is not enough.', 'err.mismatch': 'The face does not match the name. The ledger refuses.',
-  'err.written': 'This name is already written.', 'err.faction': 'Choose a faction to frame.',
-  'err.routine': "You don't know the target's routine. Check the cameras.", 'err.hour': "Pick an hour inside the target's routine window.",
-  'rep.title': 'Day {d} — over', 'rep.none': 'No names written today.', 'rep.susp': 'Suspicion', 'rep.continue': 'Continue',
-  'rep.ok': '✓ {name} — done', 'rep.fail': '✗ {name} — {reason}',
-  'end.WON.t': 'Justice served', 'end.WON.d': 'The corrupt fell, and so did the detective. The new world is yours.',
-  'end.ARRESTED.t': "It's over", 'end.ARRESTED.d': 'Suspicion hit 100%. The police burst into your room.',
-  'end.TRAPPED.t': 'You fell for the trap', 'end.TRAPPED.d': 'You took the regional bait twice. The detective knows your address.',
-  'end.TIMEOUT.t': 'Momentum lost', 'end.TIMEOUT.d': 'The days passed and your mission was never finished.',
-  'f.detAttempt': 'Failed attempt on the detective', 'f.CARDIAC': 'Method: direct judgment', 'f.ACCIDENT': 'Method: staged accident', 'f.COERCED_LEAK': 'Method: coerced intel leak', 'f.CRYPTIC_MSG': 'Method: cryptic cipher', 'f.GANG_WAR': 'Method: faction conflict', 'f.FALSE_LEAD': 'Method: false lead', 'f.alibi': 'Alibi: deceptive incident timing',
-  'f.regional': 'Regional trap: your area exposed', 'f.national': 'Reacted to false national news', 'f.mass': 'Too many simultaneous eliminations',
-  'f.geo': 'Targets cluster geographically', 'f.time': 'Verdict times match your schedule',
-  'r.immune': 'The detective is immune to direct judgment',
-  'note.initial': "Not enough data yet. I'll wait for your first mistake.",
-  'note.attempt': "Someone tried to neutralize me… but not like this. So you know my name.",
-  'note.regional': 'That story aired only in {r}… and the culprit acted on it.',
-  'note.national': 'The culprit follows national media. Useful.',
-  'note.estimate': 'The culprit is most likely {occ}, from {r}, active around {h}:00.',
-  'news.CARDIAC': 'Decisive downfall and exposure: {name}', 'news.ACCIDENT': '{name} falls in mysterious incident at {place}',
-  'news.COERCED_LEAK': '{name} stripped of power after leaking encrypted police dossier!',
-  'news.CRYPTIC_MSG': 'Bizarre investigation: downfall of {name} and cryptic cipher pointing to {r}!',
-  'news.GANG_WAR': 'Syndicate clash: {name} ousted in an operation tied to {faction}!',
-  'news.FALSE_LEAD': 'Resignation of {name}.. police probe links to {faction}', 'news.FALSE_LEAD.x': 'Resignation of {name}.. police probe unknown links',
-  'news.body': '{precinct} opens a file.',
-  'news.decoy.n': 'BREAKING: {name} escapes justice', 'news.decoy.r': 'Exclusive local news in {r}: {name} released',
-  'news.unconfirmed': 'Unconfirmed source: ',
-  'src.agency': 'News Agency — Breaking', 'src.tv': 'National TV — Live', 'src.radio': '{r} Local Radio', 'src.presser': 'Press conference — Task force',
-  'news.presser': 'Detective reveals culprit profile',
-  'cam.spotted': '{title} spotted here: ', 'cam.pattern': 'Fixed pattern: ', 'roster.lead': 'Lead detective (Cipher): ',
-  // tutorial
-  'tut.title': 'How to play', 'tut.next': 'Next', 'tut.prev': 'Back', 'tut.done': 'Start playing', 'tut.skip': 'Close',
-  'tut.1.t': 'Your goal', 'tut.1.b': 'You are the mastermind. Your ledger eliminates whoever’s identity is written in it. Eliminate every corrupt figure (minister, judge, police chief) and then the detective, before suspicion reaches 100%.',
-  'tut.2.t': 'Gather the identity', 'tut.2.b': 'To eliminate a target you need two things: their full name and their face. In the “Investigate” tab, search the news, police files and surveillance cameras. Tap the name (red circle) and the face (photo) to copy them.',
-  'tut.3.t': 'Write in the ledger', 'tut.3.b': 'Swipe the ledger up from the bottom. Paste the name, attach the face, pick an elimination method, then press “Write”. If name and face don’t match, the ledger refuses.',
-  'tut.4.t': 'Methods of elimination', 'tut.4.b': 'Direct judgment: instant but +15% suspicion. Staged accident: no suspicion, but needs the target’s routine (tap the location in the cameras) and happens tomorrow. False lead: frames a faction and lowers suspicion slightly.',
-  'tut.5.t': 'How Detective hunts you', 'tut.5.b': 'The detective studies the hours of verdicts to infer your schedule, and spots targets clustering in one region to locate you. Spread out your timing and places, and check the investigation tab to see what he thinks of you.',
-  'tut.6.t': 'Media traps', 'tut.6.b': 'The detective broadcasts false stories. A story without a confirming police file is a possible trap. Acting on a false regional story exposes your region, and a second time means defeat.',
-  'tut.7.t': 'Time & victory', 'tut.7.b': 'The +1H button advances the hour; “End day” executes the names and starts the detective’s turn. The detective is immune to direct judgment, so strike him with a staged accident and alibi. You win by eliminating every corrupt figure and the detective; you lose if suspicion hits 100% or 24 days pass.',
+  'app.name': 'The Liar Among Us',
+  'app.tag': 'One of you is lying.. expose them before they fool you!',
+  'home.play': 'Play',
+  'home.how': 'How to play',
+  'home.footer': 'A party game for friends & family · pass the phone around',
+
+  'setup.title': 'Set up the session',
+  'setup.players': 'Players',
+  'setup.player': 'Player {n}',
+  'setup.add': 'Add player',
+  'setup.min': 'You need at least {n} players',
+  'setup.cats': 'Categories',
+  'setup.rounds': 'Rounds',
+  'setup.time': 'Discussion time',
+  'setup.sec': '{n}s',
+  'setup.chaos': 'Chaos cards 🌪️',
+  'setup.chaosHint': 'Random twists that shake up the round',
+  'setup.voice': 'Sarcastic host voice 🎙️',
+  'setup.voiceHint': 'Comments using your device voice',
+  'setup.start': 'Let’s go!',
+  'setup.back': 'Back',
+  'setup.needCat': 'Pick at least one category',
+
+  'hand.round': 'Round {n} of {total}',
+  'hand.pass': 'Pass the phone to',
+  'hand.ready': 'I’m {name}, show my role',
+  'hand.hold': 'Press and hold to see your role 👆',
+  'hand.release': 'Release to hide your role',
+  'hand.done': 'Done, hide & pass',
+  'hand.start': 'Start talking!',
+  'hand.liar': 'You are the liar! 🤥',
+  'hand.liarHint': 'You don’t know the word. Listen and act like you do.',
+  'hand.liarDecoyHint': 'The game is on.. figure out if your word matches the others.',
+  'hand.word': 'Secret word',
+  'hand.cat': 'Category',
+  'hand.wordHint': 'Don’t say it directly! Hint cleverly.',
+
+  'chaos.DOUBLE': 'Two liars! 🤥🤥',
+  'chaos.DOUBLEd': 'This round has two liars, and they don’t know each other!',
+  'chaos.SPEED': 'Speed round ⚡',
+  'chaos.SPEEDd': 'Discussion time is cut in half!',
+  'chaos.WHISPER': 'Whisper round 🤫',
+  'chaos.WHISPERd': 'Everyone talks very quietly all round.',
+
+  'disc.starter': '{name} speaks first',
+  'disc.prompt': 'Conversation starter',
+  'disc.newPrompt': 'Another one',
+  'disc.vote': 'Ready to vote',
+  'disc.liars1': 'There is one liar among you',
+  'disc.liars2': 'There are two liars among you',
+
+  'vote.title': 'Who is the liar?',
+  'vote.sub': 'Agree as a group, then pick the suspect',
+  'vote.none': 'No liar 🤷',
+  'vote.confirm': 'Confirm accusation',
+  'vote.pick': 'Pick a suspect',
+  'vote.confirmNone': 'Confirm: no liar',
+
+  'guess.pass': 'Busted! Pass the phone to {name}',
+  'guess.ready': 'I’m {name}',
+  'guess.title': 'Last chance! Guess the secret word',
+  'guess.sub': 'Guess right and you steal the win',
+
+  'res.liarWas': 'The liar was…',
+  'res.liarsWere': 'The liars were…',
+  'res.nobody': 'There was no liar at all!',
+  'res.word': 'The word was',
+  'res.decoy': 'and the liar’s word was',
+  'res.next': 'Next round',
+  'res.final': 'Final results',
+  'res.scores': 'Scores',
+
+  'out.CAUGHT_GUESS_WRONG': 'Liar caught and guessed wrong! Honest players +1',
+  'out.CAUGHT_GUESS_RIGHT': 'Caught, but guessed the word! Steals the win',
+  'out.ESCAPED': 'The liar got away! Points earned',
+  'out.NO_LIAR_OK': 'Collective genius! Everyone +2',
+  'out.NO_LIAR_WRONG': 'You accused an innocent! They lose a point',
+
+  'final.title': 'Final results',
+  'final.winner': 'Champion',
+  'final.again': 'New game, same players',
+  'final.home': 'Main menu',
+  'final.share': 'Share result',
+  'final.copied': 'Result copied!',
+  'final.shareText': '🤥 “The Liar Among Us” — Champion: {winner} with {pts} points! Try to beat me.',
+
+  'how.title': 'How to play',
+  'how.1t': 'Everyone knows the word… except the liar',
+  'how.1b': 'Pass the phone around. Each player press-and-holds to see their role secretly. Only one doesn’t know the word: the liar.',
+  'how.2t': 'Talk and hint',
+  'how.2b': 'Everyone hints at the word without saying it. The liar tries to guess and blend in.',
+  'how.3t': 'Vote',
+  'how.3b': 'Agree on who you think the liar is. If caught, they get a last chance to guess the word.',
+  'how.4t': 'Beware of chaos',
+  'how.4b': 'Sometimes twists appear: two liars, less time, whispering, or even a round with no liar!',
+  'how.5t': 'Scoring',
+  'how.5b': 'Liar escapes +3. Honest players +1 for catching them. A caught liar +2 for guessing the word.',
+  'how.close': 'Got it!',
+
+  'common.mute': 'Sound',
 };
 
 const dicts: Record<Lang, Dict> = { ar, en };
 
-const isL10n = (v: unknown): v is L10n => typeof v === 'object' && v !== null && 'ar' in v && 'en' in v;
-
-export function translate(lang: Lang, key: string, p?: Msg['p']): string {
+export function translate(lang: Lang, key: string, p?: Record<string, string | number>): string {
   let s = dicts[lang][key] ?? key;
-  if (p) for (const [k, v] of Object.entries(p)) s = s.split(`{${k}}`).join(isL10n(v) ? v[lang] : String(v));
+  if (p) for (const [k, v] of Object.entries(p)) s = s.split(`{${k}}`).join(String(v));
   return s;
 }
-
-export function resolve(lang: Lang, x: Text | string | undefined): string {
-  if (x === undefined) return '';
-  if (typeof x === 'string') return x;
-  return 'k' in x ? translate(lang, x.k, x.p) : x[lang];
-}
-
-/** Normalizes a typed name for matching (case/diacritics/Arabic letter variants/spaces). */
-export const normName = (s: string) =>
-  s
-    .replace(/[\u0640\u064B-\u065F\u0670]/g, '') // Remove Tatweel and Tashkeel
-    .replace(/[أإآٱ]/g, 'ا') // Normalize all Alef forms to plain Alef
-    .replace(/ة/g, 'ه') // Normalize Taa Marbuta to Haa
-    .replace(/[ىي]/g, 'ي') // Normalize Alef Maksura and Yaa
-    .replace(/\s+/g, ' ')
-    .trim()
-    .toLowerCase();
-
-export const matchesName = (t: TargetProfile, input: string) =>
-  normName(input) !== '' && (normName(t.name.ar) === normName(input) || normName(t.name.en) === normName(input));
 
 interface Ctx {
   lang: Lang;
   setLang: (l: Lang) => void;
-  t: (key: string, p?: Msg['p']) => string;
-  tx: (x: Text | string | undefined) => string;
+  t: (key: string, p?: Record<string, string | number>) => string;
 }
+
 const LangCtx = createContext<Ctx>(null!);
 
 export function LangProvider({ children }: { children: ReactNode }) {
@@ -195,10 +234,10 @@ export function LangProvider({ children }: { children: ReactNode }) {
     document.documentElement.lang = lang;
     document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
   }, [lang]);
-  const t = useCallback((k: string, p?: Msg['p']) => translate(lang, k, p), [lang]);
-  const tx = useCallback((x: Text | string | undefined) => resolve(lang, x), [lang]);
-  const value = useMemo(() => ({ lang, setLang, t, tx }), [lang, t, tx]);
+  const t = useCallback((k: string, p?: Record<string, string | number>) => translate(lang, k, p), [lang]);
+  const value = useMemo(() => ({ lang, setLang, t }), [lang, t]);
   return createElement(LangCtx.Provider, { value }, children);
 }
 
 export const useLang = () => useContext(LangCtx);
+

@@ -1,623 +1,159 @@
-import { useEffect, useState } from 'react';
-import { Atmosphere } from './components/Atmosphere';
-import { BreakingNewsTicker } from './components/BreakingNewsTicker';
-import { ClimaxModal } from './components/ClimaxModal';
-import { DetectiveConsole } from './components/DetectiveConsole';
-import { Ledger } from './components/Ledger';
-import { LindBroadcastModal } from './components/LindBroadcastModal';
-import { MorningTabloid } from './components/MorningTabloid';
-import { MultiplayerModal } from './components/MultiplayerModal';
-import { PsychologicalChat } from './components/PsychologicalChat';
-import { SoloRoleModal } from './components/SoloRoleModal';
-import { Splash } from './components/Splash';
-import { StatusBar } from './components/StatusBar';
-import { SteamHubModal, SteamOverlayToast } from './components/SteamOverlay';
-import { Terminal } from './components/Terminal';
-import { Tutorial } from './components/Tutorial';
-import { sensoryAudio } from './game/audioEngine';
-import { createKiraAI, executeKiraAITurn, type KiraMastermindState } from './game/kiraAI';
-import { multiplayer, type ChatMessage, type PlayerRole } from './game/multiplayer';
-import { generateProactiveAIMessage } from './game/psychologicalChatAI';
-import { unlockSteamAchievement } from './game/steam';
-import type { Action } from './game/store';
-import { useGame } from './game/store';
-import { ChapterSelectModal } from './components/ChapterSelectModal';
-import { ChapterClearedModal } from './components/ChapterClearedModal';
-import { SagaSelectModal } from './components/SagaSelectModal';
-import { DailyBountiesModal } from './components/DailyBountiesModal';
-import {
-  getChapterProgress,
-  saveChapterProgress,
-  checkChapterCompletion,
-  calculateChapterRank,
-  type ChapterProgressState,
-} from './game/chapters';
-import {
-  getSagaProgress,
-  saveSagaProgress,
-  type SagaProgressState,
-} from './game/sagas';
-import type { Region } from './game/types';
+import { useEffect, useRef, useState } from 'react';
+import { Discuss } from './components/Discuss';
+import { Handoff } from './components/Handoff';
+import { Home, HowTo } from './components/Home';
+import { Final, Result } from './components/Result';
+import { Setup } from './components/Setup';
+import { Guess, Vote } from './components/VoteGuess';
+import { createRound, DEFAULT_SETTINGS, loadJSON, saveJSON, scoreRound } from './game/engine';
+import { hostLine, speak } from './game/host';
+import type { Outcome, Player, Round, Settings } from './game/types';
+import { CATEGORIES } from './game/words';
 import { useLang } from './i18n';
-import { useRef } from 'react';
+
+type Screen = 'home' | 'setup' | 'handoff' | 'discuss' | 'vote' | 'guess' | 'result' | 'final';
+
+const defaultPlayers = (): Player[] => [0, 1, 2, 3].map((id) => ({ id, name: '', score: 0 }));
 
 export default function App() {
-  const { t, tx, lang } = useLang();
-  const [state, dispatch] = useGame();
-  const [started, setStarted] = useState(false);
-  const [help, setHelp] = useState(false);
-  const [showSteam, setShowSteam] = useState(false);
-  const [showMultiplayer, setShowMultiplayer] = useState(false);
-  const [showSoloRoleModal, setShowSoloRoleModal] = useState(false);
-  const [kiraAIState, setKiraAIState] = useState<KiraMastermindState>(() => createKiraAI());
+  const { t, lang } = useLang();
+  const [screen, setScreen] = useState<Screen>('home');
+  const [showHow, setShowHow] = useState(false);
 
-  // Major Sagas Campaign State
-  const [sagaProgress, setSagaProgress] = useState<SagaProgressState>(() => getSagaProgress());
-  const [showSagasModal, setShowSagasModal] = useState(false);
+  const [players, setPlayers] = useState<Player[]>(() => loadJSON<Player[]>('lq_players', defaultPlayers()));
+  const [settings, setSettings] = useState<Settings>(() => loadJSON<Settings>('lq_settings', DEFAULT_SETTINGS));
 
-  // Daily Retribution Bounties State
-  const [showBountiesModal, setShowBountiesModal] = useState(false);
+  const [roundNo, setRoundNo] = useState(1);
+  const [round, setRound] = useState<Round | null>(null);
+  const [handIdx, setHandIdx] = useState(0);
+  const [accused, setAccused] = useState<number | null>(null);
+  const [outcome, setOutcome] = useState<Outcome>('ESCAPED');
+  const [deltas, setDeltas] = useState<Record<number, number>>({});
+  const used = useRef<Set<string>>(new Set());
 
-  // Chapter Progression State
-  const [chapterProgress, setChapterProgress] = useState<ChapterProgressState>(() => getChapterProgress());
-  const [showChapterSelect, setShowChapterSelect] = useState(false);
-  const [clearedChapterData, setClearedChapterData] = useState<{
-    chapterId: number;
-    rank: 'S' | 'A' | 'B';
-    suspicion: number;
-    clearedAtDay: number;
-  } | null>(null);
+  useEffect(() => saveJSON('lq_settings', settings), [settings]);
+  useEffect(() => saveJSON('lq_players', players.map((p) => ({ ...p, score: 0 }))), [players]);
 
-  const [activeLindBroadcast, setActiveLindBroadcast] = useState<{
-    region: Region;
-    timerSec: number;
-  } | null>(null);
-
-  const [multiplayerConfig, setMultiplayerConfig] = useState<{
-    active: boolean;
-    role: PlayerRole;
-    myName: string;
-    opponentName: string;
-    roomCode: string;
-  }>({
-    active: false,
-    role: 'KILLER',
-    myName: 'قاضي الظل (The Shadow)',
-    opponentName: 'المحقق سايفر (Detective Cipher)',
-    roomCode: '',
-  });
-
-  const wrappedDispatch = (a: Action) => {
-    dispatch(a);
-    if (multiplayerConfig.active) {
-      multiplayer.send({ type: 'ACTION', action: a });
-    }
+  const activeCategories = () => {
+    const picked = CATEGORIES.filter((c) => settings.cats.includes(c.id));
+    return picked.length ? picked : CATEGORIES;
   };
 
-  useEffect(() => {
-    const unsub = multiplayer.onMessage((msg) => {
-      if (msg.type === 'ACTION') {
-        dispatch(msg.action);
-      } else if (msg.type === 'LIND_L_BROADCAST') {
-        setActiveLindBroadcast({
-          region: msg.region,
-          timerSec: msg.timerSec || 45,
-        });
-      }
-    });
-    return () => unsub();
-  }, [dispatch]);
+  const beginRound = (ps: Player[], no: number) => {
+    setRound(createRound(ps, activeCategories(), settings.chaos, used.current));
+    setRoundNo(no);
+    setHandIdx(0);
+    setAccused(null);
+    setScreen('handoff');
+  };
 
-  const end = state.status !== 'PLAYING'
-    ? multiplayerConfig.role === 'DETECTIVE'
-      ? state.status === 'WON'
-        ? {
-            title: lang === 'ar' ? 'كش ملك.. انتصر المحقق L!' : 'Checkmate.. Detective L Triumphs!',
-            desc: lang === 'ar' ? 'تم تطويق مقر كيرا السري ومصادرة الدفتر وإلقاء القبض عليه متلبساً!' : 'Kira raided, ledger seized, justice prevails!',
-          }
-        : {
-            title: lang === 'ar' ? 'أفلت القاتل.. انتهت المهلة' : 'Kira Evaded Justice',
-            desc: lang === 'ar' ? 'استطاع كيرا تصفية أهدافه بالكامل وتشتيت التحقيق.' : 'Kira purged the city and escaped Interpol.',
-          }
-      : { title: t(`end.${state.status}.t`), desc: t(`end.${state.status}.d`) }
-    : null;
+  const startGame = () => {
+    const fresh = players.map((p, i) => ({
+      ...p,
+      name: p.name.trim() || t('setup.player', { n: i + 1 }),
+      score: 0,
+    }));
+    setPlayers(fresh);
+    used.current = new Set();
+    speak(hostLine('intro', lang), lang, settings.voice);
+    beginRound(fresh, 1);
+  };
 
-  const lastDayRef = useRef(state.player.day);
-  const highSuspicionRef = useRef(false);
+  const finishRound = (acc: number | null, guessedRight: boolean) => {
+    if (!round) return;
+    const res = scoreRound(round, players, acc, guessedRight);
+    setPlayers((ps) => ps.map((p) => ({ ...p, score: p.score + (res.deltas[p.id] ?? 0) })));
+    setAccused(acc);
+    setDeltas(res.deltas);
+    setOutcome(res.outcome);
+    setScreen('result');
+  };
 
-  const handleStartSoloRole = (chosenRole: PlayerRole) => {
-    setShowSoloRoleModal(false);
-    const myName = chosenRole === 'DETECTIVE'
-      ? (lang === 'ar' ? 'المحقق L' : 'Detective L')
-      : (lang === 'ar' ? 'قاضي الظل (The Shadow)' : 'The Shadow');
-    const opponentName = chosenRole === 'DETECTIVE'
-      ? (lang === 'ar' ? 'كيرا (KIRA AI)' : 'Kira (AI)')
-      : (lang === 'ar' ? 'المحقق سايفر (Detective Cipher)' : 'Detective Cipher');
-
-    if (chosenRole === 'DETECTIVE') {
-      const newKira = createKiraAI();
-      setKiraAIState(newKira);
-      setMultiplayerConfig({
-        active: false,
-        role: 'DETECTIVE',
-        myName,
-        opponentName,
-        roomCode: '',
-      });
+  const onVote = (acc: number | null) => {
+    if (!round) return;
+    const caught = acc !== null && round.liars.includes(acc);
+    if (caught) {
+      setAccused(acc);
+      setScreen('guess');
     } else {
-      setMultiplayerConfig({
-        active: false,
-        role: 'KILLER',
-        myName,
-        opponentName,
-        roomCode: '',
-      });
-    }
-    setStarted(true);
-    sensoryAudio.startRain();
-    if (!localStorage.getItem('seenTutorial')) {
-      setHelp(true);
-      localStorage.setItem('seenTutorial', '1');
-    }
-
-    // Schedule intelligent, psychological opening greeting from the AI opponent
-    setTimeout(() => {
-      const openGreeting = generateProactiveAIMessage({
-        trigger: 'GAME_START',
-        playerRole: chosenRole,
-        opponentName,
-        lang,
-        gameState: state,
-      });
-      const opponentRole = chosenRole === 'KILLER' ? 'DETECTIVE' : 'KILLER';
-      multiplayer.send({
-        type: 'CHAT',
-        message: {
-          id: `chat-proactive-start-${Date.now()}`,
-          senderName: opponentName,
-          senderRole: opponentRole,
-          text: openGreeting,
-          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-          hasAudioScramble: opponentRole === 'DETECTIVE',
-        },
-      });
-      sensoryAudio.playRadioStatic(0.7);
-    }, 1200);
-  };
-
-  const handleAdvanceDayForDetective = () => {
-    sensoryAudio.playClockTick();
-    sensoryAudio.playLetterScratch();
-
-    const turnRes = executeKiraAITurn(state, kiraAIState, activeLindBroadcast?.region);
-
-    if (turnRes.commands.length > 0) {
-      dispatch({ type: 'DETECTIVE_ADVANCE_DAY', kiraCommands: turnRes.commands });
-    } else {
-      dispatch({ type: 'ADVANCE_HOUR' });
-    }
-
-    if (turnRes.lindKilled) {
-      sensoryAudio.playThunder();
-      sensoryAudio.playScrambledVoice(
-        lang === 'ar'
-          ? 'لقد وقعت في الفخ التكتيكي يا كيرا! حددت منطقتك بدقة!'
-          : 'You fell right into my trap, Kira! Your sector is pinpointed!'
-      );
-      unlockSteamAchievement('ACH_OUTSMART_L');
-      multiplayer.send({
-        type: 'LIND_L_RESOLVE',
-        wasKilled: true,
-        killerRegion: kiraAIState.homeRegion,
-      });
-      setActiveLindBroadcast(null);
-    }
-
-    if (turnRes.taunt) {
-      const chatMsg: ChatMessage = {
-        id: `chat-kira-${Date.now()}`,
-        senderName: multiplayerConfig.opponentName || 'كيرا (KIRA)',
-        senderRole: 'KILLER',
-        text: turnRes.taunt,
-        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      };
-      multiplayer.send({ type: 'CHAT', message: chatMsg });
+      finishRound(acc, false);
     }
   };
 
-  const handleLaunchLindInSolo = (region: Region) => {
-    setActiveLindBroadcast({ region, timerSec: 45 });
-    if (!multiplayerConfig.active) {
-      setTimeout(() => {
-        if (region === kiraAIState.homeRegion) {
-          sensoryAudio.playThunder();
-          sensoryAudio.playScrambledVoice(
-            lang === 'ar'
-              ? 'لقد سقطت في الفخ التكتيكي يا كيرا! حددت منطقتك بدقة!'
-              : 'You fell into the tactical trap, Kira!'
-          );
-          multiplayer.send({
-            type: 'LIND_L_RESOLVE',
-            wasKilled: true,
-            killerRegion: kiraAIState.homeRegion,
-          });
-          setActiveLindBroadcast(null);
-        } else {
-          multiplayer.send({
-            type: 'LIND_L_RESOLVE',
-            wasKilled: false,
-          });
-          setActiveLindBroadcast(null);
-        }
-      }, 3000);
-    }
+  const nextRound = () => {
+    if (roundNo >= settings.rounds) setScreen('final');
+    else beginRound(players, roundNo + 1);
   };
 
-  useEffect(() => {
-    if (state.status === 'WON') {
-      if (state.player.suspicion <= 35) {
-        unlockSteamAchievement('ACH_CLEAN_HANDS');
-      }
-    }
-    if (state.player.suspicion === 0 && state.player.day > 1) {
-      unlockSteamAchievement('ACH_GHOST');
-    }
-
-    // Monitor story chapter completion
-    if (started && state.status === 'PLAYING') {
-      const activeCh = chapterProgress.activeChapter;
-      if (activeCh && !chapterProgress.completed[activeCh]?.cleared) {
-        const res = checkChapterCompletion(activeCh, state);
-        if (res.isComplete) {
-          const rank = calculateChapterRank(state.player.suspicion, state.player.spellingErrors || 0);
-          const nextUnlocked = Math.max(chapterProgress.unlockedChapter, activeCh + 1);
-          const updatedProgress: ChapterProgressState = {
-            ...chapterProgress,
-            unlockedChapter: nextUnlocked,
-            completed: {
-              ...chapterProgress.completed,
-              [activeCh]: {
-                cleared: true,
-                rank,
-                clearedAtDay: state.player.day,
-                suspicion: state.player.suspicion,
-                timestamp: new Date().toISOString(),
-              },
-            },
-          };
-          setChapterProgress(updatedProgress);
-          saveChapterProgress(updatedProgress);
-          setClearedChapterData({
-            chapterId: activeCh,
-            rank,
-            suspicion: state.player.suspicion,
-            clearedAtDay: state.player.day,
-          });
-          sensoryAudio.playEmergencyBroadcastSting();
-          sensoryAudio.playThunder();
-        }
-      }
-    }
-
-    // Proactive AI triggers in Single Player Mode
-    if (started && !multiplayerConfig.active && state.status === 'PLAYING') {
-      // 1. Day advance reaction from AI
-      if (state.player.day > lastDayRef.current) {
-        lastDayRef.current = state.player.day;
-        setTimeout(() => {
-          const dayTaunt = generateProactiveAIMessage({
-            trigger: 'DAY_START',
-            playerRole: multiplayerConfig.role,
-            opponentName: multiplayerConfig.opponentName,
-            lang,
-            gameState: state,
-          });
-          const opponentRole = multiplayerConfig.role === 'KILLER' ? 'DETECTIVE' : 'KILLER';
-          multiplayer.send({
-            type: 'CHAT',
-            message: {
-              id: `chat-ai-day-${state.player.day}-${Date.now()}`,
-              senderName: multiplayerConfig.opponentName,
-              senderRole: opponentRole,
-              text: dayTaunt,
-              timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-              hasAudioScramble: opponentRole === 'DETECTIVE',
-            },
-          });
-        }, 2000);
-      }
-
-      // 2. High Suspicion milestone (> 65%)
-      if (state.player.suspicion >= 65 && !highSuspicionRef.current) {
-        highSuspicionRef.current = true;
-        setTimeout(() => {
-          const suspTaunt = generateProactiveAIMessage({
-            trigger: 'HIGH_SUSPICION',
-            playerRole: multiplayerConfig.role,
-            opponentName: multiplayerConfig.opponentName,
-            lang,
-            gameState: state,
-          });
-          const opponentRole = multiplayerConfig.role === 'KILLER' ? 'DETECTIVE' : 'KILLER';
-          multiplayer.send({
-            type: 'CHAT',
-            message: {
-              id: `chat-ai-susp-${Date.now()}`,
-              senderName: multiplayerConfig.opponentName,
-              senderRole: opponentRole,
-              text: suspTaunt,
-              timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-              hasAudioScramble: opponentRole === 'DETECTIVE',
-            },
-          });
-        }, 1500);
-      }
-    }
-  }, [state.status, state.player.suspicion, state.player.day, started, multiplayerConfig.active, multiplayerConfig.role, multiplayerConfig.opponentName, lang, state]);
-
-  // Climax 40-second countdown ticker
-  useEffect(() => {
-    if (!state.climax || !state.climax.active) return;
-    const interval = setInterval(() => {
-      wrappedDispatch({ type: 'TICK_CLIMAX' });
-    }, 1000);
-    return () => clearInterval(interval);
-  }, [state.climax?.active, state.climax?.secondsLeft]);
-
-  if (!started) {
-    return (
-      <div className="app">
-        <Atmosphere suspicion={0} />
-        <SteamOverlayToast />
-        <Splash
-          onStart={() => setShowSoloRoleModal(true)}
-          onHowTo={() => setHelp(true)}
-          onMultiplayer={() => setShowMultiplayer(true)}
-          onSagas={() => setShowSagasModal(true)}
-          onDailyBounties={() => setShowBountiesModal(true)}
-        />
-        {showSoloRoleModal && (
-          <SoloRoleModal
-            onSelectRole={handleStartSoloRole}
-            onClose={() => setShowSoloRoleModal(false)}
-          />
-        )}
-        {help && <Tutorial onClose={() => setHelp(false)} />}
-        {showSteam && <SteamHubModal onClose={() => setShowSteam(false)} />}
-        {showMultiplayer && (
-          <MultiplayerModal
-            onClose={() => setShowMultiplayer(false)}
-            onStartGame={(role, myName, opponentName, roomCode) => {
-              setMultiplayerConfig({
-                active: true,
-                role,
-                myName,
-                opponentName,
-                roomCode,
-              });
-              setStarted(true);
-              sensoryAudio.startRain();
-            }}
-          />
-        )}
-
-        {/* Major Sagas Campaign Selection Modal */}
-        <SagaSelectModal
-          isOpen={showSagasModal}
-          onClose={() => setShowSagasModal(false)}
-          progress={sagaProgress}
-          onSelectSaga={(sagaId) => {
-            const updated = { ...sagaProgress, activeSagaId: sagaId };
-            setSagaProgress(updated);
-            saveSagaProgress(updated);
-          }}
-        />
-
-        {/* Daily Retribution Bounties Modal */}
-        <DailyBountiesModal
-          isOpen={showBountiesModal}
-          onClose={() => setShowBountiesModal(false)}
-        />
-      </div>
-    );
-  }
+  const playAgain = () => {
+    const reset = players.map((p) => ({ ...p, score: 0 }));
+    setPlayers(reset);
+    used.current = new Set();
+    beginRound(reset, 1);
+  };
 
   return (
-    <div className={`app ${multiplayerConfig.role === 'DETECTIVE' ? 'role-detective' : 'role-killer'}`}>
-      {/* Cinematic & Sensory Atmosphere */}
-      <Atmosphere suspicion={state.player.suspicion} />
+    <div className="app">
+      {screen === 'home' && <Home onPlay={() => setScreen('setup')} onHow={() => setShowHow(true)} />}
 
-      {/* Steam Achievement Toast Notifications */}
-      <SteamOverlayToast />
-
-      {/* Status Bar with Sound & Steam Hub */}
-      <StatusBar
-        state={state}
-        onAdvance={() => wrappedDispatch({ type: 'ADVANCE_HOUR' })}
-        onEndDay={() => {
-          if (multiplayerConfig.role === 'DETECTIVE' && !multiplayerConfig.active) {
-            handleAdvanceDayForDetective();
-          } else {
-            wrappedDispatch({ type: 'END_DAY' });
-          }
-        }}
-        onHelp={() => setHelp(true)}
-        onOpenSteam={() => setShowSteam(true)}
-        onOpenMultiplayer={() => setShowMultiplayer(true)}
-        activeChapter={chapterProgress.activeChapter}
-        onOpenChapters={() => setShowChapterSelect(true)}
-        onOpenSagas={() => setShowSagasModal(true)}
-        onOpenBounties={() => setShowBountiesModal(true)}
-      />
-
-      {/* Live Breaking News Ticker Bar */}
-      <BreakingNewsTicker state={state} lang={lang} />
-
-      {multiplayerConfig.role === 'DETECTIVE' ? (
-        /* Detective Command Center for L */
-        <DetectiveConsole
-          state={state}
-          dispatch={wrappedDispatch}
-          detectiveName={multiplayerConfig.myName}
-          killerName={multiplayerConfig.opponentName}
-          onLaunchLindBroadcast={handleLaunchLindInSolo}
-        />
-      ) : (
-        /* The Death Ledger & Terminal for Killer / Kira */
-        <>
-          <Terminal state={state} dispatch={wrappedDispatch} />
-          <Ledger state={state} dispatch={wrappedDispatch} />
-        </>
-      )}
-
-      {/* Live Psychological Mind-Game Chat */}
-      <PsychologicalChat
-        myName={multiplayerConfig.myName}
-        opponentName={multiplayerConfig.opponentName}
-        myRole={multiplayerConfig.role}
-        isMultiplayer={multiplayerConfig.active}
-        gameState={state}
-      />
-
-      {/* Morning Tabloid Breaking News Cutscene */}
-      {state.report && !end && (
-        <MorningTabloid
-          report={state.report}
-          targets={state.targets}
-          onDismiss={() => wrappedDispatch({ type: 'DISMISS_REPORT' })}
+      {screen === 'setup' && (
+        <Setup
+          players={players}
+          setPlayers={setPlayers}
+          settings={settings}
+          setSettings={setSettings}
+          onStart={startGame}
+          onBack={() => setScreen('home')}
         />
       )}
 
-      {/* Game Over / Victory Screen */}
-      {end && (
-        <div className="overlay end" data-lang={lang}>
-          <Splash ended={end} onStart={() => {}} onRestart={() => wrappedDispatch({ type: 'RESET' })} />
-        </div>
-      )}
-
-      {/* Live Lind L. Tailor Sting Broadcast for Killer */}
-      {activeLindBroadcast && multiplayerConfig.role === 'KILLER' && (
-        <LindBroadcastModal
-          region={activeLindBroadcast.region}
-          countdownSec={activeLindBroadcast.timerSec}
-          onExecute={() => {
-            const lindTarget = state.targets.find((t) => t.id === 'lind-l-tailor');
-            if (lindTarget) {
-              wrappedDispatch({
-                type: 'SUBMIT',
-                input: {
-                  name: lindTarget.name.ar,
-                  faceTargetId: 'lind-l-tailor',
-                  method: 'CARDIAC',
-                },
-              });
-            }
-            multiplayer.send({
-              type: 'LIND_L_RESOLVE',
-              wasKilled: true,
-              killerRegion: state.player.homeRegion,
-            });
-            setActiveLindBroadcast(null);
-          }}
-          onIgnore={() => {
-            multiplayer.send({
-              type: 'LIND_L_RESOLVE',
-              wasKilled: false,
-            });
-            setActiveLindBroadcast(null);
-          }}
+      {screen === 'handoff' && round && (
+        <Handoff
+          key={`${roundNo}-${handIdx}`}
+          player={players[handIdx]}
+          round={round}
+          roundNo={roundNo}
+          totalRounds={settings.rounds}
+          isLast={handIdx === players.length - 1}
+          onNext={() => (handIdx < players.length - 1 ? setHandIdx(handIdx + 1) : setScreen('discuss'))}
         />
       )}
 
-      {/* 40-Second Climax Tension Overlay */}
-      {state.climax && state.climax.active && (
-        <ClimaxModal
-          climax={state.climax}
-          onDismiss={() => wrappedDispatch({ type: 'CANCEL_CLIMAX' })}
+      {screen === 'discuss' && round && (
+        <Discuss key={roundNo} round={round} players={players} settings={settings} onVote={() => setScreen('vote')} />
+      )}
+
+      {screen === 'vote' && <Vote key={roundNo} players={players} onConfirm={onVote} />}
+
+      {screen === 'guess' && round && accused !== null && (
+        <Guess
+          key={roundNo}
+          accused={players.find((p) => p.id === accused)!}
+          round={round}
+          onGuess={(ok) => finishRound(accused, ok)}
         />
       )}
 
-      {/* Tutorial */}
-      {help && <Tutorial onClose={() => setHelp(false)} />}
-
-      {/* Steam Community Hub Modal */}
-      {showSteam && <SteamHubModal onClose={() => setShowSteam(false)} />}
-
-      {/* 1v1 Multiplayer Modal */}
-      {showMultiplayer && (
-        <MultiplayerModal
-          onClose={() => setShowMultiplayer(false)}
-          onStartGame={(role, myName, opponentName, roomCode) => {
-            setMultiplayerConfig({
-              active: true,
-              role,
-              myName,
-              opponentName,
-              roomCode,
-            });
-            setStarted(true);
-            sensoryAudio.startRain();
-          }}
+      {screen === 'result' && round && (
+        <Result
+          key={roundNo}
+          round={round}
+          players={players}
+          accused={accused}
+          outcome={outcome}
+          deltas={deltas}
+          roundNo={roundNo}
+          settings={settings}
+          onNext={nextRound}
         />
       )}
 
-      {/* Story Chapter Selection Modal */}
-      <ChapterSelectModal
-        isOpen={showChapterSelect}
-        onClose={() => setShowChapterSelect(false)}
-        gameState={state}
-        progress={chapterProgress}
-        onSelectChapter={(chId) => {
-          const updated: ChapterProgressState = {
-            ...chapterProgress,
-            activeChapter: chId,
-          };
-          setChapterProgress(updated);
-          saveChapterProgress(updated);
-        }}
-      />
-
-      {/* Story Chapter Cleared Cinematic Modal */}
-      {clearedChapterData && (
-        <ChapterClearedModal
-          chapterId={clearedChapterData.chapterId}
-          rank={clearedChapterData.rank}
-          suspicion={clearedChapterData.suspicion}
-          clearedAtDay={clearedChapterData.clearedAtDay}
-          onProceed={() => {
-            const nextCh = clearedChapterData.chapterId + 1;
-            setClearedChapterData(null);
-            if (nextCh <= 4) {
-              const updated: ChapterProgressState = {
-                ...chapterProgress,
-                activeChapter: nextCh,
-                unlockedChapter: Math.max(chapterProgress.unlockedChapter, nextCh),
-              };
-              setChapterProgress(updated);
-              saveChapterProgress(updated);
-            }
-          }}
-          onClose={() => setClearedChapterData(null)}
-        />
+      {screen === 'final' && (
+        <Final players={players} settings={settings} onAgain={playAgain} onHome={() => setScreen('home')} />
       )}
 
-      {/* Major Sagas Campaign Selection Modal */}
-      <SagaSelectModal
-        isOpen={showSagasModal}
-        onClose={() => setShowSagasModal(false)}
-        progress={sagaProgress}
-        onSelectSaga={(sagaId) => {
-          const updated = { ...sagaProgress, activeSagaId: sagaId };
-          setSagaProgress(updated);
-          saveSagaProgress(updated);
-        }}
-      />
-
-      {/* Daily Retribution Bounties Modal */}
-      <DailyBountiesModal
-        isOpen={showBountiesModal}
-        onClose={() => setShowBountiesModal(false)}
-      />
+      {showHow && <HowTo onClose={() => setShowHow(false)} />}
     </div>
   );
 }
+
