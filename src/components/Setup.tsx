@@ -174,6 +174,7 @@ export function Setup({ players, setPlayers, settings, setSettings, onStart, onB
                 </span>
               ))}
             </div>
+            {customWords.length < 4 && <small className="warn">{t('setup.customHint')}</small>}
           </div>
         )}
       </section>

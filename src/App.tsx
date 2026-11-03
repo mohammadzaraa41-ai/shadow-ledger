@@ -36,7 +36,13 @@ export default function App() {
   });
 
   const [players, setPlayers] = useState<Player[]>(() => loadJSON<Player[]>('lq_players', defaultPlayers()));
-  const [settings, setSettings] = useState<Settings>(() => loadJSON<Settings>('lq_settings', DEFAULT_SETTINGS));
+  // The room code is intentionally never restored: a stale code would silently replay identical seeded games.
+  const [settings, setSettings] = useState<Settings>(() => ({
+    ...loadJSON<Settings>('lq_settings', DEFAULT_SETTINGS),
+    roomCode: '',
+  }));
+  /** Increments on "play again" so a synced room code does not replay the exact same game. */
+  const gameNo = useRef(0);
 
   const [roundNo, setRoundNo] = useState(1);
   const [round, setRound] = useState<Round | null>(null);
@@ -46,7 +52,7 @@ export default function App() {
   const [deltas, setDeltas] = useState<Record<number, number>>({});
   const used = useRef<Set<string>>(new Set());
 
-  useEffect(() => saveJSON('lq_settings', settings), [settings]);
+  useEffect(() => saveJSON('lq_settings', { ...settings, roomCode: '' }), [settings]);
   useEffect(() => saveJSON('lq_players', players.map((p) => ({ ...p, score: 0 }))), [players]);
 
   const closeHow = () => {
@@ -66,7 +72,7 @@ export default function App() {
 
   const beginRound = (ps: Player[], no: number) => {
     const code = settings.roomCode?.trim().toUpperCase();
-    const seed = code ? `${code}-R${no}-P${ps.length}` : undefined;
+    const seed = code ? `${code}-G${gameNo.current}-R${no}-P${ps.length}` : undefined;
     setRound(createRound(ps, activeCategories(), settings.chaos, used.current, settings.roles ?? true, seed));
     setRoundNo(no);
     setHandIdx(0);
@@ -83,6 +89,7 @@ export default function App() {
     }));
     setPlayers(fresh);
     used.current = new Set();
+    gameNo.current = 0;
     speak(hostLine('intro', lang), lang, settings.voice);
     beginRound(fresh, 1);
   };
@@ -117,6 +124,7 @@ export default function App() {
     const reset = players.map((p) => ({ ...p, score: 0 }));
     setPlayers(reset);
     used.current = new Set();
+    gameNo.current += 1;
     beginRound(reset, 1);
   };
 
