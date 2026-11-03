@@ -51,7 +51,7 @@ export function Splash({ onStart, onHowTo, onMultiplayer, onSagas, onDailyBounti
                   className="stamp stamp-bounty"
                   onClick={onDailyBounties}
                 >
-                  🎯 {lang === 'ar' ? 'عقود الإعدام اليومية المتجددة (+500 XP)' : 'Daily Retribution Bounties (+500 XP)'}
+                  🎯 {lang === 'ar' ? 'عقود الملاحقة والتحري اليومية (+500 XP)' : 'Daily Retribution Bounties (+500 XP)'}
                 </button>
               )}
 

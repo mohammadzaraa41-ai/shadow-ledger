@@ -44,15 +44,15 @@ export const INITIAL_MEDALS: DetectiveMedal[] = [
     id: 'MEDAL_DECOY_HOOK',
     title: { ar: 'فخ الطُعم الإقليمي', en: 'Decoy Trap Specialist' },
     desc: {
-      ar: 'استدراج القاتل لكتابة اسم سجين وهمي بثته الشرطة محلياً لإثبات قدرته على القتل.',
-      en: 'Tricked the killer into targeting a regional police decoy identity.',
+      ar: 'استدراج صاحب الظل لكتابة اسم سجين وهمي بثته الشرطة محلياً لإثبات قدرته على التدخل عن بُعد.',
+      en: 'Tricked the culprit into targeting a regional police decoy identity.',
     },
     icon: '🪤',
     unlocked: false,
   },
   {
     id: 'MEDAL_CHECKMATE',
-    title: { ar: 'كش ملك: القيود في معصم القاتل', en: 'Supreme Checkmate: Handcuffs' },
+    title: { ar: 'كش ملك: القيود في معصم الفاعل', en: 'Supreme Checkmate: Handcuffs' },
     desc: {
       ar: 'إصدار أمر مداهمة حاسم وصحيح أدى إلى تطويق منزل القاتل واعتقاله متلبساً!',
       en: 'Executed a flawless raid warrant arresting the mastermind red-handed!',

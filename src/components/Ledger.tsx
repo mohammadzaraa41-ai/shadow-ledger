@@ -533,7 +533,7 @@ export function Ledger({
           onClick={submit}
         >
           {isNameMatched
-            ? (lang === 'ar' ? '🩸 تنفيذ الحكم وإزهاق الروح' : '🩸 Execute Verdict')
+            ? (lang === 'ar' ? '⚖️ تنفيذ الحكم وإسقاط النفوذ' : '⚖️ Execute Verdict')
             : t('led.write')}
         </button>
       </div>

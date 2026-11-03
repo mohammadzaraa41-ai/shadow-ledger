@@ -49,7 +49,7 @@ export function ClimaxModal({
             <>
               <Skull className="climax-icon-glow text-red-500" size={28} />
               <span className="climax-badge-text">
-                {isRtl ? 'حُكم الموت الحتمي — قاعدة الـ 40 ثانية' : 'FATAL VERDICT — 40-SECOND RULE'}
+                {isRtl ? 'حُكم الإدانة الحاسم — قاعدة الـ 40 ثانية' : 'DECISIVE VERDICT — 40-SECOND RULE'}
               </span>
             </>
           ) : (
@@ -118,8 +118,8 @@ export function ClimaxModal({
           <div className="climax-subquote">
             {isKillerWinImminent
               ? isRtl
-                ? '«الإنسان الذي يُكتب اسمه في هذا الدفتر سيموت... بسكتة قلبية بعد 40 ثانية بالضبط.»'
-                : '"The human whose name is written in this note shall die... of a heart attack in exactly 40 seconds."'
+                ? '«الهدف المدوّن اسمه في هذا السجل تسقط سلطته وتتحقق إدانته التامة بعد 40 ثانية بالضبط.»'
+                : '"The target whose name is recorded in this ledger shall face absolute judgment in exactly 40 seconds."'
               : isRtl
                 ? '«لقد حددنا هويتك وموقعك بدقة لا تقبل الشك، استسلم فوراً وقوات الـ SWAT ستضمن سلامتك.»'
                 : '"Your habits, schedule and location have given you away. Surrender peacefully or face immediate tactical breach."'}

@@ -95,10 +95,10 @@ const SPECS: TargetSpec[] = [
     },
     news: {
       headline: { ar: 'هروب سجين خطر من سجن الجنوب', en: 'Dangerous inmate escapes South prison' },
-      body: { ar: 'السلطات تبحث عن {name} المدان بثلاث جرائم قتل بعد فراره أمس.', en: 'Authorities search for {name}, convicted of three murders, after his escape yesterday.' },
+      body: { ar: 'السلطات تبحث عن {name} المدان بعدة جرائم كبرى بعد فراره أمس.', en: 'Authorities search for {name}, convicted of major offenses, after his escape yesterday.' },
       source: { ar: 'الأخبار العاجلة', en: 'Breaking News' }, scope: 'NATIONAL',
     },
-    police: { ar: 'مذكرة توقيف حمراء: مدان بجرائم قتل، فرّ من سجن الجنوب.', en: 'Red notice: convicted murderer, escaped South prison.' },
+    police: { ar: 'مذكرة توقيف حمراء: مدان بجرائم سطو منظم، فرّ من سجن الجنوب.', en: 'Red notice: convicted felon, escaped South prison.' },
     camera: { ar: 'ميناء الجنوب — رجل ملثم قرب المستودعات', en: 'South Harbor — masked man near the warehouses' },
   },
   {
@@ -179,16 +179,16 @@ const SPECS: TargetSpec[] = [
   {
     profile: {
       id: 'd1', name: { ar: 'تاكاهيرو ساتو', en: 'Takahiro Sato' }, faceId: 'f-d1',
-      title: { ar: 'سجين محكوم بالإعدام (طُعم L)', en: 'Death-row Inmate (L Decoy)' }, region: 'CENTRAL',
+      title: { ar: 'سجين مدان (طُعم L)', en: 'Convicted Inmate (L Decoy)' }, region: 'CENTRAL',
       precinct: { ar: 'الرئاسة العامة للأمن', en: 'General Security Command' }, priority: 'DECOY',
       routine: { place: { ar: 'استوديو البث التلفزيوني المركزي', en: 'Central TV studio' }, window: { from: 19, to: 21 } },
     },
     news: {
-      headline: { ar: 'بث مباشر عاجل: متهم يتحدى القاتل المجهول على الهواء!', en: 'Live Emergency Broadcast: Inmate dares the unseen killer on air!' },
-      body: { ar: 'في بث حصري، يصرخ {name} مهدداً بفضح القاتل ويدعي أنه لا يخشى الموت.', en: 'In an exclusive broadcast, {name} dares the unseen killer to stop him on air.' },
+      headline: { ar: 'بث مباشر عاجل: متهم يتحدى العقل المدبر على الهواء!', en: 'Live Emergency Broadcast: Inmate dares the unseen mastermind on air!' },
+      body: { ar: 'في بث حصري، يصرخ {name} مهدداً بفضح صاحب الظل ويدعي أنه لا يخشى مواجهته.', en: 'In an exclusive broadcast, {name} dares the unseen mastermind to confront him on air.' },
       source: { ar: 'البث التلفزيوني الخاص — عاجل', en: 'Special TV Broadcast — LIVE' }, scope: 'REGIONAL',
     },
-    police: { ar: 'سري للغاية: هذا البث طُعم مباشر بإشراف L لاختبار قدرة الفاعل على القتل عن بُعد.', en: 'Top Secret: This broadcast is a trap engineered by L to test range.' },
+    police: { ar: 'سري للغاية: هذا البث طُعم مباشر بإشراف L لاختبار قدرة الفاعل على التأثير عن بُعد.', en: 'Top Secret: This broadcast is a trap engineered by L to test range.' },
     camera: { ar: 'استوديو القناة الخاصة — حراسة أمنية مشددة وفريق بث حي', en: 'Special Channel Studio — heavy security & live camera crew' },
   },
   {
@@ -196,19 +196,19 @@ const SPECS: TargetSpec[] = [
       id: 'lind-l-tailor',
       name: { ar: 'ليند إل. تايلور', en: 'Lind L. Tailor' },
       faceId: 'f-lind',
-      title: { ar: 'الواجهة المستعارة للمحقق L (سجين محكوم بالإعدام)', en: 'L Decoy Persona (Death-Row Convict)' },
+      title: { ar: 'الواجهة المستعارة للمحقق L (طُعم سري)', en: 'L Decoy Persona (Covert Decoy)' },
       region: 'WEST',
       precinct: { ar: 'السجن المركزي الفيدرالي', en: 'Federal Central Penitentiary' },
       priority: 'DECOY',
       routine: { place: { ar: 'استوديو البث التلفزيوني الخاص', en: 'Special Broadcast Studio' }, window: { from: 18, to: 22 } },
     },
     news: {
-      headline: { ar: '🚨 بث تلفزيوني عاجل: المحقق L يظهر للعالم لأول مرة ويتحدى KIRA!', en: '🚨 Breaking Live Broadcast: Detective L reveals himself to challenge KIRA!' },
-      body: { ar: 'أنا L.. القاتل KIRA، إن كنت حقاً قادراً على القتل بلا لمس، فأرني قوتك واقتلني أمام شاشات العالم الآن!', en: 'I am L.. Killer KIRA, if you can truly kill without touching, show your power and kill me live on world television right now!' },
+      headline: { ar: '🚨 بث تلفزيوني عاجل: المحقق L يظهر للعالم لأول مرة ويتحدى صاحب الظل!', en: '🚨 Breaking Live Broadcast: Detective L reveals himself to challenge The Shadow!' },
+      body: { ar: 'أنا L.. أيها العقل المدبر، إن كنت حقاً قادراً على الإطاحة بي بلا لمس، فأرني قوتك وأسقطني أمام شاشات العالم الآن!', en: 'I am L.. Mastermind, if you can truly strike without touching, show your power and neutralize me live on world television right now!' },
       source: { ar: 'هيئة البث التلفزيوني العالمية (NHK/ICPO Special)', en: 'Global TV Network / ICPO Special' },
       scope: 'REGIONAL',
     },
-    police: { ar: 'برقية سرية: هذا البث طُعم مباشر منصوب لاصطياد KIRA في القطاع المختار.', en: 'Classified memo: This broadcast is a live sting to trap KIRA in the chosen sector.' },
+    police: { ar: 'برقية سرية: هذا البث طُعم مباشر منصوب لاصطياد صاحب الظل في القطاع المختار.', en: 'Classified memo: This broadcast is a live sting to trap The Shadow in the chosen sector.' },
     camera: { ar: 'استوديو البث الإقليمي المشفر', en: 'Encrypted Studio Transmission' },
   },
   {
@@ -228,16 +228,16 @@ const SPECS: TargetSpec[] = [
   {
     profile: {
       id: 'k5', name: { ar: 'هيجيكاتا رين', en: 'Hijikata Ren' }, faceId: 'f-k5',
-      title: { ar: 'سفاح مأجور في حلبات القتال', en: 'Underground Syndicate Hitman' }, region: 'NORTH',
+      title: { ar: 'رئيس شبكة تهريب في حلبات القتال', en: 'Underground Syndicate Leader' }, region: 'NORTH',
       precinct: { ar: 'قسم الشمال 1', en: 'North Precinct 1' }, priority: 'CRIMINAL',
       routine: { place: { ar: 'حلبة الملاكمة السرية بالشمال', en: 'North Underground Boxing Ring' }, window: { from: 22, to: 24 } },
     },
     news: {
-      headline: { ar: 'اغتيال 3 من قادة العصابات في الشمال', en: '3 gang leaders assassinated in North' },
-      body: { ar: 'تحريات تشير لضلوع القاتل المأجور {name} في سلسلة تصفيات دموية بحماية كارتل الشمال.', en: 'Detectives link hitman {name} to a string of contract executions for the North Cartel.' },
+      headline: { ar: 'إسقاط 3 من قادة العصابات في الشمال', en: '3 gang leaders brought down in North' },
+      body: { ar: 'تحريات تشير لضلوع {name} في سلسلة عمليات تهريب وسيطرة بحماية كارتل الشمال.', en: 'Detectives link {name} to a string of black-market operations for the North Cartel.' },
       source: { ar: 'صحيفة الشمال المسائية', en: 'North Evening Herald' }, scope: 'REGIONAL',
     },
-    police: { ar: 'ملف جنائي أسود: متهم بـ 7 اغتيالات مدفوعة الأجر لصالح عصابات التهريب.', en: 'Black dossier: Indicted in 7 contract murders for smuggling syndicates.' },
+    police: { ar: 'ملف جنائي أسود: متهم بـ 7 قضايا تهريب وسلاح لصالح عصابات الشمال.', en: 'Black dossier: Indicted in 7 smuggling and arms charges for North syndicates.' },
     camera: { ar: 'حلبة الملاكمة بالشمال — يغادر عبر المخرج الخلفي بعد النزالات', en: 'North Boxing Ring — exits via back alley following matches' },
   },
   {
@@ -443,7 +443,7 @@ export function buildBaseFeed(): NewsItem[] {
         {
           kind: 'text',
           text: {
-            ar: 'المحقق L: "أيها الضباط، هذا ليس عملاً إلهياً. الفاعل بشري يمتلك وسيلة قتل دقيقة ويقرأ بياناتنا الآن.. سأستدرجه ليرتكب خطأه الأول."',
+            ar: 'المحقق L: "أيها الضباط، هذا ليس عملاً إلهياً. الفاعل بشري يمتلك وسيلة استهداف دقيقة ويقرأ بياناتنا الآن.. سأستدرجه ليرتكب خطأه الأول."',
             en: 'L: "Officers, this is no miracle. The killer is human, uses a precise method, and is reading our feeds right now.. I will lure him into his first mistake."',
           },
         },

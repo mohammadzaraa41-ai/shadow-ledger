@@ -51,7 +51,7 @@ export function ShinigamiDealModal({
               onClose();
             }}
           >
-            {lang === 'ar' ? '🩸 إبرام الصفقة بدمك' : '🩸 Seal the Blood Pact'}
+            {lang === 'ar' ? '👁️ إبرام صفقة الظل' : '👁️ Seal the Shadow Pact'}
           </button>
           <button type="button" className="btn-cancel-deal" onClick={onClose}>
             {lang === 'ar' ? 'تراجع' : 'Decline'}

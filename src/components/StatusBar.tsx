@@ -91,7 +91,7 @@ export function StatusBar({
             type="button"
             className="chapter-status-pill bounty-status-pill"
             onClick={onOpenBounties}
-            title={lang === 'ar' ? 'عقود الإعدام اليومية المتجددة' : 'Daily Retribution Bounties'}
+            title={lang === 'ar' ? 'عقود الملاحقة والتحري اليومية' : 'Daily Retribution Bounties'}
           >
             <Crosshair size={12} className="chapter-pill-glyph" />
             <span>{lang === 'ar' ? 'العقود' : 'Bounties'}</span>

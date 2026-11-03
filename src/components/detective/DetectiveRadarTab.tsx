@@ -132,11 +132,11 @@ export function DetectiveRadarTab({
             <div className="guide-step">
               <span className="step-num">1</span>
               <div>
-                <b>{isRtl ? 'تحليل الوفيات البايزي (Bayesian Analysis):' : 'Bayesian Distribution:'}</b>
+                <b>{isRtl ? 'تحليل الأحكام البايزي (Bayesian Analysis):' : 'Bayesian Distribution:'}</b>
                 <p>
                   {isRtl
-                    ? 'كلما أعدم كيرا مجرماً بنوبة قلبية مفاجئة دون تحديد حادث، يسجل الحاسوب موقع بث الخبر ويرفع احتمال تمركز كيرا في ذلك القطاع.'
-                    : 'Every uncamouflaged death increases the statistical likelihood that Kira operates from that broadcast sector.'}
+                    ? 'كلما أسقط صاحب الظل هدفاً بإدانة مباشرة مفاجئة دون تمويه، يسجل الحاسوب موقع بث الخبر ويرفع احتمال تمركزه في ذلك القطاع.'
+                    : 'Every direct uncamouflaged verdict increases the statistical likelihood that the culprit operates from that broadcast sector.'}
                 </p>
               </div>
             </div>
@@ -147,8 +147,8 @@ export function DetectiveRadarTab({
                 <b>{isRtl ? 'الفخاخ التكتيكية الذكية:' : 'Deploy Tactical Traps:'}</b>
                 <p>
                   {isRtl
-                    ? 'انقر على أي قطاع ثم أطلق (بث الطُعم التلفزيوني 📺) أو (فخ ليند إل. تايلور 🎙️). إذا قتله كيرا، سيتأكد موقعه بنسبة 100%!'
-                    : 'Select a suspected sector and launch a Decoy Broadcast or Lind L. Tailor trap to provoke Kira into revealing their base.'}
+                    ? 'انقر على أي قطاع ثم أطلق (بث الطُعم التلفزيوني 📺) أو (فخ ليند إل. تايلور 🎙️). إذا استهدفه صاحب الظل، سيتأكد موقعه بنسبة 100%!'
+                    : 'Select a suspected sector and launch a Decoy Broadcast or Lind L. Tailor trap to provoke the culprit into revealing their base.'}
                 </p>
               </div>
             </div>
@@ -413,7 +413,7 @@ export function DetectiveRadarTab({
                 <b>{isRtl ? '📺 بث طُعم إعلامي كاذب (Decoy Broadcast)' : 'Broadcast Decoy Target'}</b>
                 <p>
                   {isRtl
-                    ? `بث خبر تلفزيوني عن مجرم وهمي حصرياً في قطاع ${REGION_NAME[selRegion].ar}. إذا قتله، نؤكد مكان إقامته!`
+                    ? `بث خبر تلفزيوني عن مجرم وهمي حصرياً في قطاع ${REGION_NAME[selRegion].ar}. إذا استهدفه، نؤكد مكان إقامته!`
                     : `Broadcast fake criminal exclusively in ${REGION_NAME[selRegion].en}. If killed, verifies Kira's location!`}
                 </p>
               </div>
@@ -454,8 +454,8 @@ export function DetectiveRadarTab({
                 <b>{isRtl ? '🎙️ فخ ليند إل. تايلور الحي (Lind L. Tailor)' : 'Lind L. Tailor Live Challenge'}</b>
                 <p>
                   {isRtl
-                    ? `بث تحدي المحكوم بالإعدام "ليند إل. تايلور" مباشرة في ${REGION_NAME[selRegion].ar} لاستفزاز KIRA ليقضي عليه فوراً!`
-                    : `Live TV challenge by death-row inmate posing as L in ${REGION_NAME[selRegion].en}!`
+                    ? `بث تحدي الطُعم السري "ليند إل. تايلور" مباشرة في ${REGION_NAME[selRegion].ar} لاستفزاز صاحب الظل ليسقطه فوراً!`
+                    : `Live TV challenge by covert decoy posing as L in ${REGION_NAME[selRegion].en}!`
                   }
                 </p>
               </div>

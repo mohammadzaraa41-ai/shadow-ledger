@@ -49,6 +49,10 @@ export function generatePsychologicalReply({
     if (
       msg.includes('ساقتلك') ||
       msg.includes('سأقتلك') ||
+      msg.includes('ساسقطك') ||
+      msg.includes('سأسقطك') ||
+      msg.includes('انهيك') ||
+      msg.includes('سأنهيك') ||
       msg.includes('موت') ||
       msg.includes('تموت') ||
       msg.includes('اسمك') ||
@@ -61,13 +65,13 @@ export function generatePsychologicalReply({
       return pickUnique(
         isAr
           ? [
-              'التهديد المباشر هو الحيلة المفضلة لمن بدأ يشعر بحبل المشنقة يضيق. لتقتلني تحتاج لاسم ووجه.. وأنا لست سوى صوت وشاشة.',
+              'التهديد المباشر هو الحيلة المفضلة لمن بدأ يشعر بالخناق يضيق. لتسقطني تحتاج لاسم ووجه.. وأنا لست سوى صوت وشاشة.',
               'تقول أنني الهدف التالي؟ ممتاز، هذا يثبت أنني أقض مضجعك. كلما حاولت استهدافي، اقتربت الشرطة خطوة من موقعك الحقيقي.',
               'حاول ما شئت.. حتى لو سقطت أنا، فإن الفريق الخاص يمتلك كل خوارزميات التتبع الجغرافي لتحركاتك.',
-              'الغضب والتهديد بالقتل يفقدك تركيزك التحليلي. استمر في الانفعال، فالأخطاء هي كل ما أنتظره منك.',
+              'الغضب والانفعال يفقدك تركيزك التحليلي. استمر في التوتر، فالأخطاء هي كل ما أنتظره منك.',
             ]
           : [
-              'Direct threats are the weapon of someone feeling the walls close in. To take my life, you need a name and a face—and I am merely a voice in the wire.',
+              'Direct threats are the weapon of someone feeling the walls close in. To take me down, you need a name and a face—and I am merely a voice in the wire.',
               'You claim I am next? Splendid. It confirms I am getting under your skin. The closer you reach for me, the closer Interpol gets to your doorstep.',
               'Rage clouds deduction. Keep lashing out; emotional slip-ups are exactly what I am waiting for.',
               'Even if you could erase me, the Task Force already holds your behavioral timeline. You cannot execute an entire algorithm.',
@@ -94,15 +98,15 @@ export function generatePsychologicalReply({
         isAr
           ? [
               'تدّعي أنك إله العدالة، لكنك تختبئ كأي مجرم مذعور خلف شاشة ودفتر في غرفة مظلمة. العدالة الحقيقية لا تخشى النور.',
-              'الغرور هو الثغرة الكبرى في عقلك. كل قاتل متسلسل ظن في بدايته أنه مختار من السماء.. وانتهى جميعهم بنفس الطريقة.',
+              'الغرور هو الثغرة الكبرى في عقلك. كل عقل مدبر ظن في بدايته أنه لا يُقهر.. وانتهى بهم المطاف خلف القضبان.',
               'أنت لست قاضياً، بل عارضاً لمرض جنون العظمة. ومهمتي ليست نقاشك فلسفياً، بل وضع الأصفاد في يديك.',
-              'تسمي القتل العشوائي عدالة؟ لقد حللنا سجلات ضحاياك.. إنك تتبع نمطاً دنيوياً بشرياً يمكن التنبؤ به بنسبة 94%.',
+              'تسمي إسقاط الفاسدين عدالة مطلقة؟ لقد حللنا سجلات أهدافك.. إنك تتبع نمطاً دنيوياً بشرياً يمكن التنبؤ به بنسبة 94%.',
             ]
           : [
               'You preach godhood, yet you cower behind a desk like any common fugitive. Real justice does not fear the daylight.',
-              'Hubris is your fatal flaw. Every megalomaniac believes they are divine, right until the iron bars slam shut.',
+              'Hubris is your fatal flaw. Every mastermind believes they are invincible, right until the iron bars slam shut.',
               'You are no deity; you are a psychological subject with an inflated ego. My job is not debate—it is checkmate.',
-              'You call execution justice? We analyzed your victim records. Your pattern is distinctly, predictably human.',
+              'You call this justice? We analyzed your operational records. Your pattern is distinctly, predictably human.',
             ]
       );
     }

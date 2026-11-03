@@ -40,18 +40,18 @@ export const STORY_CHAPTERS: StoryChapter[] = [
   {
     id: 1,
     title: { ar: 'الفصل الأول: ولادة الظل', en: 'Chapter 1: Awakening of The Shadow' },
-    subtitle: { ar: 'بداية الصحوة وتجربة أحكام الإعدام', en: 'The initial awakening and testing death verdicts' },
+    subtitle: { ar: 'بداية الصحوة وتجربة أحكام الإدانة', en: 'The initial awakening and testing strategic verdicts' },
     dangerLevel: 'LOW',
     dangerColor: '#2ecc71',
     badge: { ar: '🟢 خطورة منخفضة', en: '🟢 Low Danger' },
     dayRange: 'الأيام 1 — 4',
     intro: {
-      ar: 'وقعت قوة الدفتر بين يديك. المحقق سايفر لا يزال يجهل وجودك والشرطة تعتقد أن الوفيات صدفة عابرة. اثبت حضورك بتصفية أهدافك الأولى بحذر.',
-      en: 'The ledger has fallen into your hands. Detective Cipher is unaware of your existence, and police assume the deaths are coincidence. Prove your presence discreetly.',
+      ar: 'وقعت قوة الدفتر بين يديك. المحقق سايفر لا يزال يجهل وجودك والشرطة تعتقد أن سقوط الفاسدين صدفة عابرة. اثبت حضورك بإسقاط أهدافك الأولى بحذر.',
+      en: 'The ledger has fallen into your hands. Detective Cipher is unaware of your existence, and police assume the downfalls are coincidence. Prove your presence discreetly.',
     },
     clearNarrative: {
-      ar: 'عاجل: وكالات الأنباء العالمية تعلن رسمياً اجتماعاً طارئاً للإنتربول! أدرك العالم أن هناك يداً خفية تنزل القصاص بالمجرمين. أسطورة قاضي الظل بدأت!',
-      en: 'BREAKING: International agencies declare an emergency Interpol summit! The world now realizes a hidden hand executes retribution. The legend has begun!',
+      ar: 'عاجل: وكالات الأنباء العالمية تعلن رسمياً اجتماعاً طارئاً للإنتربول! أدرك العالم أن هناك يداً خفية تنزل القصاص بالفاسدين. أسطورة قاضي الظل بدأت!',
+      en: 'BREAKING: International agencies declare an emergency Interpol summit! The world now realizes a hidden hand executes retribution against corruption. The legend has begun!',
     },
     objectives: [
       {
@@ -95,7 +95,7 @@ export const STORY_CHAPTERS: StoryChapter[] = [
       },
       {
         id: 'c2_obj_deception',
-        title: { ar: 'استخدام أسلوب تضليلي (رسالة دم أو اقتتال عصابات)', en: 'Deploy a deceptive method (Blood Riddle or Gang War)' },
+        title: { ar: 'استخدام أسلوب تضليلي (شفرة سرية أو صراع فصائل)', en: 'Deploy a deceptive method (Cryptic Cipher or Conflict)' },
         check: (s) => s.records.some((r) => r.method === 'CRYPTIC_MSG' || r.method === 'GANG_WAR'),
       },
     ],

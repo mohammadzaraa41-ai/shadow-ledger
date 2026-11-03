@@ -137,8 +137,8 @@ function deathNews(
     segments.push({
       kind: 'text',
       text: {
-        ar: `الشرطة: وُجدت عبارة غامضة بدم الضحية: "${crypticNote}"`,
-        en: `Police: A cryptic note written in blood: "${crypticNote}"`,
+        ar: `الشرطة: وُجدت شفرة سرية تضليلية تركت في الموقع: "${crypticNote}"`,
+        en: `Police: A cryptic cipher note left at the scene: "${crypticNote}"`,
       },
     });
   }
@@ -281,15 +281,15 @@ export function evaluateTurn(actions: ExecutionCommand[], history: TurnHistory):
         }
       });
       d.notes.unshift({
-        ar: `رسالة دم غامضة في مسرح الجريمة تشير إلى ${REGION_NAME[decoyReg].ar}، فريق التحقيق يعيد تمشيط المنطقة!`,
-        en: `Cryptic blood note at crime scene points to ${REGION_NAME[decoyReg].en}, task force re-sweeps the sector!`,
+        ar: `شفرة سرية غامضة في مسرح القضية تشير إلى ${REGION_NAME[decoyReg].ar}، فريق التحقيق يعيد تمشيط المنطقة!`,
+        en: `Cryptic cipher note at the scene points to ${REGION_NAME[decoyReg].en}, task force re-sweeps the sector!`,
       });
     } else if (rec.method === 'GANG_WAR' || rec.method === 'FALSE_LEAD') {
-      // Staged suicides / gang wars divert police attention: blend toward uniform.
+      // Staged resignations / syndicate conflicts divert police attention: blend toward uniform.
       REGIONS.forEach((r) => (d.geoBelief[r] = d.geoBelief[r] * 0.70 + 0.30 / REGIONS.length));
       d.notes.unshift({
-        ar: `اقتتال داخلي عنيف يُغرق الشرطة والإنتربول في تحقيقات حرب عصابات!`,
-        en: `Violent gang warfare mires police and Interpol in syndicate investigations!`,
+        ar: `صراع داخلي مفاجئ يُغرق الشرطة والإنتربول في تحقيقات متضاربة!`,
+        en: `Sudden syndicate conflict mires police and Interpol in competing investigations!`,
       });
     }
   }

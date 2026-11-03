@@ -95,8 +95,8 @@ export function DeathMethodSelector({
             <HeartCrack size={15} className="text-red-pulse" />
             <span>
               {lang === 'ar'
-                ? '⚡ توقيع قاضي الظل الرسمي: وفاة مفاجئة في 40 ثانية. تفرض هيبة العدالة وتثبت السيطرة، لكن تكرارها بالساعة نفسها يمنح المحقق تحليلاً زمنياً.'
-                : '⚡ The Shadow Signature: Sudden heart failure in 40s. Proves absolute dominion, but repeated hours give the detective timetable intel.'}
+                ? '⚡ توقيع قاضي الظل الرسمي: إدانة حاسمة وصدمة في 40 ثانية. تثبت السيطرة والعدالة، لكن تكرارها بالساعة نفسها يمنح المحقق تحليلاً زمنياً.'
+                : '⚡ The Shadow Signature: Decisive downfall in 40s. Establishes control and justice, but repeated hours grant detective timetable intel.'}
             </span>
           </div>
         </div>
@@ -154,18 +154,18 @@ export function DeathMethodSelector({
           <div className="tactical-banner leak-banner">
             <FileCode2 size={16} />
             <div>
-              <b>{lang === 'ar' ? '📂 التحكم بسلوك الضحية قبل الموت:' : '📂 Pre-mortem Mind Coercion:'}</b>
+              <b>{lang === 'ar' ? '📂 إجبار الهدف على تسريب الوثائق:' : '📂 Target Coercion & Leak:'}</b>
               <p>
                 {lang === 'ar'
-                  ? 'يُجبر الهدف على اختراق خوادم الشرطة وسرقة وثيقة سرية عن المحقق سايفر (L) قبل انتحاره. ستكسب شظية هوية عن المحقق فورياً (+3% شك فقط)!'
-                  : 'Target is forced to breach police servers and exfiltrate a classified Cipher (L) dossier before dying. Yields instant intel on Detective (+3% susp)!'}
+                  ? 'يُجبر الهدف على اختراق خوادم الشرطة وتسريب وثيقة سرية عن المحقق سايفر (L) قبل عزله وسقوطه. ستكسب شظية هوية عن المحقق فورياً (+3% شك فقط)!'
+                  : 'Target is forced to breach police servers and exfiltrate a classified Cipher (L) dossier before their downfall. Yields instant intel on Detective (+3% susp)!'}
               </p>
             </div>
           </div>
         </div>
       )}
 
-      {/* 4. CRYPTIC BLOOD MESSAGE */}
+      {/* 4. CRYPTIC CIPHER */}
       {method === 'CRYPTIC_MSG' && (
         <div className="sub method-sub-panel">
           <div className="sub-section-title">
@@ -189,7 +189,7 @@ export function DeathMethodSelector({
           </div>
 
           <div className="sub-section-title" style={{ marginTop: '10px' }}>
-            <span>{lang === 'ar' ? 'الرسالة المكتوبة بدم الضحية:' : 'Blood Inscription Riddle:'}</span>
+            <span>{lang === 'ar' ? 'الشفرة السرية التضليلية المتروكة:' : 'Cryptic Cipher Inscription:'}</span>
           </div>
           <div className="cryptic-presets">
             {CRYPTIC_PRESETS.map((preset, idx) => (
@@ -207,7 +207,7 @@ export function DeathMethodSelector({
             ))}
           </div>
           <p className="cryptic-impact-hint">
-            🩸 {lang === 'ar'
+            📜 {lang === 'ar'
               ? `سينقل 40% من رادار وشكوك المحقق الجغرافية مباشرة إلى قطاع ${REGION_NAME[targetRegion][lang]}!`
               : `Transfers 40% of the detective's geographic suspicion directly to ${REGION_NAME[targetRegion][lang]}!`}
           </p>
@@ -238,14 +238,14 @@ export function DeathMethodSelector({
           </div>
           <p className="cryptic-impact-hint">
             💥 {lang === 'ar'
-              ? 'الضحية ستشن هجوماً انتحارياً على هذا الفصيل قبل مصرعها، ما يُغرق الشرطة في حرب شوارع ويخفض الشك العام (-6%).'
-              : 'Victim launches a hit against this faction before expiring, miring police in syndicate warfare and lowering suspicion (-6%).'}
+              ? 'الهدف سيوجه ضربة قضائية مفاجئة لهذا الفصيل قبل سقوطه، ما يُغرق الشرطة في تحقيقات متضاربة ويخفض الشك العام (-6%).'
+              : 'Target delivers a surprise legal blow against this faction before their downfall, miring police in conflicting probes and lowering suspicion (-6%).'}
           </p>
         </div>
       )}
 
       {/* TIMING SELECTION */}
-      <span className="ruled">{lang === 'ar' ? 'توقيت تنفيذ الوفاة:' : 'Execution Timing:'}</span>
+      <span className="ruled">{lang === 'ar' ? 'توقيت تنفيذ الحكم:' : 'Verdict Timing:'}</span>
       <div className="timing-options-row">
         <button
           type="button"

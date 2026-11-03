@@ -50,8 +50,8 @@ export function LindBroadcastModal({
     setStage('KILLED_STING');
     sensoryAudio.playScrambledVoice(
       isRtl
-        ? 'ذلك لم يكن أنا.. كان ذلك مجرماً محكوماً بالإعدام سراً! وبقتلك له، أثبتت وجودك وحددت قطاعك بدقة يا كيرا!'
-        : 'That was not me.. that was a condemned death row convict! By killing him, you proved your existence and exact sector, Kira!'
+        ? 'ذلك لم يكن أنا.. كان ذلك طُعماً مداناً سراً! وبإسقاطك له، أثبتت وجودك وحددت قطاعك بدقة!'
+        : 'That was not me.. that was a covert decoy! By neutralizing him, you proved your presence and exact sector!'
     );
 
     setTimeout(() => {
@@ -79,7 +79,7 @@ export function LindBroadcastModal({
         {stage === 'BROADCAST' && (
           <div className="lind-broadcast-body">
             <div className="broadcast-headline-row">
-              <h2>{isRtl ? 'المحقق L يظهر للعالم لأول مرة ويتحدى KIRA!' : 'Detective L reveals himself to challenge KIRA!'}</h2>
+              <h2>{isRtl ? 'المحقق L يظهر للعالم لأول مرة ويتحدى صاحب الظل!' : 'Detective L reveals himself to challenge The Shadow!'}</h2>
               <div className="broadcast-timer-badge">
                 <Clock size={14} className="pulse-icon" />
                 <span>00:{timeLeft < 10 ? `0${timeLeft}` : timeLeft}</span>
@@ -106,8 +106,8 @@ export function LindBroadcastModal({
                   <div className="quote-speaker-title">{isRtl ? 'ليند إل. تايلور (يزعم أنه المحقق L):' : 'Lind L. Tailor (Claims to be L):'}</div>
                   <blockquote>
                     {isRtl
-                      ? '«أنا هو L.. القاتل KIRA، لقد أزهقت أرواح الكثيرين مدعياً أنك إله العدالة! إن كنت حقاً قادراً على القتل عن بُعد وبلا لمس، فأنا جالس أمامك الآن على الهواء مباشرة.. اقتلني الآن إن استطعت!»'
-                      : '«I am L.. Killer KIRA, you have slain countless lives claiming to be a god of justice! If you can truly kill at a distance without touching, I am sitting right before you on live TV.. kill me now if you can!»'}
+                      ? '«أنا هو L.. أيها العقل المدبر، لقد أسقطت نفوذ الكثيرين مدعياً تحقيق العدالة! إن كنت حقاً قادراً على الإطاحة بأي شخص عن بُعد، فأنا جالس أمامك الآن على الهواء مباشرة.. أسقطني الآن إن استطعت!»'
+                      : '«I am L.. Mastermind, you have brought down countless targets claiming supreme justice! If you can truly eliminate anyone at a distance without contact, I am sitting before you on live TV.. neutralize me now if you can!»'}
                   </blockquote>
                 </div>
               </div>
@@ -139,8 +139,8 @@ export function LindBroadcastModal({
             <h3>{isRtl ? '🚨 لقد وقعت في الفخ التكتيكي للمحقق L!' : '🚨 You walked straight into L’s tactical trap!'}</h3>
             <p className="sting-explanation">
               {isRtl
-                ? '«ذلك الشخص لم يكن أنا.. بل مجرم محكوم بالإعدام سراً تم بثه حصرياً في قطاعك! وبقتلك له في هذه اللحظة، أثبتت أنك قادر على القتل عن بُعد، وحددت موقعك السكني بدقة!»'
-                : '«That man was not me.. but a condemned death-row convict broadcast solely to your sector! By killing him now, you proved you can kill at a distance, and revealed your exact location!»'}
+                ? '«ذلك الشخص لم يكن أنا.. بل مجرم مدان تم بثه حصرياً في قطاعك! وبإسقاطك له في هذه اللحظة، أثبتت أنك قادر على التدخل عن بُعد، وحددت موقعك السكني بدقة!»'
+                : '«That man was not me.. but a covert decoy broadcast solely to your sector! By neutralizing him now, you proved your reach, and revealed your exact location!»'}
             </p>
             <div className="sting-suspicion-spike">
               <span>{isRtl ? 'قفزة الشبهة الإقليمية:' : 'Regional Suspicion Spike:'}</span>

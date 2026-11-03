@@ -161,11 +161,11 @@ export function TerminalCounterIntel({
           <ShieldAlert size={20} className="text-red animate-bounce" />
           <div className="banner-text">
             <b>{isRtl ? 'ملف المحقق L مكتمل 100%!' : 'Detective L Dossier 100% Complete!'}</b>
-            <span>{isRtl ? 'يمكنك الآن فتح الدفتر وكتابة اسمه لبدء الإعدام الحتمي!' : 'You can now inscribe his true name in the Ledger for checkmate!'}</span>
+            <span>{isRtl ? 'يمكنك الآن فتح الدفتر وكتابة اسمه لبدء الإدانة الحتمية!' : 'You can now inscribe his true name in the Ledger for checkmate!'}</span>
           </div>
           {onOpenLedgerWithDetective && (
             <button type="button" className="btn-strike-detective" onClick={onOpenLedgerWithDetective}>
-              {isRtl ? 'فتح الدفتر لإعدام المحقق L ✍️' : 'Inscribe Detective L ✍️'}
+              {isRtl ? 'فتح الدفتر لإدانة وإسقاط المحقق L ✍️' : 'Inscribe Detective L ✍️'}
             </button>
           )}
         </div>

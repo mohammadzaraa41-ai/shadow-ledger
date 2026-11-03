@@ -17,7 +17,7 @@ export interface DailyBounty {
 export interface BountyProgressState {
   completedBounties: Record<string, { clearedAt: string; xpAwarded: number }>;
   totalHunterXP: number;
-  hunterRank: 'NOVICE' | 'VIGILANTE' | 'SHADOW_REAPER' | 'GOD_OF_DEATH';
+  hunterRank: 'NOVICE' | 'VIGILANTE' | 'SHADOW_REAPER' | 'SHADOW_MASTER';
 }
 
 const STORAGE_KEY = 'shadow_ledger_bounties_v1';
@@ -28,7 +28,7 @@ const BOUNTY_ROSTER: Omit<DailyBounty, 'dateKey'>[] = [
     name: { ar: 'كازويا شيندو', en: 'Kazuya Shindo' },
     faceId: 'f-k1',
     alias: { ar: 'شبح الميناء المظلم', en: 'Dark Harbor Ghost' },
-    crime: { ar: 'تهريب أسلحة دولية واغتيال شاهدين في المحكمة', en: 'International arms trafficking and witness elimination' },
+    crime: { ar: 'تهريب أسلحة دولية وابتزاز الشهود في المحكمة', en: 'International arms trafficking and witness extortion' },
     region: 'SOUTH',
     precinct: { ar: 'قسم الجنوب 3', en: 'South Precinct 3' },
     routine: { place: { ar: 'مستودع الحاويات رقم 4', en: 'Container Warehouse 4' }, window: { from: 21, to: 23 } },
@@ -52,7 +52,7 @@ const BOUNTY_ROSTER: Omit<DailyBounty, 'dateKey'>[] = [
     name: { ar: 'شينيتشي كورودا', en: 'Shinichi Kuroda' },
     faceId: 'f-c2',
     alias: { ar: 'المفوض المرتشي', en: 'The Shield for Hire' },
-    crime: { ar: 'تغطية شبكات الاتجار وتصفية ضابط شرطة شريف', en: 'Protecting human trafficking rings and framing honest cops' },
+    crime: { ar: 'تغطية شبكات الفساد وتلفيق التهم لضباط شرفاء', en: 'Protecting corruption rings and framing honest officers' },
     region: 'CENTRAL',
     precinct: { ar: 'قسم الوسط 2', en: 'Central Precinct 2' },
     routine: { place: { ar: 'مطعم السوشي الراقي بالوسط', en: 'Central Luxury Sushi Bar' }, window: { from: 13, to: 15 } },
@@ -121,7 +121,7 @@ export function claimBountyReward(
 ): BountyProgressState {
   const newXP = prev.totalHunterXP + xp;
   let newRank: BountyProgressState['hunterRank'] = 'NOVICE';
-  if (newXP >= 2500) newRank = 'GOD_OF_DEATH';
+  if (newXP >= 2500) newRank = 'SHADOW_MASTER';
   else if (newXP >= 1200) newRank = 'SHADOW_REAPER';
   else if (newXP >= 500) newRank = 'VIGILANTE';
 

@@ -79,12 +79,12 @@ export function InteractiveDeathNotePen({ x, y, isWriting, isExecuting, isRtl = 
               <circle cx={isRtl ? 62 : -62} cy="30" r="1.1" fill="#040407" className="dn-ink-spatter-3" />
             </g>
 
-            {/* Violent Execution Slash Burst */}
+            {/* Elegant Execution Ink Seal Burst */}
             {isExecuting && (
               <g className="dn-slash-burst">
-                <path d="M -50 20 L 70 44" stroke="#e0303f" strokeWidth="4.5" strokeLinecap="round" opacity="0.8" />
+                <path d="M -50 20 L 70 44" stroke="#d4af37" strokeWidth="4.5" strokeLinecap="round" opacity="0.9" />
                 <path d="M -40 22 L 60 42" stroke="#050508" strokeWidth="5.5" strokeLinecap="round" />
-                <circle cx="0" cy="32" r="4.5" fill="#e0303f" />
+                <circle cx="0" cy="32" r="4.5" fill="#d4af37" />
               </g>
             )}
           </svg>

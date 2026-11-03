@@ -38,8 +38,9 @@ export function DailyBountiesModal({
 
   const getRankBadgeTitle = (rank: BountyProgressState['hunterRank']) => {
     switch (rank) {
-      case 'GOD_OF_DEATH':
-        return isRtl ? '👑 إله الموت الأسطوري (God of Death)' : '👑 Legendary God of Death';
+      case 'SHADOW_MASTER':
+      case 'GOD_OF_DEATH' as unknown as BountyProgressState['hunterRank']:
+        return isRtl ? '👑 أسطورة الظل المطلق (Shadow Master)' : '👑 Absolute Shadow Master';
       case 'SHADOW_REAPER':
         return isRtl ? '⚡ حاصد الظلال الخبير (Shadow Reaper)' : '⚡ Shadow Reaper Elite';
       case 'VIGILANTE':
@@ -60,7 +61,7 @@ export function DailyBountiesModal({
           <div className="bounty-header-title-row">
             <Crosshair size={22} className="bounty-crosshair-icon" />
             <div>
-              <h3>{isRtl ? 'عقود الإعدام اليومية المتجددة' : 'Daily Retribution Bounties'}</h3>
+              <h3>{isRtl ? 'عقود الملاحقة والتحري اليومية' : 'Daily Retribution Bounties'}</h3>
               <p>{isRtl ? 'مطلوب جنائي هارب جديد كل 24 ساعة لاختبار مهاراتك' : 'A fresh high-profile fugitive contract every 24 hours'}</p>
             </div>
           </div>
@@ -133,7 +134,7 @@ export function DailyBountiesModal({
             {isClaimed ? (
               <div className="contract-claimed-banner">
                 <CheckCircle2 size={16} />
-                <span>{isRtl ? 'تمت تصفية المطلوب والمطالبة بالمكافأة لليوم! ترقب العقد القادم غداً.' : 'Bounty executed & claimed! Check back tomorrow for the next contract.'}</span>
+                <span>{isRtl ? 'تم تحييد المطلوب بنجاح والمطالبة بالمكافأة لليوم! ترقب العقد القادم غداً.' : 'Target neutralized & bounty claimed! Check back tomorrow for the next contract.'}</span>
               </div>
             ) : (
               <div className="contract-actions-group">

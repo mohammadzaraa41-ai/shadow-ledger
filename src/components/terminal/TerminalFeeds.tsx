@@ -62,8 +62,8 @@ function getShadowWhisper(state: GameState, lang: 'ar' | 'en'): string {
 
   if (player.suspicion >= 70) {
     return isRtl
-      ? '«أنفاس المحقق L تلفح عنقك.. توقف عن إزهاق الأرواح ليوم واحد، أو لفّق انتحاراً في منطقة بعيدة لإنقاذ رقبتك!»'
-      : '«L’s breath is on your neck.. Pause your executions for a day, or frame a suicide in a distant precinct to divert attention!»';
+      ? '«أنفاس المحقق L تلفح عنقك.. توقف عن تدوين الأحكام ليوم واحد، أو رتّب استقالة وتضليلاً في منطقة بعيدة لتشتيت الانتباه!»'
+      : '«L’s breath is on your neck.. Pause your verdicts for a day, or stage a resignation in a distant precinct to divert attention!»';
   }
 
   if (player.suspicion >= 40) {

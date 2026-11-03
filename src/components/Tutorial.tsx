@@ -47,15 +47,15 @@ const KILLER_STEPS: TutorialStep[] = [
   },
   {
     id: 2,
-    badge: { ar: 'أساليب الإعدام والتلاعب النفسي', en: 'Execution Rituals & Mind Games' },
-    title: { ar: '5 أساليب تكتيكية للسيطرة والتضليل', en: '5 Strategic Execution Methods' },
+    badge: { ar: 'أساليب الإدانة والتلاعب التكتيكي', en: 'Judicial Tactics & Mind Games' },
+    title: { ar: '5 أساليب تكتيكية للسيطرة والتضليل', en: '5 Strategic Elimination Methods' },
     desc: {
-      ar: '• السكتة القلبية المميزة (+12% شك): بصمتك الصريحة لفرض الهيبة، فورية ومضمونة 100%.\n• الحادث وحجة الغياب (0% شك): يطابق روتين الهدف. إذا اخترت ساعة تقع أثناء انشغالك (خارج وقت فراغك)، تصنع حجة غياب قاطعة (-4% شك) تحطم نموذج المحقق الزمني!\n• تسريب الوثائق (+3% شك): إجبار الضحية على اختراق خوادم المباحث وسرقة وثيقة سرية عن المحقق L قبل انتحارها (تكسب شظية هوية عن L مجاناً)!\n• رسالة الدم (+2% شك): كتابة لغز دامي ينقل 40% من رادار وشكوك المحقق الجغرافية نحو قطاع وهمي تختاره.\n• حرب العصابات (-6% شك): دفع الضحية لمهاجمة فصيل معادي لإغراق الشرطة في فوضى شوارع وتخفيض الشك العام.',
-      en: '• Signature Cardiac Arrest (+12% susp): Instant, absolute shock value.\n• Staged Accident & Alibi (0% susp): Matches routine. Timing it during your busy hours crafts an airtight alibi (-4% susp) that shatters the detective’s timetable correlation!\n• Coerced Intel Leak (+3% susp): Forces the victim to exfiltrate classified police dossiers on Detective L before dying, granting free identity intel!\n• Cryptic Blood Message (+2% susp): Scrawls a riddle in blood diverting 40% of detective radar to a decoy sector.\n• Faction Crossfire (-6% susp): Ignites a violent turf war, overwhelming police resources and dropping suspicion.',
+      ar: '• الإدانة المباشرة والصدمة (+12% شك): بصمتك الصريحة لفرض العدالة، فورية ومضمونة 100%.\n• الحادث وحجة الغياب (0% شك): يطابق روتين الهدف. إذا اخترت ساعة تقع أثناء انشغالك (خارج وقت فراغك)، تصنع حجة غياب قاطعة (-4% شك) تحطم نموذج المحقق الزمني!\n• تسريب الوثائق (+3% شك): إجبار الهدف على اختراق خوادم المباحث وسرقة وثيقة سرية عن المحقق L قبل عزله (تكسب شظية هوية عن L مجاناً)!\n• الشفرة السرية (+2% شك): كتابة شفرة تضليلية تنقل 40% من رادار وشكوك المحقق الجغرافية نحو قطاع وهمي تختاره.\n• صراع الفصائل (-6% شك): دفع الهدف لتوجيه ضربة مضادة لفصيل معادي لإغراق الشرطة في تحقيقات متضاربة وتخفيض الشك العام.',
+      en: '• Direct Decisive Judgment (+12% susp): Instant, absolute shock value.\n• Staged Accident & Alibi (0% susp): Matches routine. Timing it during your busy hours crafts an airtight alibi (-4% susp) that shatters the detective’s timetable correlation!\n• Coerced Intel Leak (+3% susp): Forces the target to exfiltrate classified police dossiers on Detective L before their downfall, granting free identity intel!\n• Cryptic Cipher (+2% susp): Scrawls a deceptive cipher diverting 40% of detective radar to a decoy sector.\n• Syndicate Conflict (-6% susp): Ignites conflicting inter-faction probes, overwhelming police resources and dropping suspicion.',
     },
     tip: {
-      ar: '💡 استخدم حجة الغياب ورسالة الدم للتلاعب بتفكير المحقق وحماية نفسك من المداهمة.',
-      en: '💡 Leverage Alibi Timing and Blood Riddles to manipulate the detective’s deductions.',
+      ar: '💡 استخدم حجة الغياب والشفرة التضليلية للتلاعب بتفكير المحقق وحماية نفسك من المداهمة.',
+      en: '💡 Leverage Alibi Timing and Cryptic Ciphers to manipulate the detective’s deductions.',
     },
     iconType: 'methods',
   },
@@ -92,7 +92,7 @@ const KILLER_STEPS: TutorialStep[] = [
     badge: { ar: 'الفخاخ الإعلامية', en: 'Media Decoys & Sting Traps' },
     title: { ar: 'فخ الطُعم الإقليمي وتحدي ليند', en: 'Regional Baits & Lind L. Tailor' },
     desc: {
-      ar: 'المحقق ليس غبياً! سيقوم ببث أخبار مجرمين وهميين (DECOY) حصرياً في منطقتك، أو يطلق بث "ليند إل. تايلور" الذي يتطاول عليك. إذا تسرعت وقتلت الطُعم الحصري، ستثبت للمحقق مكان إقامتك وسيقوم بتطويق قطاعك.',
+      ar: 'المحقق ليس غبياً! سيقوم ببث أخبار مجرمين وهميين (DECOY) حصرياً في منطقتك، أو يطلق بث "ليند إل. تايلور" الذي يتطاول عليك. إذا تسرعت واستهدفت الطُعم الحصري، ستثبت للمحقق مكان إقامتك وسيقوم بتطويق قطاعك.',
       en: 'The detective will broadcast fake criminals (DECOY) exclusively in your region, or air Lind L. Tailor’s challenge. If you eliminate an exclusive regional broadcast, you confirm your residential sector instantly!',
     },
     tip: {
@@ -118,10 +118,10 @@ const KILLER_STEPS: TutorialStep[] = [
   {
     id: 7,
     badge: { ar: 'القضايا الكبرى والعقود اليومية', en: 'Grand Sagas & Daily Bounties' },
-    title: { ar: 'حملة الـ 1h 45m وعقود الإعدام المتجددة', en: '1h 45m Campaign & Daily Bounties' },
+    title: { ar: 'حملة الـ 1h 45m وعقود الملاحقة المتجددة', en: '1h 45m Campaign & Daily Bounties' },
     desc: {
-      ar: '• ملفات القضايا الكبرى الثلاث: خُض حملة تمتد لأكثر من ساعة و45 دقيقة ضد 3 خصوم كبار (المحقق سايفر L، ثم كارتل الشركات وحرب الأقمار الصناعية، وصولاً لصراع الورثة المزدوج Neo & Viper).\n• عقود الإعدام اليومية: احصد كل يوم عقداً جديداً لمجرم فارّ، واكسب نقاط الصياد (Hunter XP) لترقية رتبتك من مستجد إلى رتبة «إله الموت (God of Death)» الأسطورية!',
-      en: '• The 3 Major Sagas: Embark on a grand campaign lasting over 1h 45m against 3 unique masterminds (Chief Detective Cipher, Corporate Syndicate & Satellites, and Twin Successors Neo & Viper).\n• Daily Retribution Bounties: Hunt a fresh daily fugitive contract every day, earning Hunter XP to ascend from Novice to the legendary God of Death rank!',
+      ar: '• ملفات القضايا الكبرى الثلاث: خُض حملة تمتد لأكثر من ساعة و45 دقيقة ضد 3 خصوم كبار (المحقق سايفر L، ثم كارتل الشركات وحرب الأقمار الصناعية، وصولاً لصراع الورثة المزدوج Neo & Viper).\n• عقود الملاحقة اليومية: احصد كل يوم عقداً جديداً لمجرم فارّ، واكسب نقاط الصياد (Hunter XP) لترقية رتبتك من مستجد إلى رتبة «سيد الظل (Shadow Master)» المطلقة!',
+      en: '• The 3 Major Sagas: Embark on a grand campaign lasting over 1h 45m against 3 unique masterminds (Chief Detective Cipher, Corporate Syndicate & Satellites, and Twin Successors Neo & Viper).\n• Daily Retribution Bounties: Hunt a fresh daily fugitive contract every day, earning Hunter XP to ascend from Novice to the legendary Shadow Master rank!',
     },
     tip: {
       ar: '💡 افتح نافذة «القضايا» أو «العقود» في أي وقت من شاشة البداية أو من شريط الحالة العلوي.',
@@ -207,8 +207,8 @@ const DETECTIVE_STEPS: TutorialStep[] = [
     badge: { ar: 'العملية 6: الضربة القاضية', en: 'Operation 6: Decisive Strike' },
     title: { ar: 'فخ ليند إل. تايلور والمداهمة النهائية', en: 'Lind L. Tailor & Final Raid' },
     desc: {
-      ar: '• فخ ليند إل. تايلور: أطلق بث التحدي العالمي للمحكوم بالإعدام الذي يدّعي أنه أنت. إذا قتله، يمنحك موقعه الإقليمي فوراً.\n• المداهمة النهائية: عندما تصبح متأكداً من القطاع، اضغط «تنفيذ المداهمة». تحذير: مداهمة القطاع الخاطئ تفشل التحقيق وتكلفك عزلك من القضية!',
-      en: '• Lind L. Tailor Live Trap: Broadcast a death-row inmate posing as you. If killed, Kira reveals his sector on live TV.\n• Final SWAT Raid: When certain of the sector, execute the raid. Warning: raiding the wrong sector blows the investigation and ends in defeat!',
+      ar: '• فخ ليند إل. تايلور: أطلق بث التحدي العالمي لطُعم سري يدّعي أنه أنت. إذا تم استهدافه، يمنحك موقعه الإقليمي فوراً.\n• المداهمة النهائية: عندما تصبح متأكداً من القطاع، اضغط «تنفيذ المداهمة». تحذير: مداهمة القطاع الخاطئ تفشل التحقيق وتكلفك عزلك من القضية!',
+      en: '• Lind L. Tailor Live Trap: Broadcast a covert decoy posing as you. If targeted, Kira reveals his sector on live TV.\n• Final SWAT Raid: When certain of the sector, execute the raid. Warning: raiding the wrong sector blows the investigation and ends in defeat!',
     },
     tip: {
       ar: '💡 لا تداهم عشوائياً! تأكد أولاً بواسطة الطُعم التلفزيوني أو غرفة الاستجواب لضمان النجاح 100%.',
@@ -301,13 +301,13 @@ export function Tutorial({ onClose }: { onClose: () => void }) {
             {current.iconType === 'methods' && (
               <div className="art-item-glow amber">
                 <Skull size={44} />
-                <span className="art-caption">{isRtl ? 'سكتة (+12%) · حادث وغياب (-4%) · تسريب · لغز دم · حرب عصابات (-6%)' : 'Cardiac · Accident & Alibi (-4%) · Leak · Blood Riddle · Crossfire'}</span>
+                <span className="art-caption">{isRtl ? 'إدانة صريحة (+12%) · حادث وغياب (-4%) · تسريب · شفرة · صراع فصائل (-6%)' : 'Direct (+12%) · Accident & Alibi (-4%) · Leak · Cipher · Conflict'}</span>
               </div>
             )}
             {current.iconType === 'sagas_bounties' && (
               <div className="art-item-glow blue">
                 <Flame size={48} />
-                <span className="art-caption">{isRtl ? '📁 3 قضايا كبرى (~1h 45m) + 🎯 عقود إعدام يومية (+XP)' : '3 Major Sagas (~1h 45m) + Daily Retribution Bounties'}</span>
+                <span className="art-caption">{isRtl ? '📁 3 قضايا كبرى (~1h 45m) + 🎯 عقود ملاحقة يومية (+XP)' : '3 Major Sagas (~1h 45m) + Daily Retribution Bounties'}</span>
               </div>
             )}
             {current.iconType === 'camouflage' && (
