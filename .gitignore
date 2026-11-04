@@ -49,3 +49,7 @@ ios/App/DerivedData/
 
 # Electron packaging output
 electron/dist/
+
+# App Store marketing screenshots (local only)
+store_assets/
+

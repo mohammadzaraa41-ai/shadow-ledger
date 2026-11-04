@@ -66,7 +66,7 @@ const ar: Dict = {
   'chaos.WHISPER': 'جولة الهمس 🤫',
   'chaos.WHISPERd': 'الكل يتكلم بصوت منخفض جداً طوال الجولة.',
 
-  'disc.starter': '{name} يبدأ الكلام',
+  'disc.starter': 'البداية من: {name}',
   'disc.prompt': 'فكرة للنقاش',
   'disc.newPrompt': 'فكرة ثانية',
   'disc.vote': 'جاهزون للتصويت',
