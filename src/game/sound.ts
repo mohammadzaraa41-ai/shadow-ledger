@@ -16,8 +16,9 @@ function ac(): AudioContext | null {
 }
 
 function tone(freq: number, start: number, dur: number, type: OscillatorType = 'sine', vol = 0.18, slideTo?: number) {
+  if (muted) return; // never spin up an AudioContext for a muted user
   const c = ac();
-  if (!c || muted) return;
+  if (!c) return;
   const t0 = c.currentTime + start;
   const osc = c.createOscillator();
   const gain = c.createGain();

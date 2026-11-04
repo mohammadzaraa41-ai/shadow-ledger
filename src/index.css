@@ -30,17 +30,34 @@ body,
 body {
   font-family: var(--f-body);
   color: var(--text);
-  background: radial-gradient(1200px 700px at 50% -10%, var(--bg2), var(--bg1));
-  background-attachment: fixed;
+  background: var(--bg1);
   overscroll-behavior: none;
   -webkit-user-select: none;
   user-select: none;
   -webkit-touch-callout: none;
 }
 
+/* Fixed gradient lives on its own compositor layer: `background-attachment: fixed` repaints on every scroll on mobile. */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background: radial-gradient(1200px 700px at 50% -10%, var(--bg2), var(--bg1));
+  pointer-events: none;
+}
+
 input {
   -webkit-user-select: text;
   user-select: text;
+}
+
+/* Removes the legacy tap delay / double-tap-zoom hit on every control. */
+button,
+input,
+label,
+[role='dialog'] {
+  touch-action: manipulation;
 }
 
 .app {
@@ -142,6 +159,7 @@ input {
 .logo-emoji {
   font-size: 96px;
   animation: bob 2.6s ease-in-out infinite;
+  will-change: transform;
 }
 
 @keyframes bob {
@@ -467,6 +485,7 @@ input {
   padding: 10px;
   background: conic-gradient(var(--yellow) var(--pct), rgba(255, 255, 255, 0.1) 0);
   color: var(--text);
+  contain: layout paint;
 }
 .timer.urgent {
   background: conic-gradient(var(--red) var(--pct), rgba(255, 255, 255, 0.1) 0);
@@ -925,6 +944,7 @@ input {
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
   cursor: pointer;
   transition: transform 1.8s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform;
 }
 .wheel-center-icon {
   width: 56px;

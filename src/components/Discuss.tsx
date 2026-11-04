@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { hostLine, randomPrompt, speak } from '../game/host';
 import { isPublicChaos } from '../game/engine';
 import { sound } from '../game/sound';
@@ -31,16 +31,26 @@ export function Discuss({ round, players, settings, onVote }: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Deadline-based countdown: one interval per pause/resume, immune to throttled timers and
+  // to the webview being suspended (a naive "-1 per tick" loses time on slow devices).
+  const remainingMs = useRef(total * 1000);
+  const lastTick = useRef(total);
   useEffect(() => {
-    if (paused || left <= 0) return;
+    if (paused) return;
+    const deadline = Date.now() + remainingMs.current;
     const id = setInterval(() => {
-      setLeft((v) => {
-        if (v <= 11 && v > 1) sound.tick();
-        return v - 1;
-      });
-    }, 1000);
+      const ms = Math.max(0, deadline - Date.now());
+      remainingMs.current = ms;
+      const s = Math.ceil(ms / 1000);
+      if (s !== lastTick.current) {
+        lastTick.current = s;
+        if (s <= 10 && s >= 1) sound.tick();
+        setLeft(s);
+      }
+      if (ms === 0) clearInterval(id);
+    }, 250);
     return () => clearInterval(id);
-  }, [paused, left]);
+  }, [paused]);
 
   useEffect(() => {
     if (left > 0) return;
