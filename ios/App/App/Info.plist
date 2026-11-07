@@ -8,6 +8,8 @@
   <string>ca-app-pub-9742462967769652~9984075802</string>
   <key>NSUserTrackingUsageDescription</key>
   <string>نستخدم هذا المعرّف لعرض إعلانات مناسبة لك لفتح الفئات الإضافية مجاناً.</string>
+  <key>NSMotionUsageDescription</key>
+  <string>نستخدم مستشعر حركة الهاتف في لعبة على جبينك لتسجيل الإجابة الصحيحة عند إمالة الرأس للأمام أو تخطي البطاقة عند الإمالة للخلف.</string>
   <key>SKAdNetworkItems</key>
   <array>
     <dict>

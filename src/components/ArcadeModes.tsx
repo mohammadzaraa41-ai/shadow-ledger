@@ -10,6 +10,7 @@ import {
 } from '../game/arcadeData';
 import { sound } from '../game/sound';
 import { useLang } from '../i18n';
+import { CardIllustration } from './CardIllustration';
 
 export type ArcadeModeType = 'charades' | 'headsup';
 
@@ -57,11 +58,11 @@ export function ArcadeModal({
   const [cardIdx, setCardIdx] = useState(0);
   const [correctCount, setCorrectCount] = useState(0);
   const [flash, setFlash] = useState<'ok' | 'pass' | null>(null);
-  const [tiltSupported, setTiltSupported] = useState(false);
+  const [tiltState, setTiltState] = useState<'ready' | 'down' | 'up'>('ready');
 
   const deadlineRef = useRef<number>(0);
   const lastSecRef = useRef<number>(duration);
-  const tiltNeutralRef = useRef<boolean>(true);
+  const tiltNeutralRef = useRef<boolean>(false);
   const tiltCooldownRef = useRef<number>(0);
 
   // Drift-free deadline timer during active play
@@ -88,27 +89,35 @@ export function ArcadeModal({
     return () => clearInterval(id);
   }, [phase, duration]);
 
-  const requestTiltPermissionIfNeeded = async () => {
-    try {
-      const DOE = window.DeviceOrientationEvent as unknown as {
-        requestPermission?: () => Promise<'granted' | 'denied'>;
-      };
-      if (DOE && typeof DOE.requestPermission === 'function') {
-        const res = await DOE.requestPermission();
-        if (res === 'granted') setTiltSupported(true);
-      } else if ('DeviceOrientationEvent' in window) {
-        setTiltSupported(true);
-      }
-    } catch {
-      // ignore if denied or unsupported
-    }
-  };
-
-  const startChallenge = () => {
+  const startChallenge = async () => {
     sound.flip();
+    // Request iOS 13+ Motion & Orientation permissions directly inside the user click gesture
     if (mode === 'headsup') {
-      void requestTiltPermissionIfNeeded();
+      try {
+        const DME = window.DeviceMotionEvent as unknown as {
+          requestPermission?: () => Promise<'granted' | 'denied'>;
+        };
+        if (DME && typeof DME.requestPermission === 'function') {
+          await DME.requestPermission();
+        }
+      } catch {
+        // ignore if unsupported
+      }
+      try {
+        const DOE = window.DeviceOrientationEvent as unknown as {
+          requestPermission?: () => Promise<'granted' | 'denied'>;
+        };
+        if (DOE && typeof DOE.requestPermission === 'function') {
+          await DOE.requestPermission();
+        }
+      } catch {
+        // ignore if unsupported
+      }
     }
+
+    tiltNeutralRef.current = false;
+    tiltCooldownRef.current = performance.now() + 700;
+    setTiltState('ready');
     setLeft(duration);
     if (mode === 'charades') {
       setCharade(pickCharadeCard(charadeCat));
@@ -136,7 +145,11 @@ export function ArcadeModal({
   const handleHeadsUpCorrect = useCallback(() => {
     sound.flip();
     setFlash('ok');
-    setTimeout(() => setFlash(null), 220);
+    setTiltState('down');
+    setTimeout(() => {
+      setFlash(null);
+      setTiltState('ready');
+    }, 320);
 
     setCorrectCount((prev) => {
       const next = prev + 1;
@@ -152,62 +165,102 @@ export function ArcadeModal({
   const handleHeadsUpPass = useCallback(() => {
     sound.tap();
     setFlash('pass');
-    setTimeout(() => setFlash(null), 220);
+    setTiltState('up');
+    setTimeout(() => {
+      setFlash(null);
+      setTiltState('ready');
+    }, 320);
     setCardIdx((i) => (i + 1) % deck.length);
   }, [deck.length]);
 
-  // Forehead Tilt Detection (Nod Down = Correct ✅, Tilt Up = Pass ⏭️)
+  /**
+   * Orientation-Independent 3D Forehead Tilt Engine
+   * Works seamlessly in Portrait, Landscape-Left, and Landscape-Right!
+   * Uses the screen's Z-axis normal component:
+   * - Neutral (phone held upright on forehead): screen normal Z is near 0 (-0.38 to +0.38)
+   * - Nod Forward / Tilt Screen Down toward floor: normal Z <= -0.52 -> Correct (✅)
+   * - Tilt Backward / Tilt Screen Up toward ceiling: normal Z >= +0.52 -> Pass (⏭️)
+   */
   useEffect(() => {
     if (phase !== 'play' || mode !== 'headsup') return;
 
-    const onOrientation = (e: DeviceOrientationEvent) => {
-      const beta = e.beta; // front-to-back tilt in degrees (-180 to 180)
-      if (beta === null) return;
-      setTiltSupported(true);
-
+    const processScreenNormalZ = (normZ: number) => {
       const now = performance.now();
       if (now < tiltCooldownRef.current) return;
 
-      // Upright forehead neutral zone: roughly 60° to 115°
-      if (beta >= 60 && beta <= 115) {
+      // Return to upright forehead neutral zone before allowing next tilt trigger
+      if (Math.abs(normZ) < 0.38) {
         tiltNeutralRef.current = true;
         return;
       }
 
       if (!tiltNeutralRef.current) return;
 
-      // Tilted forward/down strongly (nodding YES)
-      if (beta > 15 && beta < 48) {
+      // Screen tilted face-down toward the floor (Nodding forward = GOT IT ✅)
+      if (normZ <= -0.52) {
         tiltNeutralRef.current = false;
-        tiltCooldownRef.current = now + 900;
+        tiltCooldownRef.current = now + 950;
         handleHeadsUpCorrect();
       }
-      // Tilted backward/up strongly (PASS)
-      else if (beta > 130 && beta < 170) {
+      // Screen tilted face-up toward the ceiling (Tilting backward = PASS ⏭️)
+      else if (normZ >= 0.52) {
         tiltNeutralRef.current = false;
-        tiltCooldownRef.current = now + 900;
+        tiltCooldownRef.current = now + 950;
         handleHeadsUpPass();
       }
     };
 
-    window.addEventListener('deviceorientation', onOrientation, true);
-    return () => window.removeEventListener('deviceorientation', onOrientation, true);
+    const onDeviceMotion = (e: DeviceMotionEvent) => {
+      const acc = e.accelerationIncludingGravity;
+      if (!acc || acc.z === null || acc.z === undefined) return;
+      // Normalize z by standard gravity (9.81 m/s^2)
+      const normZ = Math.max(-1, Math.min(1, acc.z / 9.81));
+      processScreenNormalZ(normZ);
+    };
+
+    const onDeviceOrientation = (e: DeviceOrientationEvent) => {
+      if (e.beta === null || e.gamma === null) return;
+      const betaRad = (e.beta * Math.PI) / 180;
+      const gammaRad = (e.gamma * Math.PI) / 180;
+      // 3D projection of gravity onto the screen-perpendicular Z axis
+      const normZ = Math.cos(betaRad) * Math.cos(gammaRad);
+      processScreenNormalZ(normZ);
+    };
+
+    window.addEventListener('devicemotion', onDeviceMotion, true);
+    window.addEventListener('deviceorientation', onDeviceOrientation, true);
+    return () => {
+      window.removeEventListener('devicemotion', onDeviceMotion, true);
+      window.removeEventListener('deviceorientation', onDeviceOrientation, true);
+    };
   }, [phase, mode, handleHeadsUpCorrect, handleHeadsUpPass]);
 
   const activeHeadsUpCard = deck[cardIdx] ?? deck[0];
   const activeCatList = mode === 'charades' ? CHARADE_CATS : HEADSUP_CATS;
   const activeCatId = mode === 'charades' ? charadeCat : headsupCat;
+  const isFullScreen = phase !== 'intro';
 
   return (
-    <div className="overlay" role="dialog" aria-modal="true" onClick={onClose}>
-      <div className="sheet arcade-sheet center-text" onClick={(e) => e.stopPropagation()}>
-        <h2 className="sheet-title">
-          {isRedemption
-            ? t('arc.redeemTitle', { name: playerName ?? '' })
-            : mode === 'charades'
-              ? t('arc.charadesTitle')
-              : t('arc.headsupTitle')}
-        </h2>
+    <div
+      className={`overlay ${isFullScreen ? 'overlay-fullscreen' : ''}`}
+      role="dialog"
+      aria-modal="true"
+      onClick={isFullScreen ? undefined : onClose}
+    >
+      <div
+        className={`sheet arcade-sheet center-text ${isFullScreen ? 'arcade-fullscreen' : ''}`}
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Top Header in Intro Phase */}
+        {phase === 'intro' && (
+          <h2 className="sheet-title">
+            {isRedemption
+              ? t('arc.redeemTitle', { name: playerName ?? '' })
+              : mode === 'charades'
+                ? t('arc.charadesTitle')
+                : t('arc.headsupTitle')}
+          </h2>
+        )}
 
         {/* Mode switcher tabs in intro phase */}
         {phase === 'intro' && (
@@ -290,22 +343,34 @@ export function ArcadeModal({
           </div>
         )}
 
-        {/* PLAY PHASE: CHARADES (بدون كلام) */}
+        {/* PLAY PHASE: CHARADES (بدون كلام — شاشة كاملة متجاوبة مع الصورة التوضيحية) */}
         {phase === 'play' && mode === 'charades' && (
-          <div className="arcade-play">
-            <div className="arcade-hud">
+          <div className="arcade-play-full">
+            <div className="arcade-hud-full">
+              <button
+                type="button"
+                className="chip-btn"
+                onClick={() => {
+                  sound.tap();
+                  setPhase('intro');
+                }}
+              >
+                ✕
+              </button>
               <span className={`arcade-timer ${left <= 10 ? 'hot' : ''}`}>⏱️ {left}s</span>
               <span className="prompt-badge">{charade.tag[lang]}</span>
             </div>
 
-            <div className="arcade-card">
-              <div className="arcade-emoji">{charade.emoji}</div>
-              <h3 className="arcade-word">{charade[lang]}</h3>
-              <p className="arcade-hint">💡 {charade.hint[lang]}</p>
+            <div className="arcade-stage-card">
+              <CardIllustration card={charade} size="lg" />
+              <div className="arcade-stage-info">
+                <h3 className="arcade-word">{charade[lang]}</h3>
+                <p className="arcade-hint">💡 {charade.hint[lang]}</p>
+              </div>
             </div>
 
-            <div className="stack">
-              <button type="button" className="btn btn-success btn-xl" onClick={handleCharadeSuccess}>
+            <div className="arcade-bottom-bar">
+              <button type="button" className="btn btn-success btn-xl grow" onClick={handleCharadeSuccess}>
                 {t('arc.audienceGuessed')}
               </button>
 
@@ -330,25 +395,42 @@ export function ArcadeModal({
           </div>
         )}
 
-        {/* PLAY PHASE: HEADS-UP (على جبينك) */}
+        {/* PLAY PHASE: HEADS-UP (على جبينك — ملء الشاشة الكامل 100% عمودياً وأفقياً عند قلب الجوال) */}
         {phase === 'play' && mode === 'headsup' && activeHeadsUpCard && (
-          <div className="arcade-play">
-            <div className="arcade-hud">
+          <div className={`arcade-play-full headsup-full ${flash ? `flash-${flash}` : ''}`}>
+            <div className="arcade-hud-full">
+              <button
+                type="button"
+                className="chip-btn"
+                onClick={() => {
+                  sound.tap();
+                  setPhase('intro');
+                }}
+              >
+                ✕
+              </button>
               <span className={`arcade-timer ${left <= 10 ? 'hot' : ''}`}>⏱️ {left}s</span>
               <span className="prompt-badge">
                 {t('arc.headsupProgress', { cur: correctCount, total: targetScore })}
               </span>
             </div>
 
-            <div className={`arcade-card headsup-card ${flash ? `flash-${flash}` : ''}`}>
-              <small className="headsup-banner">{t('arc.foreheadBanner')}</small>
-              <div className="arcade-emoji headsup-emoji">{activeHeadsUpCard.emoji}</div>
-              <h3 className="arcade-word headsup-word">{activeHeadsUpCard[lang]}</h3>
-              <p className="arcade-hint">{activeHeadsUpCard.tag[lang]}</p>
-              {tiltSupported && <small className="tilt-live-pill">{t('arc.tiltLive')}</small>}
+            <div className="headsup-stage">
+              <CardIllustration card={activeHeadsUpCard} size="lg" />
+              <div className="headsup-stage-text">
+                <span className="headsup-cat-pill">{activeHeadsUpCard.tag[lang]}</span>
+                <h3 className="headsup-giant-word">{activeHeadsUpCard[lang]}</h3>
+                <small className="tilt-live-pill">
+                  {tiltState === 'down'
+                    ? '✅ عرفتها!'
+                    : tiltState === 'up'
+                      ? '⏭️ تخطّي!'
+                      : t('arc.tiltLive')}
+                </small>
+              </div>
             </div>
 
-            <div className="headsup-actions">
+            <div className="headsup-actions-full">
               <button type="button" className="btn btn-success btn-xl grow" onClick={handleHeadsUpCorrect}>
                 {t('arc.gotIt')}
               </button>
@@ -361,7 +443,7 @@ export function ArcadeModal({
 
         {/* WON PHASE */}
         {phase === 'won' && (
-          <div className="arcade-outcome">
+          <div className="arcade-outcome-full">
             <div className="arcade-result-card won">
               <div className="arcade-emoji">🏆🎉</div>
               <h3>
@@ -370,7 +452,7 @@ export function ArcadeModal({
               <p>{isRedemption ? t('arc.redeemWonSub') : t('arc.standaloneWonSub')}</p>
             </div>
 
-            <div className="stack">
+            <div className="stack" style={{ width: '100%', maxWidth: 460 }}>
               {isRedemption ? (
                 <button
                   type="button"
@@ -405,14 +487,14 @@ export function ArcadeModal({
 
         {/* LOST PHASE */}
         {phase === 'lost' && (
-          <div className="arcade-outcome">
+          <div className="arcade-outcome-full">
             <div className="arcade-result-card lost">
               <div className="arcade-emoji">😱🎡</div>
               <h3>{t('arc.lostTitle')}</h3>
               <p>{isRedemption ? t('arc.redeemLostSub') : t('arc.standaloneLostSub')}</p>
             </div>
 
-            <div className="stack">
+            <div className="stack" style={{ width: '100%', maxWidth: 460 }}>
               {isRedemption ? (
                 <button
                   type="button"
