@@ -5,6 +5,7 @@ import { Home, HowTo } from './components/Home';
 import { Result } from './components/Result';
 import { Setup } from './components/Setup';
 import { Guess, Vote } from './components/VoteGuess';
+import { initAds } from './game/ads';
 import {
   AVATARS,
   buildCustomCategory,
@@ -49,6 +50,9 @@ export default function App() {
   const [losers, setLosers] = useState<Player[]>([]);
   const used = useRef<Set<string>>(new Set());
 
+  useEffect(() => {
+    void initAds();
+  }, []);
   useEffect(() => saveJSON('lq_settings', { ...settings, roomCode: '' }), [settings]);
   useEffect(() => saveJSON('lq_players', players), [players]);
 

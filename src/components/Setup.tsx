@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { showRewardedUnlockAd } from '../game/ads';
 import {
   AVATARS,
   buildCustomCategory,
@@ -73,8 +74,14 @@ export function Setup({ players, setPlayers, settings, setSettings, onStart, onB
     setSettings({ ...settings, cat: c.id });
   };
 
-  const confirmUnlock = () => {
-    if (!unlockTarget) return;
+  const [loadingAd, setLoadingAd] = useState(false);
+
+  const confirmUnlock = async () => {
+    if (!unlockTarget || loadingAd) return;
+    setLoadingAd(true);
+    const ok = await showRewardedUnlockAd();
+    setLoadingAd(false);
+    if (!ok) return;
     sound.win();
     const nextUnlocked = Array.from(new Set([...unlockedCats, unlockTarget.id]));
     setSettings({ ...settings, unlockedCats: nextUnlocked, cat: unlockTarget.id });

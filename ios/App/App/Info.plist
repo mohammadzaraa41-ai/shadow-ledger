@@ -4,6 +4,17 @@
 <dict>
   <key>ITSAppUsesNonExemptEncryption</key>
   <false/>
+  <key>GADApplicationIdentifier</key>
+  <string>ca-app-pub-9742462967769652~9984075802</string>
+  <key>NSUserTrackingUsageDescription</key>
+  <string>نستخدم هذا المعرّف لعرض إعلانات مناسبة لك لفتح الفئات الإضافية مجاناً.</string>
+  <key>SKAdNetworkItems</key>
+  <array>
+    <dict>
+      <key>SKAdNetworkIdentifier</key>
+      <string>cstr6suwn9.skadnetwork</string>
+    </dict>
+  </array>
   <key>CAPACITOR_DEBUG</key>
 	<string>$(CAPACITOR_DEBUG)</string>
 	<key>CFBundleDevelopmentRegion</key>

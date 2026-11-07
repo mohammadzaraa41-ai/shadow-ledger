@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { showRoundInterstitialAd } from '../game/ads';
 import { hostLine, speak } from '../game/host';
 import { sound } from '../game/sound';
 import type { Outcome, Player, Round, Settings } from '../game/types';
@@ -173,8 +174,9 @@ export function Result({
             <button
               id="btn-next-round"
               className="btn btn-primary btn-xl"
-              onClick={() => {
+              onClick={async () => {
                 sound.flip();
+                await showRoundInterstitialAd();
                 onAgainSame();
               }}
             >
