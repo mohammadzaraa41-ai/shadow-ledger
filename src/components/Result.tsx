@@ -3,6 +3,7 @@ import { hostLine, speak } from '../game/host';
 import { sound } from '../game/sound';
 import type { Outcome, Player, Round, Settings } from '../game/types';
 import { useLang } from '../i18n';
+import { ArcadeModal } from './ArcadeModes';
 import { PunishmentWheel } from './PunishmentWheel';
 
 interface ResultProps {
@@ -29,7 +30,9 @@ export function Result({
   const { t, lang } = useLang();
   const [stage, setStage] = useState(0);
   const [wheelStartIdx, setWheelStartIdx] = useState<number | null>(null);
+  const [redeemIdx, setRedeemIdx] = useState<number | null>(null);
   const [assignedDares, setAssignedDares] = useState<Record<number, string>>({});
+  const [redeemedIds, setRedeemedIds] = useState<Record<number, boolean>>({});
 
   const names = (ids: number[]) => ids.map((id) => players.find((p) => p.id === id)?.name ?? '').join(' + ');
   const jesterName = round.jesterId != null ? players.find((p) => p.id === round.jesterId)?.name ?? '' : '';
@@ -101,6 +104,8 @@ export function Result({
             <div className="score-list">
               {losers.map((p, idx) => {
                 const dare = assignedDares[p.id];
+                const isRedeemed = redeemedIds[p.id];
+                const isDone = Boolean(dare || isRedeemed);
                 return (
                   <div
                     className="loser-row"
@@ -113,28 +118,56 @@ export function Result({
                     <div className="loser-row-top">
                       <span className="avatar">{p.avatar ?? p.name.slice(0, 1).toUpperCase()}</span>
                       <span className="grow">{p.name}</span>
-                      <span className={`delta ${dare ? 'pos' : 'neg'}`}>
-                        {dare ? t('res.punishedBadge') : t('res.pendingBadge')}
+                      <span className={`delta ${isDone ? 'pos' : 'neg'}`}>
+                        {isRedeemed
+                          ? t('res.redeemedBadge')
+                          : dare
+                          ? t('res.punishedBadge')
+                          : t('res.pendingBadge')}
                       </span>
                     </div>
-                    {dare && <p className="loser-dare-text">⚖️ {dare}</p>}
+                    {isRedeemed ? (
+                      <p className="loser-dare-text">{t('res.redeemedText')}</p>
+                    ) : (
+                      dare && <p className="loser-dare-text">⚖️ {dare}</p>
+                    )}
                   </div>
                 );
               })}
             </div>
           </div>
 
-          <button
-            type="button"
-            className="btn btn-accent btn-xl"
-            onClick={() => {
-              sound.tap();
-              const firstUnpunished = losers.findIndex((p) => !assignedDares[p.id]);
-              setWheelStartIdx(firstUnpunished >= 0 ? firstUnpunished : 0);
-            }}
-          >
-            {t('res.wheelBtn')}
-          </button>
+          {(() => {
+            const nextUnresolvedIdx = losers.findIndex((p) => !assignedDares[p.id] && !redeemedIds[p.id]);
+            const targetIdx = nextUnresolvedIdx >= 0 ? nextUnresolvedIdx : 0;
+            const targetPlayer = losers[targetIdx];
+            return (
+              <div className="stack">
+                {targetPlayer && (
+                  <button
+                    type="button"
+                    className="btn btn-redeem btn-xl"
+                    onClick={() => {
+                      sound.flip();
+                      setRedeemIdx(targetIdx);
+                    }}
+                  >
+                    {t('res.redeemBtn', { name: targetPlayer.name })}
+                  </button>
+                )}
+                <button
+                  type="button"
+                  className="btn btn-accent btn-xl"
+                  onClick={() => {
+                    sound.tap();
+                    setWheelStartIdx(targetIdx);
+                  }}
+                >
+                  {t('res.wheelBtn')}
+                </button>
+              </div>
+            );
+          })()}
 
           <div className="stack">
             <button
@@ -167,6 +200,25 @@ export function Result({
             </button>
           </div>
         </div>
+      )}
+
+      {redeemIdx !== null && losers[redeemIdx] && (
+        <ArcadeModal
+          initialMode="charades"
+          isRedemption={true}
+          playerName={losers[redeemIdx].name}
+          onClose={() => setRedeemIdx(null)}
+          onRedeemSuccess={() => {
+            const p = losers[redeemIdx];
+            if (p) setRedeemedIds((prev) => ({ ...prev, [p.id]: true }));
+            setRedeemIdx(null);
+          }}
+          onRedeemFail={() => {
+            const failedIdx = redeemIdx;
+            setRedeemIdx(null);
+            setWheelStartIdx(failedIdx);
+          }}
+        />
       )}
 
       {wheelStartIdx !== null && (

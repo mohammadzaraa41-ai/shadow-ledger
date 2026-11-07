@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { sound } from '../game/sound';
 import { useLang } from '../i18n';
+import { ArcadeModal, type ArcadeModeType } from './ArcadeModes';
+import { PunishmentWheel } from './PunishmentWheel';
 
 export function TopBar() {
   const { lang, setLang } = useLang();
@@ -32,7 +34,10 @@ export function TopBar() {
 }
 
 export function Home({ onPlay, onHow }: { onPlay: () => void; onHow: () => void }) {
-  const { t } = useLang();
+  const { t, lang } = useLang();
+  const [arcadeMode, setArcadeMode] = useState<ArcadeModeType | null>(null);
+  const [showStandaloneWheel, setShowStandaloneWheel] = useState(false);
+
   return (
     <div className="screen home">
       <TopBar />
@@ -52,6 +57,35 @@ export function Home({ onPlay, onHow }: { onPlay: () => void; onHow: () => void 
         >
           {t('home.play')}
         </button>
+
+        <div className="home-modes-box">
+          <small className="home-modes-label">{t('home.modesTitle')}</small>
+          <div className="home-modes-grid">
+            <button
+              type="button"
+              className="mode-card"
+              onClick={() => {
+                sound.flip();
+                setArcadeMode('charades');
+              }}
+            >
+              <span className="mode-card-title">{t('home.modeCharades')}</span>
+              <small className="mode-card-sub">{t('home.modeCharadesSub')}</small>
+            </button>
+            <button
+              type="button"
+              className="mode-card"
+              onClick={() => {
+                sound.flip();
+                setArcadeMode('headsup');
+              }}
+            >
+              <span className="mode-card-title">{t('home.modeHeadsup')}</span>
+              <small className="mode-card-sub">{t('home.modeHeadsupSub')}</small>
+            </button>
+          </div>
+        </div>
+
         <button
           className="btn btn-ghost"
           onClick={() => {
@@ -63,6 +97,27 @@ export function Home({ onPlay, onHow }: { onPlay: () => void; onHow: () => void 
         </button>
       </div>
       <p className="footer">{t('home.footer')}</p>
+
+      {arcadeMode && (
+        <ArcadeModal
+          initialMode={arcadeMode}
+          isRedemption={false}
+          onClose={() => setArcadeMode(null)}
+          onOpenWheel={() => {
+            setArcadeMode(null);
+            setShowStandaloneWheel(true);
+          }}
+        />
+      )}
+
+      {showStandaloneWheel && (
+        <PunishmentWheel
+          losers={[{ id: 1, name: lang === 'ar' ? 'الخاسر بالتحدي' : 'Challenge Loser', avatar: '🎭' }]}
+          initialIdx={0}
+          onAssignDare={() => {}}
+          onClose={() => setShowStandaloneWheel(false)}
+        />
+      )}
     </div>
   );
 }
