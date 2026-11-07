@@ -183,3 +183,4 @@ export function CardIllustration({ card, size = 'lg' }: Props) {
     </div>
   );
 }
+

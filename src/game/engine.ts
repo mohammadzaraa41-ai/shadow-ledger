@@ -203,26 +203,57 @@ export interface RoundResolution {
   outcome: Outcome;
   /** Players who lost this round and must execute a punishment. */
   losers: Player[];
+  /** Honest players who voted correctly for a Liar and earned smart immunity. */
+  smartSurvivors: Player[];
 }
 
 /**
- * Punishment-only resolution (no winners scoreboard, only losers who get punished!):
- * - If Jester is voted out -> Jester tricks everyone; all other players are losers!
- * - If a Liar is caught and guesses WRONG -> The caught Liar(s) are the losers!
- * - If a Liar escapes OR guesses the word RIGHT -> All honest players are the losers!
+ * Tallies individual player votes (voterId -> suspectId) and returns the top-voted suspect ID.
+ */
+export function tallyVotes(round: Round, players: Player[], votesMap: Record<number, number>): number {
+  const counts = new Map<number, number>();
+  for (const suspectId of Object.values(votesMap)) {
+    counts.set(suspectId, (counts.get(suspectId) ?? 0) + 1);
+  }
+  let maxVotes = 0;
+  for (const c of counts.values()) {
+    if (c > maxVotes) maxVotes = c;
+  }
+  const topIds = players.map((p) => p.id).filter((id) => (counts.get(id) ?? 0) === maxVotes);
+  if (topIds.length === 0) return players[0].id;
+  if (round.jesterId != null && topIds.includes(round.jesterId)) return round.jesterId;
+  const tiedLiar = topIds.find((id) => round.liars.includes(id));
+  if (tiedLiar !== undefined) return tiedLiar;
+  return topIds[0];
+}
+
+/**
+ * Individual-Vote Punishment Resolution:
+ * - Honest players who voted correctly for a Liar (`isLiar(votesMap[p.id])`) are exempted as `smartSurvivors`!
+ * - If a Liar is caught by majority and guesses WRONG -> The caught Liar(s) are the losers!
+ * - If a Liar escapes -> Only the honest players who voted WRONG are the losers!
+ * - If a Liar is caught but guesses the secret word RIGHT -> Table flipped! Honest players face punishment!
+ * - If Jester is voted out -> Players who didn't vote for the real Liar (except Jester) are the losers!
  */
 export function resolveRound(
   round: Round,
   players: Player[],
   accused: number,
   guessedRight: boolean,
+  votesMap: Record<number, number> = {},
 ): RoundResolution {
   const isLiar = (id: number) => round.liars.includes(id);
+  const honestPlayers = players.filter((p) => !isLiar(p.id));
+  const votedRight = (p: Player) => !isLiar(p.id) && votesMap[p.id] !== undefined && isLiar(votesMap[p.id]);
+  const smartSurvivors = honestPlayers.filter(votedRight);
+  const wrongHonestPlayers = honestPlayers.filter((p) => !votedRight(p));
 
   if (round.jesterId != null && accused === round.jesterId) {
+    const jesterLosers = wrongHonestPlayers.filter((p) => p.id !== round.jesterId);
     return {
       outcome: 'GROUP_LOST_JESTER',
-      losers: players.filter((p) => p.id !== round.jesterId),
+      losers: jesterLosers.length > 0 ? jesterLosers : players.filter((p) => p.id !== round.jesterId),
+      smartSurvivors,
     };
   }
 
@@ -233,14 +264,24 @@ export function resolveRound(
     return {
       outcome: 'LIAR_LOST',
       losers: caughtLiars,
+      smartSurvivors,
     };
   }
 
-  // Liar escaped OR guessed the secret word right -> all honest players execute punishments!
-  const honestPlayers = players.filter((p) => !isLiar(p.id));
+  if (caught && guessedRight) {
+    // Liar guessed the secret word right -> table flipped!
+    return {
+      outcome: 'GROUP_LOST_GUESSED',
+      losers: wrongHonestPlayers.length > 0 ? wrongHonestPlayers : honestPlayers,
+      smartSurvivors,
+    };
+  }
+
+  // Liar escaped majority vote -> anyone who voted RIGHT for the Liar is exempted; ONLY those who voted WRONG are punished!
   return {
-    outcome: caught && guessedRight ? 'GROUP_LOST_GUESSED' : 'GROUP_LOST_ESCAPED',
-    losers: honestPlayers.length > 0 ? honestPlayers : players,
+    outcome: 'GROUP_LOST_ESCAPED',
+    losers: wrongHonestPlayers.length > 0 ? wrongHonestPlayers : honestPlayers,
+    smartSurvivors,
   };
 }
 

@@ -11,6 +11,8 @@ interface ResultProps {
   round: Round;
   players: Player[];
   losers: Player[];
+  smartSurvivors?: Player[];
+  votesMap?: Record<number, number>;
   outcome: Outcome;
   settings: Settings;
   onAgainSame: () => void;
@@ -22,6 +24,8 @@ export function Result({
   round,
   players,
   losers,
+  smartSurvivors = [],
+  votesMap = {},
   outcome,
   settings,
   onAgainSame,
@@ -99,6 +103,52 @@ export function Result({
 
           <div className="host-bubble">🎙️ {line}</div>
           <p className="outcome outcome-alert">{t(`out.${outcome}`)}</p>
+
+          {/* Vote Breakdown Panel: Who voted for whom? */}
+          {Object.keys(votesMap).length > 0 && (
+            <div className="votes-breakdown-panel">
+              <h3>{t('res.votesHeader')}</h3>
+              <div className="score-list">
+                {players.map((voter) => {
+                  const targetId = votesMap[voter.id];
+                  const target = players.find((p) => p.id === targetId);
+                  if (!target) return null;
+                  const voterIsLiar = round.liars.includes(voter.id);
+                  const hitLiar = !voterIsLiar && round.liars.includes(target.id);
+                  return (
+                    <div key={voter.id} className="vote-log-row">
+                      <span className="vote-log-names">
+                        <b>{voter.avatar} {voter.name}</b>
+                        <span className="vote-arrow">⬅️</span>
+                        <span>{target.avatar} {target.name}</span>
+                      </span>
+                      <span className={`delta ${voterIsLiar ? 'neutral' : hitLiar ? 'pos' : 'neg'}`}>
+                        {voterIsLiar
+                          ? t('res.voteBluff')
+                          : hitLiar
+                            ? t('res.voteHit')
+                            : t('res.voteMiss')}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Smart Survivors Exempted Panel */}
+          {smartSurvivors.length > 0 && (
+            <div className="survivors-panel">
+              <h3>{t('res.survivorsHeader', { n: smartSurvivors.length })}</h3>
+              <div className="chips center-chips">
+                {smartSurvivors.map((s) => (
+                  <span key={s.id} className="survivor-chip">
+                    🛡️ {s.avatar} {s.name}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
 
           <div className="losers-panel">
             <h3>{t('res.losersHeader', { n: losers.length })}</h3>

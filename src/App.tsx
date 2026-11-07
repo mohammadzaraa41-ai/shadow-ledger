@@ -14,6 +14,7 @@ import {
   loadJSON,
   resolveRound,
   saveJSON,
+  tallyVotes,
 } from './game/engine';
 import { hostLine, speak } from './game/host';
 import type { Category, Outcome, Player, Round, Settings } from './game/types';
@@ -46,8 +47,10 @@ export default function App() {
   const [round, setRound] = useState<Round | null>(null);
   const [handIdx, setHandIdx] = useState(0);
   const [accused, setAccused] = useState<number | null>(null);
+  const [votesMap, setVotesMap] = useState<Record<number, number>>({});
   const [outcome, setOutcome] = useState<Outcome>('GROUP_LOST_ESCAPED');
   const [losers, setLosers] = useState<Player[]>([]);
+  const [smartSurvivors, setSmartSurvivors] = useState<Player[]>([]);
   const used = useRef<Set<string>>(new Set());
 
   useEffect(() => {
@@ -77,6 +80,8 @@ export default function App() {
     setRound(createRound(ps, cat, settings.chaos, used.current, settings.roles ?? true, seed));
     setHandIdx(0);
     setAccused(null);
+    setVotesMap({});
+    setSmartSurvivors([]);
     setScreen('handoff');
   };
 
@@ -92,23 +97,26 @@ export default function App() {
     beginRound(fresh);
   };
 
-  const finishRound = (acc: number, guessedRight: boolean) => {
+  const finishRound = (acc: number, guessedRight: boolean, vMap: Record<number, number> = votesMap) => {
     if (!round) return;
-    const res = resolveRound(round, players, acc, guessedRight);
+    const res = resolveRound(round, players, acc, guessedRight, vMap);
     setAccused(acc);
     setOutcome(res.outcome);
     setLosers(res.losers);
+    setSmartSurvivors(res.smartSurvivors);
     setScreen('result');
   };
 
-  const onVote = (acc: number) => {
+  const onVote = (vMap: Record<number, number>) => {
     if (!round) return;
+    setVotesMap(vMap);
+    const acc = tallyVotes(round, players, vMap);
     const caught = round.liars.includes(acc);
     if (caught) {
       setAccused(acc);
       setScreen('guess');
     } else {
-      finishRound(acc, false);
+      finishRound(acc, false, vMap);
     }
   };
 
@@ -173,6 +181,8 @@ export default function App() {
           round={round}
           players={players}
           losers={losers}
+          smartSurvivors={smartSurvivors}
+          votesMap={votesMap}
           outcome={outcome}
           settings={settings}
           onAgainSame={playAgainSame}
