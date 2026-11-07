@@ -62,6 +62,7 @@ export const CATEGORIES: Category[] = [
     id: 'home',
     emoji: '🏠',
     name: { ar: 'أشياء بالبيت', en: 'Around the house' },
+    lockedByDefault: true,
     words: w([
       ['ثلاجة', 'Fridge'], ['مكيف', 'Air conditioner'], ['سجادة', 'Carpet'], ['مرآة', 'Mirror'],
       ['فرشاة أسنان', 'Toothbrush'], ['ريموت', 'Remote control'], ['مخدة', 'Pillow'], ['غسالة', 'Washing machine'],
@@ -75,6 +76,7 @@ export const CATEGORIES: Category[] = [
     id: 'fun',
     emoji: '⚽',
     name: { ar: 'رياضة وهوايات', en: 'Sports & hobbies' },
+    lockedByDefault: true,
     words: w([
       ['كرة قدم', 'Football'], ['سباحة', 'Swimming'], ['كرة سلة', 'Basketball'], ['تنس', 'Tennis'],
       ['ملاكمة', 'Boxing'], ['جري', 'Running'], ['شطرنج', 'Chess'], ['بلياردو', 'Billiards'],
@@ -88,6 +90,7 @@ export const CATEGORIES: Category[] = [
     id: 'moments',
     emoji: '😅',
     name: { ar: 'مواقف محرجة', en: 'Awkward moments' },
+    lockedByDefault: true,
     words: w([
       ['عالق في الزحمة', 'Stuck in traffic'], ['نسيت المحفظة', 'Forgot your wallet'],
       ['فاتتك الطيارة', 'Missed your flight'], ['انقطع النت', 'Internet went down'],
@@ -107,6 +110,7 @@ export const CATEGORIES: Category[] = [
     id: 'cities',
     emoji: '🌍',
     name: { ar: 'مدن ودول', en: 'Cities & countries' },
+    lockedByDefault: true,
     words: w([
       ['دبي', 'Dubai'], ['القاهرة', 'Cairo'], ['إسطنبول', 'Istanbul'], ['باريس', 'Paris'],
       ['لندن', 'London'], ['طوكيو', 'Tokyo'], ['الرياض', 'Riyadh'], ['بيروت', 'Beirut'],

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
-import { hostLine, randomPrompt, speak } from '../game/host';
 import { isPublicChaos } from '../game/engine';
+import { hostLine, randomPrompt, speak } from '../game/host';
 import { sound } from '../game/sound';
 import type { Player, Round, Settings } from '../game/types';
 import { useLang } from '../i18n';
@@ -19,10 +19,13 @@ export function Discuss({ round, players, settings, onVote }: Props) {
   const total = round.chaos === 'SPEED' ? Math.round(settings.discussSec / 2) : settings.discussSec;
   const [left, setLeft] = useState(total);
   const [paused, setPaused] = useState(false);
-  const [prompt, setPrompt] = useState(() => randomPrompt(lang));
+  const [prompt, setPrompt] = useState(() => randomPrompt(lang, round.category.id));
+  const [pairIdx, setPairIdx] = useState(0);
   const [host] = useState(() => hostLine('discuss', lang));
 
-  const starter = players.find((p) => p.id === round.starter);
+  const starterIdx = Math.max(0, players.findIndex((p) => p.id === round.starter));
+  const asker = players[(starterIdx + pairIdx) % players.length] ?? players[0];
+  const target = players[(starterIdx + pairIdx + 1) % players.length] ?? players[0];
   const pub = isPublicChaos(round.chaos);
 
   useEffect(() => {
@@ -31,8 +34,7 @@ export function Discuss({ round, players, settings, onVote }: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Deadline-based countdown: one interval per pause/resume, immune to throttled timers and
-  // to the webview being suspended (a naive "-1 per tick" loses time on slow devices).
+  // Deadline-based countdown immune to timer drift
   const remainingMs = useRef(total * 1000);
   const lastTick = useRef(total);
   useEffect(() => {
@@ -61,6 +63,12 @@ export function Discuss({ round, players, settings, onVote }: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [left]);
 
+  const nextPrompt = () => {
+    sound.tap();
+    setPrompt((prev) => randomPrompt(lang, round.category.id, prev));
+    setPairIdx((v) => v + 1);
+  };
+
   const pct = Math.max(0, left / total);
   const urgent = left <= 10;
 
@@ -72,8 +80,6 @@ export function Discuss({ round, players, settings, onVote }: Props) {
           <span>{t(`chaos.${round.chaos}d`)}</span>
         </div>
       )}
-
-      <p className="kicker">{t('disc.starter', { name: starter?.name ?? '' })}</p>
 
       <button
         className={`timer ${urgent ? 'urgent' : ''}`}
@@ -89,15 +95,21 @@ export function Discuss({ round, players, settings, onVote }: Props) {
 
       <p className="muted">{round.liars.length === 2 ? t('disc.liars2') : t('disc.liars1')}</p>
 
-      <div className="host-bubble">🎙️ {host}</div>
-
-      <div className="prompt-box">
-        <small>{t('disc.prompt')}</small>
-        <p>{prompt}</p>
-        <button className="btn btn-ghost btn-sm" onClick={() => { sound.tap(); setPrompt(randomPrompt(lang)); }}>
-          🔄 {t('disc.newPrompt')}
+      <div className="prompt-box prompt-box-lg">
+        <span className="prompt-badge">{t('disc.prompt')}</span>
+        <p className="prompt-pair">
+          {t('disc.askPair', {
+            asker: `${asker.avatar ?? ''} ${asker.name}`,
+            target: `${target.avatar ?? ''} ${target.name}`,
+          })}
+        </p>
+        <p className="prompt-text-lg">«{prompt}»</p>
+        <button type="button" className="btn btn-accent" onClick={nextPrompt}>
+          {t('disc.newPrompt')}
         </button>
       </div>
+
+      <div className="host-bubble">🎙️ {host}</div>
 
       <button
         id="btn-go-vote"
@@ -112,4 +124,3 @@ export function Discuss({ round, players, settings, onVote }: Props) {
     </div>
   );
 }
-

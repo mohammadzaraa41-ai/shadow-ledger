@@ -3,9 +3,9 @@ import { sound } from '../game/sound';
 import type { Player, Round } from '../game/types';
 import { useLang } from '../i18n';
 
-export function Vote({ players, onConfirm }: { players: Player[]; onConfirm: (accused: number | null) => void }) {
+export function Vote({ players, onConfirm }: { players: Player[]; onConfirm: (accused: number) => void }) {
   const { t } = useLang();
-  const [sel, setSel] = useState<number | 'none' | null>(null);
+  const [sel, setSel] = useState<number | null>(null);
 
   return (
     <div className="screen">
@@ -26,15 +26,6 @@ export function Vote({ players, onConfirm }: { players: Player[]; onConfirm: (ac
             <span>{p.name}</span>
           </button>
         ))}
-        <button
-          className={`vote-card none ${sel === 'none' ? 'on' : ''}`}
-          onClick={() => {
-            sound.tap();
-            setSel('none');
-          }}
-        >
-          {t('vote.none')}
-        </button>
       </div>
 
       <div className="stack sticky-actions">
@@ -43,11 +34,12 @@ export function Vote({ players, onConfirm }: { players: Player[]; onConfirm: (ac
           className="btn btn-danger btn-xl"
           disabled={sel === null}
           onClick={() => {
+            if (sel === null) return;
             sound.drumroll();
-            onConfirm(sel === 'none' || sel === null ? null : sel);
+            onConfirm(sel);
           }}
         >
-          {sel === null ? t('vote.pick') : sel === 'none' ? t('vote.confirmNone') : t('vote.confirm')}
+          {sel === null ? t('vote.pick') : t('vote.confirm')}
         </button>
       </div>
     </div>

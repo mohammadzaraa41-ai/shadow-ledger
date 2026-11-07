@@ -1,9 +1,9 @@
 import { CATEGORIES } from './words';
-import type { Category, ChaosId, L10n, Outcome, Player, Round, Settings, Word } from './types';
+import type { Category, ChaosId, Dare, DareKind, Outcome, Player, Round, Settings, Word } from './types';
 
 export const MIN_PLAYERS = 3;
 export const MAX_PLAYERS = 10;
-export const CHAOS_CHANCE = 0.4;
+export const CHAOS_CHANCE = 0.45;
 
 export const AVATARS = ['😎', '🦊', '🦁', '🐼', '🦄', '🐸', '🐙', '🦉', '🐯', '🤠', '👽', '🤖', '🥷', '👑', '🎭', '🦖'];
 
@@ -18,9 +18,11 @@ export const DEFAULT_CUSTOM_WORDS = [
   'عزيمة مفاجئة',
 ];
 
+export const DEFAULT_UNLOCKED_CATS = CATEGORIES.filter((c) => !c.lockedByDefault).map((c) => c.id);
+
 export const DEFAULT_SETTINGS: Settings = {
-  cats: CATEGORIES.map((c) => c.id),
-  rounds: 5,
+  cat: 'food',
+  unlockedCats: DEFAULT_UNLOCKED_CATS,
   chaos: true,
   voice: false,
   discussSec: 90,
@@ -29,20 +31,61 @@ export const DEFAULT_SETTINGS: Settings = {
   roomCode: '',
 };
 
-export const PUNISHMENTS: L10n[] = [
-  { ar: 'تكلّم باللغة العربية الفصحى طوال الجولة القادمة! 📜', en: 'Speak in formal Shakespearean English all next round! 📜' },
-  { ar: 'احكِ نكتة بايخة وإذا ما ضحك أحد صفق لنفسك بحماس! 👏', en: 'Tell a terrible dad joke; if nobody laughs, applaud yourself! 👏' },
-  { ar: 'قلّد صوت ومشية حيوان يختاره الفائز لمدة 15 ثانية! 🐒', en: 'Imitate an animal chosen by the winner for 15 seconds! 🐒' },
-  { ar: 'امدح كل لاعب في الجلسة بجملة شاعرية مبالغ فيها! 🌹', en: 'Give every player in the room an overly poetic compliment! 🌹' },
-  { ar: 'ممنوع تقول كلمة «لا» أو «أبداً» في الجولة القادمة! 🚫', en: 'You are forbidden from saying “No” during the next round! 🚫' },
-  { ar: 'صوّر سيلفي بملامح مصدومة مع الفائز بالمركز الأول! 📸', en: 'Take a shocked-face selfie with the current top player! 📸' },
-  { ar: 'اعترف بآخر كذبة بيضاء قلتها هذا الأسبوع! 🤥', en: 'Confess the last harmless white lie you told this week! 🤥' },
-  { ar: 'قف وقدّم نشرة أخبار عاجلة عن خسارتك المخزية لمدة 20 ثانية! 📺', en: 'Stand up and deliver a 20-second breaking news report about your loss! 📺' },
-  { ar: 'جاوب على كل سؤال في الجولة القادمة بسؤال آخر! ❓', en: 'Answer every question in the next round with another question! ❓' },
-  { ar: 'غنِّ مطلع أغنية أطفال بصوت أوبرالي درامي! 🎭', en: 'Sing a nursery rhyme in a dramatic opera voice! 🎭' },
-  { ar: 'اجلب كاسات ماء لكل اللاعبين في الجلسة الآن! 💧', en: 'Go fetch glasses of water for everyone in the group right now! 💧' },
-  { ar: 'تكلّم وكأنك معلق مباريات كرة قدم متحمس لمدة دقيقة! ⚽', en: 'Speak like an overly hyped football commentator for 1 minute! ⚽' },
+/** 42 diverse, family-friendly party punishments across 3 flavors: funny, acting, spicy. */
+export const PUNISHMENTS: Dare[] = [
+  // 😂 Funny (أحكام خفيفة ومضحكة)
+  { kind: 'funny', ar: 'احكِ نكتة بايخة جداً، وإذا ما ضحك أحد صفّق لنفسك بحماس لمدة 10 ثوانٍ! 👏', en: 'Tell a terrible dad joke; if nobody laughs, applaud yourself for 10 seconds! 👏' },
+  { kind: 'funny', ar: 'ممنوع تقول كلمة «لا» أو «أبداً» أو تحرك رأسك بالنفي لمدة 3 دقائق! 🚫', en: 'You cannot say “No” or shake your head for the next 3 minutes! 🚫' },
+  { kind: 'funny', ar: 'امدح الشخص اللي على يمينك بـ 4 جمل شاعرية مبالغ فيها جداً! 🌹', en: 'Give the player on your right 4 overly dramatic, poetic compliments! 🌹' },
+  { kind: 'funny', ar: 'جاوب على أي سؤال يوجهه لك اللاعبون بسؤال آخر لمدة دقيقتين! ❓', en: 'Answer every question asked to you with another question for 2 minutes! ❓' },
+  { kind: 'funny', ar: 'حاول تضحك كل الموجودين في 20 ثانية بدون ما تلمس أحداً! 😂', en: 'Make everyone laugh within 20 seconds without touching anyone! 😂' },
+  { kind: 'funny', ar: 'تكلم بدون ما تفتح أسنانك (وشفاهك شبه مطبقة) لمدة دقيقة كاملة! 🤐', en: 'Speak without separating your teeth for a full minute! 🤐' },
+  { kind: 'funny', ar: 'اختر شيئاً جماداً في الغرفة (كرسي، كوب، جوال) واعتذر منه بحرارة وكأنك زعلته! ☕', en: 'Pick an inanimate object in the room and apologize to it dramatically! ☕' },
+  { kind: 'funny', ar: 'عدّ من 20 إلى 1 بالعكس بأقصى سرعة، وإذا غلطت تعيد من الأول! 🔢', en: 'Count backwards from 20 to 1 at top speed; restart if you mess up! 🔢' },
+  { kind: 'funny', ar: 'اضحك ضحكة شريرة متواصلة مثل أشرار الكرتون لمدة 15 ثانية! 😈', en: 'Do a continuous cartoon supervillain laugh for 15 seconds! 😈' },
+  { kind: 'funny', ar: 'تكلّم مع نفسك في مراية أو كاميرا الجوال الأمامية وواسي نفسك على الخسارة! 🤳', en: 'Look into the front camera and pep-talk yourself about losing this round! 🤳' },
+  { kind: 'funny', ar: 'اختر لقباً فخماً للاعب الذي كشفك ونادِه به طوال الجلسة (مثل: يا سعادة المحقق)! 🕵️', en: 'Call the player who exposed you “Supreme Detective” for the rest of the session! 🕵️' },
+  { kind: 'funny', ar: 'اشرح للموجودين بكل جدية «كيف تصب كاسة موية» وكأنها عملية جراحية معقدة! 🫗', en: 'Explain how to pour a glass of water as if it were a complex surgical procedure! 🫗' },
+  { kind: 'funny', ar: 'لازم تختم كل جملة تقولها بكلمة «يا طويل العمر» لمدة 3 دقائق! 🎩', en: 'End every sentence you say with “Your Excellency” for the next 3 minutes! 🎩' },
+  { kind: 'funny', ar: 'غمّض عيونك وسمِّ الملابس وألوانها لثلاثة من الجالسين معك! 👀', en: 'Close your eyes and guess the outfit colors of three players in the room! 👀' },
+
+  // 🎭 Acting & Voice (تمثيل وتحديات صوتية)
+  { kind: 'acting', ar: 'تكلّم باللغة العربية الفصحى التاريخية («ويحك يا غلام!») لمدة 3 دقائق! 📜', en: 'Speak in dramatic medieval Shakespearean English for the next 3 minutes! 📜' },
+  { kind: 'acting', ar: 'قف وقدّم نشرة أخبار عاجلة ومثيرة عن خسارتك المخزية في هذه الجولة لمدة 30 ثانية! 📺', en: 'Stand up and deliver a 30-second breaking news broadcast about your loss! 📺' },
+  { kind: 'acting', ar: 'تكلّم وكأنك معلق مباريات كرة قدم في الدقيقة 90 على أي حركة يفعلها الجالسون! ⚽', en: 'Commentate on whatever people in the room are doing like a live football final! ⚽' },
+  { kind: 'acting', ar: 'قلّد صوت ومشية حيوان يختاره بقية اللاعبين لمدة 20 ثانية! 🐒', en: 'Imitate the sound and walk of an animal chosen by the group for 20 seconds! 🐒' },
+  { kind: 'acting', ar: 'غنِّ مطلع أنشودة أو أغنية أطفال مشهورة بصوت أوبرالي درامي حزين! 🎭', en: 'Sing a famous nursery rhyme in a tragic, dramatic opera voice! 🎭' },
+  { kind: 'acting', ar: 'مثّل مشهد إعلان تجاري تلفزيوني لبيع «فردة شبشب قديمة» وأقنع الجالسين بشرائها! 🩴', en: 'Act out a TV commercial selling an old slipper and convince the group to buy it! 🩴' },
+  { kind: 'acting', ar: 'تكلّم بصوت رجل آلي (روبوت) مع حركات يد متقطعة لمدة دقيقتين! 🤖', en: 'Talk and move like a glitching robot for the next 2 minutes! 🤖' },
+  { kind: 'acting', ar: 'مثّل بدون كلام (بانتومايم) مهنة يختارها لك الشخص الذي على يسارك حتى يحزرها البقية! 🎬', en: 'Silently charade a job whispered to you by the player on your left! 🎬' },
+  { kind: 'acting', ar: 'تكلّم بلهجة غير لهجتك يختارها لك اللاعبون لمدة دقيقتين كاملتين! 🗣️', en: 'Speak in a different accent chosen by the group for 2 full minutes! 🗣️' },
+  { kind: 'acting', ar: 'تظاهر أنك في برنامج طبخ مباشر واشرح وصفة خيالية عجيبة بحماس شديد! 👨‍🍳', en: 'Pretend you are hosting a live cooking show making a bizarre imaginary dish! 👨‍🍳' },
+  { kind: 'acting', ar: 'تكلّم بالهمس الشديد مع تعابير وجه درامية مبالغ فيها لمدة دقيقتين! 🤫', en: 'Speak only in dramatic whispers with exaggerated facial expressions for 2 minutes! 🤫' },
+  { kind: 'acting', ar: 'قف وألقِ خطاب تخرّج مؤثر تشكر فيه اللاعبين لأنهم علموك درساً في الكذب! 🎓', en: 'Stand up and give an emotional graduation speech thanking the group! 🎓' },
+  { kind: 'acting', ar: 'قلّد طريقة كلام وضحكة أحد الجالسين في الغرفة حتى يعرف الجميع من تقلّد! 🪞', en: 'Imitate the laugh and catchphrase of someone in the room until others guess who! 🪞' },
+  { kind: 'acting', ar: 'تكلّم بالحركة البطيئة (Slow Motion) صوتاً وحركة لمدة دقيقة كاملة! 🐢', en: 'Talk and move in extreme slow motion for a full minute! 🐢' },
+
+  // 🌶️ Spicy Party Dares (أحكام قوية للجمعات)
+  { kind: 'spicy', ar: 'قم الآن واجلب كاسات موية (أو ضيافة) لكل اللاعبين الجالسين معك! 💧', en: 'Go fetch glasses of water or snacks for everyone in the group right now! 💧' },
+  { kind: 'spicy', ar: 'اعترف بآخر كذبة بيضاء أو ترقيعة قلتها هذا الأسبوع بالتفصيل! 🤥', en: 'Confess the last harmless white lie or excuse you used this week in detail! 🤥' },
+  { kind: 'spicy', ar: 'صوّر سيلفي بملامح مصدومة ومضحكة، وخلي المجموعة تختار تعليقاً تكتبه عليها! 📸', en: 'Take a funny shocked-face selfie and let the group caption it! 📸' },
+  { kind: 'spicy', ar: 'اقرأ آخر 3 عمليات بحث كتبتها في يوتيوب أو جوجل بصوت عالٍ! 🔍', en: 'Read aloud your last 3 YouTube or Google search queries! 🔍' },
+  { kind: 'spicy', ar: 'اتصل على صديق خارج الجلسة واسأله بكل جدية: «عندكم بطريق للبيع؟» ثم أقفل! 📞', en: 'Call a friend not in the room and seriously ask: “Do you sell penguins?”! 📞' },
+  { kind: 'spicy', ar: 'أخبرنا بأكثر موقف محرج صار لك في مدرسة أو جامعة أو دوام! 😳', en: 'Share the most embarrassing moment that happened to you at school or work! 😳' },
+  { kind: 'spicy', ar: 'ارسل إيموجي 🤡 بدون أي سبب لثالث شخص في محادثات الواتساب عندك! 📱', en: 'Send a single 🤡 emoji with no context to the 3rd chat in your messaging app! 📱' },
+  { kind: 'spicy', ar: 'افتح تطبيق الصور وأرِ المجموعة أقدم صورة أو أطرف صورة لقطة شاشة في جوالك! 🖼️', en: 'Show the group the funniest screenshot or oldest photo on your phone! 🖼️' },
+  { kind: 'spicy', ar: 'ابقَ واقفاً على قدم واحدة أثناء كلامك في بداية الجولة القادمة لمدة 30 ثانية! 🦩', en: 'Stand on one leg like a flamingo for 30 seconds! 🦩' },
+  { kind: 'spicy', ar: 'سوِّ 10 تمارين ضغط أو قرفصاء (Squats) أمام الجميع وأنت تعد بصوت عالٍ! 💪', en: 'Do 10 squats right now while counting out loud! 💪' },
+  { kind: 'spicy', ar: 'سلّم جوالك للاعب الذي على يمينك ليغير خلفية الشاشة لصورة مضحكة لمدة ساعة! 🎨', en: 'Let the player on your right pick a funny lock-screen wallpaper for the next hour! 🎨' },
+  { kind: 'spicy', ar: 'قل لكل شخص في الجلسة أول انطباع خطر ببالك عنه أول مرة عرفته فيها! 🤝', en: 'Tell each player in the room your honest first impression when you first met them! 🤝' },
+  { kind: 'spicy', ar: 'اعزم الشخص الذي كشفك في الجولة على قهوة أو حلى في أقرب طلعة! ☕', en: 'Treat the player who exposed you to coffee or dessert on your next outing! ☕' },
+  { kind: 'spicy', ar: 'غنِّ بصوت عالٍ أغنية يختارها لك الموجودون لمدة 20 ثانية بدون توقف! 🎤', en: 'Sing a song chosen by the group out loud for 20 seconds nonstop! 🎤' },
 ];
+
+export function filterDares(kind: DareKind | 'all'): Dare[] {
+  if (kind === 'all') return PUNISHMENTS;
+  return PUNISHMENTS.filter((d) => d.kind === kind);
+}
 
 /** Creates a deterministic PRNG from a string seed (or falls back to Math.random). */
 export function makeRng(seedStr?: string): () => number {
@@ -80,6 +123,7 @@ export function buildCustomCategory(customWords: string[] = []): Category {
     id: 'custom',
     emoji: '✨',
     name: { ar: 'كلماتنا الخاصة', en: 'Custom Words' },
+    lockedByDefault: true,
     words: list.map((w) => ({ ar: w, en: w })),
   };
 }
@@ -88,22 +132,24 @@ const PUBLIC_CHAOS: ChaosId[] = ['DOUBLE', 'SPEED', 'WHISPER'];
 export const isPublicChaos = (c: ChaosId | null): boolean => c !== null && PUBLIC_CHAOS.includes(c);
 
 function pickChaos(playerCount: number, rng: () => number): ChaosId {
-  const pool: ChaosId[] = ['DECOY', 'SPEED', 'WHISPER', 'NO_LIAR'];
+  const pool: ChaosId[] = ['DECOY', 'SPEED', 'WHISPER'];
   if (playerCount >= 5) pool.push('DOUBLE');
   return pick(pool, rng);
 }
 
-/** Builds a new round. `used` holds `${category}:${wordAr}` keys so words do not repeat in a session. */
+/**
+ * Builds a single-round match using the ONE chosen category.
+ * Guaranteed: at least 1 liar (`liars.length >= 1`) in every round.
+ */
 export function createRound(
   players: Player[],
-  categories: Category[],
+  category: Category,
   chaosOn: boolean,
   used: Set<string>,
   rolesOn = false,
   seedStr?: string,
 ): Round {
   const rng = makeRng(seedStr);
-  const category = pick(categories, rng);
   let candidates = seedStr ? category.words : category.words.filter((x) => !used.has(`${category.id}:${x.ar}`));
   if (candidates.length < 6) candidates = category.words;
   const word = pick(candidates, rng);
@@ -112,25 +158,22 @@ export function createRound(
   const chaos: ChaosId | null = chaosOn && rng() < CHAOS_CHANCE ? pickChaos(players.length, rng) : null;
 
   const ids = players.map((p) => p.id);
-  let liars: number[];
-  if (chaos === 'NO_LIAR') liars = [];
-  else if (chaos === 'DOUBLE') liars = shuffle(ids, rng).slice(0, 2);
-  else liars = [pick(ids, rng)];
+  const liars: number[] = chaos === 'DOUBLE' && ids.length >= 4 ? shuffle(ids, rng).slice(0, 2) : [pick(ids, rng)];
 
-  // Optional Special Roles (Jester 🤡 & Witness 🔮) when 4+ players and at least 1 liar
+  // Optional Special Roles (Jester 🤡 & Witness 🔮) when 4+ players
   let jesterId: number | null = null;
   let witnessId: number | null = null;
   let witnessPair: number[] | undefined;
 
-  if (rolesOn && players.length >= 4 && liars.length >= 1) {
+  if (rolesOn && players.length >= 4) {
     const honestIds = shuffle(
       ids.filter((id) => !liars.includes(id)),
       rng,
     );
-    if (honestIds.length >= 1 && rng() < 0.65) {
+    if (honestIds.length >= 1 && rng() < 0.6) {
       jesterId = honestIds[0];
     }
-    if (players.length >= 5 && honestIds.length >= 2 && rng() < 0.65) {
+    if (players.length >= 5 && honestIds.length >= 2 && rng() < 0.6) {
       witnessId = honestIds[1];
       const otherInnocents = honestIds.filter((id) => id !== witnessId);
       const innocentSuspect = otherInnocents[0] ?? honestIds[0];
@@ -156,55 +199,49 @@ export function createRound(
   };
 }
 
-export interface RoundScore {
-  deltas: Record<number, number>;
+export interface RoundResolution {
   outcome: Outcome;
+  /** Players who lost this round and must execute a punishment. */
+  losers: Player[];
 }
 
 /**
- * Scoring:
- * - Jester voted out: Jester steals the win (+3)!
- * - Liar escapes: +3 (or +2 each when there are two liars).
- * - Liar caught but guesses the word: liar +2.
- * - Liar caught and fails: every honest player +1.
- * - Nobody accused in a no-liar round: everyone +2. Accusing someone there costs them -1.
+ * Punishment-only resolution (no winners scoreboard, only losers who get punished!):
+ * - If Jester is voted out -> Jester tricks everyone; all other players are losers!
+ * - If a Liar is caught and guesses WRONG -> The caught Liar(s) are the losers!
+ * - If a Liar escapes OR guesses the word RIGHT -> All honest players are the losers!
  */
-export function scoreRound(round: Round, players: Player[], accused: number | null, guessedRight: boolean): RoundScore {
-  const deltas: Record<number, number> = {};
-  players.forEach((p) => (deltas[p.id] = 0));
+export function resolveRound(
+  round: Round,
+  players: Player[],
+  accused: number,
+  guessedRight: boolean,
+): RoundResolution {
   const isLiar = (id: number) => round.liars.includes(id);
 
-  if (accused !== null && round.jesterId === accused) {
-    deltas[accused] = 3;
-    return { deltas, outcome: 'JESTER_WIN' };
+  if (round.jesterId != null && accused === round.jesterId) {
+    return {
+      outcome: 'GROUP_LOST_JESTER',
+      losers: players.filter((p) => p.id !== round.jesterId),
+    };
   }
 
-  if (round.liars.length === 0) {
-    if (accused === null) {
-      players.forEach((p) => (deltas[p.id] = 2));
-      return { deltas, outcome: 'NO_LIAR_OK' };
-    }
-    deltas[accused] = -1;
-    return { deltas, outcome: 'NO_LIAR_WRONG' };
+  const caught = isLiar(accused);
+  if (caught && !guessedRight) {
+    // Caught liar(s) must execute the punishment
+    const caughtLiars = players.filter((p) => p.id === accused || isLiar(p.id));
+    return {
+      outcome: 'LIAR_LOST',
+      losers: caughtLiars,
+    };
   }
 
-  const survive = round.liars.length > 1 ? 2 : 3;
-  const caught = accused !== null && isLiar(accused);
-
-  if (!caught) {
-    round.liars.forEach((id) => (deltas[id] = survive));
-    return { deltas, outcome: 'ESCAPED' };
-  }
-
-  // Other liar (double chaos) survives either way.
-  round.liars.filter((id) => id !== accused).forEach((id) => (deltas[id] = survive));
-
-  if (guessedRight) {
-    deltas[accused!] = 2;
-    return { deltas, outcome: 'CAUGHT_GUESS_RIGHT' };
-  }
-  players.filter((p) => !isLiar(p.id)).forEach((p) => (deltas[p.id] = 1));
-  return { deltas, outcome: 'CAUGHT_GUESS_WRONG' };
+  // Liar escaped OR guessed the secret word right -> all honest players execute punishments!
+  const honestPlayers = players.filter((p) => !isLiar(p.id));
+  return {
+    outcome: caught && guessedRight ? 'GROUP_LOST_GUESSED' : 'GROUP_LOST_ESCAPED',
+    losers: honestPlayers.length > 0 ? honestPlayers : players,
+  };
 }
 
 export const wordOf = (w: Word, lang: 'ar' | 'en'): string => w[lang];

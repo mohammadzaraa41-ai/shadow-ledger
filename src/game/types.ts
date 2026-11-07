@@ -15,21 +15,32 @@ export interface Category {
   emoji: string;
   name: L10n;
   words: Word[];
+  /** Whether this category starts locked until the player unlocks it. */
+  lockedByDefault?: boolean;
 }
 
-/** Round twists. `public` ones are announced to everybody; secret ones are not. */
-export type ChaosId = 'DOUBLE' | 'DECOY' | 'SPEED' | 'WHISPER' | 'NO_LIAR';
+/** Round twists. Every round is guaranteed to have at least one liar. */
+export type ChaosId = 'DOUBLE' | 'DECOY' | 'SPEED' | 'WHISPER';
+
+export type DareKind = 'funny' | 'acting' | 'spicy';
+
+export interface Dare {
+  kind: DareKind;
+  ar: string;
+  en: string;
+}
 
 export interface Player {
   id: number;
   name: string;
-  score: number;
   avatar?: string;
 }
 
 export interface Settings {
-  cats: string[];
-  rounds: number;
+  /** Single selected category ID (only one category active per round). */
+  cat: string;
+  /** IDs of categories unlocked by the user. */
+  unlockedCats: string[];
   chaos: boolean;
   voice: boolean;
   discussSec: number;
@@ -46,8 +57,9 @@ export interface Round {
   word: Word;
   /** Similar word shown to the liar when the DECOY twist is active. */
   decoyWord?: Word;
+  /** Always contains at least 1 liar ID (or 2 when DOUBLE chaos is active). */
   liars: number[];
-  /** Jester (🤡): Knows the word, wins +3 if the group votes them out! */
+  /** Jester (🤡): Knows the word; if voted out, everyone else gets punished! */
   jesterId?: number | null;
   /** Witness (🔮): Knows the word + sees 2 suspects (one is a real liar, one is innocent). */
   witnessId?: number | null;
@@ -59,9 +71,7 @@ export interface Round {
 }
 
 export type Outcome =
-  | 'CAUGHT_GUESS_WRONG'
-  | 'CAUGHT_GUESS_RIGHT'
-  | 'ESCAPED'
-  | 'NO_LIAR_OK'
-  | 'NO_LIAR_WRONG'
-  | 'JESTER_WIN';
+  | 'LIAR_LOST'
+  | 'GROUP_LOST_ESCAPED'
+  | 'GROUP_LOST_GUESSED'
+  | 'GROUP_LOST_JESTER';

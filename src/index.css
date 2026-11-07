@@ -971,3 +971,146 @@ label,
   color: var(--text);
   line-height: 1.5;
 }
+
+/* ---------- single-category grid & lock cards ---------- */
+.cat-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+.cat-card {
+  position: relative;
+  border: 2px solid var(--line);
+  background: rgba(0, 0, 0, 0.22);
+  color: var(--text);
+  border-radius: 16px;
+  padding: 12px 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  cursor: pointer;
+  font: 800 13px var(--f-body);
+  transition: transform 0.12s ease, border-color 0.15s ease, background 0.15s ease;
+}
+.cat-card.on {
+  background: linear-gradient(160deg, var(--yellow), #ffb703);
+  color: #1d0a3a;
+  border-color: #fff;
+  box-shadow: 0 6px 18px rgba(255, 210, 63, 0.35);
+  transform: scale(1.03);
+}
+.cat-card.locked {
+  opacity: 0.72;
+  border-style: dashed;
+}
+.cat-emoji {
+  font-size: 26px;
+  line-height: 1;
+}
+.cat-name {
+  text-align: center;
+  line-height: 1.25;
+}
+.cat-lock-tag {
+  position: absolute;
+  top: 4px;
+  inset-inline-end: 6px;
+  font-size: 12px;
+  opacity: 0.8;
+}
+
+/* ---------- large question prompt box ---------- */
+.prompt-box-lg {
+  padding: 16px;
+  gap: 10px;
+  background: linear-gradient(160deg, rgba(255, 210, 63, 0.16), rgba(255, 77, 141, 0.12));
+  border: 2px solid var(--yellow);
+  border-radius: 22px;
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.28);
+}
+.prompt-badge {
+  background: var(--yellow);
+  color: #1d0a3a;
+  font-weight: 800;
+  font-size: 13px;
+  padding: 3px 12px;
+  border-radius: 999px;
+}
+.prompt-pair {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--yellow);
+}
+.prompt-text-lg {
+  margin: 2px 0 6px;
+  font-size: clamp(20px, 5.5vw, 25px);
+  font-weight: 800;
+  line-height: 1.45;
+  color: #fff;
+}
+
+/* ---------- losers punishment list ---------- */
+.outcome-alert {
+  font-size: 17px;
+  line-height: 1.45;
+  padding: 8px 12px;
+  border-radius: 14px;
+  background: rgba(255, 90, 95, 0.15);
+  border: 1px solid rgba(255, 90, 95, 0.35);
+  color: #ffd23f;
+}
+.losers-panel {
+  width: 100%;
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.losers-panel h3 {
+  margin: 0;
+  font-size: 16px;
+  color: var(--yellow);
+}
+.loser-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 10px 12px;
+  cursor: pointer;
+  text-align: start;
+}
+.loser-row-top {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.loser-row-top .grow {
+  flex: 1;
+  font-weight: 800;
+}
+.loser-dare-text {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--yellow);
+  line-height: 1.45;
+}
+.loser-banner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 8px 14px;
+}

@@ -1,7 +1,14 @@
 import { useState } from 'react';
-import { AVATARS, buildCustomCategory, DEFAULT_CUSTOM_WORDS, MAX_PLAYERS, MIN_PLAYERS } from '../game/engine';
+import {
+  AVATARS,
+  buildCustomCategory,
+  DEFAULT_CUSTOM_WORDS,
+  DEFAULT_UNLOCKED_CATS,
+  MAX_PLAYERS,
+  MIN_PLAYERS,
+} from '../game/engine';
 import { sound } from '../game/sound';
-import type { Player, Settings } from '../game/types';
+import type { Category, Player, Settings } from '../game/types';
 import { CATEGORIES } from '../game/words';
 import { useLang } from '../i18n';
 import { TopBar } from './Home';
@@ -18,10 +25,15 @@ interface Props {
 export function Setup({ players, setPlayers, settings, setSettings, onStart, onBack }: Props) {
   const { t, lang } = useLang();
   const [newWord, setNewWord] = useState('');
+  const [unlockTarget, setUnlockTarget] = useState<Category | null>(null);
 
   const customWords = settings.customWords ?? DEFAULT_CUSTOM_WORDS;
   const customCat = buildCustomCategory(customWords);
   const allCategories = [...CATEGORIES, customCat];
+  const unlockedCats = settings.unlockedCats ?? DEFAULT_UNLOCKED_CATS;
+  const selectedCat = settings.cat || 'food';
+
+  const isUnlocked = (c: Category) => !c.lockedByDefault || unlockedCats.includes(c.id);
 
   const rename = (id: number, name: string) => setPlayers(players.map((p) => (p.id === id ? { ...p, name } : p)));
 
@@ -42,7 +54,7 @@ export function Setup({ players, setPlayers, settings, setSettings, onStart, onB
     sound.tap();
     const nextId = Math.max(0, ...players.map((p) => p.id)) + 1;
     const avatar = AVATARS[players.length % AVATARS.length];
-    setPlayers([...players, { id: nextId, name: '', score: 0, avatar }]);
+    setPlayers([...players, { id: nextId, name: '', avatar }]);
   };
 
   const remove = (id: number) => {
@@ -51,11 +63,22 @@ export function Setup({ players, setPlayers, settings, setSettings, onStart, onB
     setPlayers(players.filter((p) => p.id !== id));
   };
 
-  const toggleCat = (id: string) => {
+  const selectCategory = (c: Category) => {
+    if (!isUnlocked(c)) {
+      sound.tap();
+      setUnlockTarget(c);
+      return;
+    }
     sound.tap();
-    const has = settings.cats.includes(id);
-    const cats = has ? settings.cats.filter((c) => c !== id) : [...settings.cats, id];
-    setSettings({ ...settings, cats });
+    setSettings({ ...settings, cat: c.id });
+  };
+
+  const confirmUnlock = () => {
+    if (!unlockTarget) return;
+    sound.win();
+    const nextUnlocked = Array.from(new Set([...unlockedCats, unlockTarget.id]));
+    setSettings({ ...settings, unlockedCats: nextUnlocked, cat: unlockTarget.id });
+    setUnlockTarget(null);
   };
 
   const set = <K extends keyof Settings>(key: K, value: Settings[K]) => {
@@ -68,8 +91,8 @@ export function Setup({ players, setPlayers, settings, setSettings, onStart, onB
     if (!w) return;
     sound.tap();
     const updated = Array.from(new Set([...customWords, w]));
-    const cats = settings.cats.includes('custom') ? settings.cats : [...settings.cats, 'custom'];
-    setSettings({ ...settings, customWords: updated, cats });
+    const nextUnlocked = Array.from(new Set([...unlockedCats, 'custom']));
+    setSettings({ ...settings, customWords: updated, unlockedCats: nextUnlocked, cat: 'custom' });
     setNewWord('');
   };
 
@@ -86,7 +109,6 @@ export function Setup({ players, setPlayers, settings, setSettings, onStart, onB
     set('roomCode', code);
   };
 
-  const noCat = settings.cats.length === 0;
   const tooFew = players.length < MIN_PLAYERS;
 
   return (
@@ -136,19 +158,27 @@ export function Setup({ players, setPlayers, settings, setSettings, onStart, onB
 
       <section className="panel">
         <h3>{t('setup.cats')}</h3>
-        <div className="chips">
-          {allCategories.map((c) => (
-            <button
-              key={c.id}
-              className={`chip ${settings.cats.includes(c.id) ? 'on' : ''}`}
-              onClick={() => toggleCat(c.id)}
-            >
-              {c.emoji} {c.name[lang]}
-            </button>
-          ))}
+        <small className="muted">{t('setup.catSub')}</small>
+        <div className="cat-grid">
+          {allCategories.map((c) => {
+            const unlocked = isUnlocked(c);
+            const active = unlocked && selectedCat === c.id;
+            return (
+              <button
+                key={c.id}
+                type="button"
+                className={`cat-card ${active ? 'on' : ''} ${!unlocked ? 'locked' : ''}`}
+                onClick={() => selectCategory(c)}
+              >
+                <span className="cat-emoji">{unlocked ? c.emoji : '🔒'}</span>
+                <span className="cat-name">{c.name[lang]}</span>
+                {!unlocked && <small className="cat-lock-tag">{c.emoji}</small>}
+              </button>
+            );
+          })}
         </div>
 
-        {settings.cats.includes('custom') && (
+        {selectedCat === 'custom' && (
           <div className="custom-words-box">
             <small className="muted">{t('setup.customTitle')}</small>
             <div className="player-row">
@@ -180,14 +210,6 @@ export function Setup({ players, setPlayers, settings, setSettings, onStart, onB
       </section>
 
       <section className="panel">
-        <h3>{t('setup.rounds')}</h3>
-        <div className="seg">
-          {[3, 5, 8].map((n) => (
-            <button key={n} className={settings.rounds === n ? 'on' : ''} onClick={() => set('rounds', n)}>
-              {n}
-            </button>
-          ))}
-        </div>
         <h3>{t('setup.time')}</h3>
         <div className="seg">
           {[60, 90, 120].map((n) => (
@@ -248,13 +270,13 @@ export function Setup({ players, setPlayers, settings, setSettings, onStart, onB
         </div>
       </section>
 
-      {(noCat || tooFew) && <p className="warn">{noCat ? t('setup.needCat') : t('setup.min', { n: MIN_PLAYERS })}</p>}
+      {tooFew && <p className="warn">{t('setup.min', { n: MIN_PLAYERS })}</p>}
 
       <div className="stack sticky-actions">
         <button
           id="btn-start-game"
           className="btn btn-primary btn-xl"
-          disabled={noCat || tooFew}
+          disabled={tooFew}
           onClick={() => {
             sound.flip();
             onStart();
@@ -272,6 +294,24 @@ export function Setup({ players, setPlayers, settings, setSettings, onStart, onB
           {t('setup.back')}
         </button>
       </div>
+
+      {unlockTarget && (
+        <div className="overlay" role="dialog" aria-modal="true" onClick={() => setUnlockTarget(null)}>
+          <div className="sheet center-text" onClick={(e) => e.stopPropagation()}>
+            <div className="logo-emoji" style={{ fontSize: 64 }}>{unlockTarget.emoji}</div>
+            <h2 className="sheet-title">{t('setup.unlockModalTitle', { cat: unlockTarget.name[lang] })}</h2>
+            <p className="muted">{t('setup.unlockModalSub')}</p>
+            <div className="stack">
+              <button type="button" className="btn btn-primary btn-xl" onClick={confirmUnlock}>
+                {t('setup.unlockConfirm')}
+              </button>
+              <button type="button" className="btn btn-ghost" onClick={() => setUnlockTarget(null)}>
+                {t('setup.unlockCancel')}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

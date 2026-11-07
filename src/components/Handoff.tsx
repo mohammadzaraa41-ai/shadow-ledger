@@ -7,8 +7,6 @@ interface Props {
   player: Player;
   players: Player[];
   round: Round;
-  roundNo: number;
-  totalRounds: number;
   roomCode?: string;
   isLast: boolean;
   onSelectPlayer?: (idx: number) => void;
@@ -21,8 +19,6 @@ export function Handoff({
   player,
   players,
   round,
-  roundNo,
-  totalRounds,
   roomCode,
   isLast,
   onSelectPlayer,
@@ -57,7 +53,9 @@ export function Handoff({
   if (phase === 'pass') {
     return (
       <div className="screen center">
-        <p className="muted">{t('hand.round', { n: roundNo, total: totalRounds })}</p>
+        <p className="muted">
+          {t('hand.round', { cat: `${round.category.emoji} ${round.category.name[lang]}` })}
+        </p>
 
         {roomCode && (
           <div className="room-sync-box">
