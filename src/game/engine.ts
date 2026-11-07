@@ -209,6 +209,8 @@ export interface RoundResolution {
 
 /**
  * Tallies individual player votes (voterId -> suspectId) and returns the top-voted suspect ID.
+ * Rule: A tie at the top saves the Liar! The Liar is only caught if they hold a strict majority
+ * (or only Liars are tied at the top).
  */
 export function tallyVotes(round: Round, players: Player[], votesMap: Record<number, number>): number {
   const counts = new Map<number, number>();
@@ -222,8 +224,9 @@ export function tallyVotes(round: Round, players: Player[], votesMap: Record<num
   const topIds = players.map((p) => p.id).filter((id) => (counts.get(id) ?? 0) === maxVotes);
   if (topIds.length === 0) return players[0].id;
   if (round.jesterId != null && topIds.includes(round.jesterId)) return round.jesterId;
-  const tiedLiar = topIds.find((id) => round.liars.includes(id));
-  if (tiedLiar !== undefined) return tiedLiar;
+  // If tied at the top between an innocent and a Liar, the tie saves the Liar!
+  const tiedInnocent = topIds.find((id) => !round.liars.includes(id));
+  if (tiedInnocent !== undefined) return tiedInnocent;
   return topIds[0];
 }
 
