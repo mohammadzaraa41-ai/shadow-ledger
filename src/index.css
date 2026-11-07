@@ -1285,3 +1285,81 @@ label,
   font-size: 15px;
   line-height: 1.5;
 }
+
+.arcade-intro {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.arcade-cat-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.arcade-cat-label {
+  color: var(--yellow);
+  font-weight: 800;
+  font-size: 14px;
+}
+.arcade-cat-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+.arcade-cat-chip {
+  border: 2px solid var(--line);
+  background: rgba(0, 0, 0, 0.25);
+  color: var(--text);
+  border-radius: 14px;
+  padding: 9px 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font: 800 13px var(--f-body);
+  cursor: pointer;
+  transition: transform 0.12s ease, border-color 0.15s ease, background 0.15s ease;
+}
+.arcade-cat-chip.on {
+  background: linear-gradient(160deg, var(--yellow), #ffb703);
+  color: #1d0a3a;
+  border-color: #fff;
+  box-shadow: 0 5px 14px rgba(255, 210, 63, 0.32);
+}
+.arcade-hero-icon {
+  font-size: 40px;
+  line-height: 1.1;
+}
+.tilt-hint-badge {
+  display: inline-block;
+  margin-top: 4px;
+  padding: 5px 10px;
+  border-radius: 12px;
+  background: rgba(255, 210, 63, 0.14);
+  border: 1px dashed var(--yellow);
+  color: var(--yellow);
+  font-weight: 700;
+  font-size: 12px;
+}
+.tilt-live-pill {
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(16, 185, 129, 0.25);
+  border: 1px solid var(--green);
+  color: #fff;
+  font-weight: 800;
+  font-size: 12px;
+}
+.headsup-card.flash-ok {
+  background: linear-gradient(160deg, #10b981, #047857) !important;
+  transform: scale(1.03);
+}
+.headsup-card.flash-pass {
+  background: linear-gradient(160deg, #f59e0b, #b45309) !important;
+}
+.share-dare-btn {
+  margin-top: 10px;
+  width: 100%;
+  border-color: var(--yellow);
+  color: var(--yellow);
+}
