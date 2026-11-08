@@ -1116,6 +1116,88 @@ label,
 }
 
 /* ---------- 3-in-1 party arcade modes & redemption challenge ---------- */
+.home-vip-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: linear-gradient(135deg, rgba(255, 210, 63, 0.2), rgba(255, 77, 141, 0.22));
+  border: 1.5px solid var(--yellow);
+  color: var(--yellow);
+  font-weight: 800;
+  font-size: 13px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(255, 210, 63, 0.22);
+  margin-top: 4px;
+  transition: transform 0.12s ease;
+}
+.home-vip-badge:active {
+  transform: scale(0.95);
+}
+
+.vip-sheet {
+  max-width: 460px;
+}
+.vip-crown-icon {
+  font-size: 56px;
+  line-height: 1;
+  animation: bob 2.2s ease-in-out infinite;
+}
+.vip-title {
+  color: var(--yellow);
+  margin: 4px 0 0;
+}
+.vip-sub {
+  color: var(--muted);
+  font-size: 14px;
+  margin: 0;
+  line-height: 1.45;
+}
+.vip-perks-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  text-align: start;
+  margin: 6px 0;
+}
+.vip-perk-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 10px 14px;
+}
+.vip-perk-item span {
+  font-size: 26px;
+}
+.vip-perk-item b {
+  display: block;
+  font-size: 14px;
+  color: var(--text);
+}
+.vip-perk-item small {
+  display: block;
+  font-size: 12px;
+  color: var(--muted);
+}
+.vip-status-banner {
+  padding: 8px 12px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 700;
+  background: rgba(61, 220, 151, 0.16);
+  border: 1px solid var(--green);
+  color: #fff;
+}
+.vip-buy-btn {
+  background: linear-gradient(135deg, #ffd23f, #f59e0b) !important;
+  color: #1d0a3a !important;
+  box-shadow: 0 7px 0 #b45309, 0 12px 24px rgba(255, 210, 63, 0.35) !important;
+}
+
 .home-modes-box {
   display: flex;
   flex-direction: column;

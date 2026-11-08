@@ -3,6 +3,8 @@ import { sound } from '../game/sound';
 import { useLang } from '../i18n';
 import { ArcadeModal, type ArcadeModeType } from './ArcadeModes';
 import { PunishmentWheel } from './PunishmentWheel';
+import { VipModal } from './VipModal';
+import { isVipUnlocked } from '../game/purchase';
 
 export function TopBar() {
   const { lang, setLang } = useLang();
@@ -37,6 +39,8 @@ export function Home({ onPlay, onHow }: { onPlay: () => void; onHow: () => void 
   const { t, lang } = useLang();
   const [arcadeMode, setArcadeMode] = useState<ArcadeModeType | null>(null);
   const [showStandaloneWheel, setShowStandaloneWheel] = useState(false);
+  const [showVipModal, setShowVipModal] = useState(false);
+  const isVip = isVipUnlocked();
 
   return (
     <div className="screen home">
@@ -45,6 +49,18 @@ export function Home({ onPlay, onHow }: { onPlay: () => void; onHow: () => void 
         <div className="logo-emoji" aria-hidden="true">🤥</div>
         <h1 className="title">{t('app.name')}</h1>
         <p className="tag">{t('app.tag')}</p>
+        {!isVip && (
+          <button
+            type="button"
+            className="home-vip-badge animate-pop"
+            onClick={() => {
+              sound.tap();
+              setShowVipModal(true);
+            }}
+          >
+            👑 {t('vip.homeBadge')}
+          </button>
+        )}
       </div>
       <div className="stack">
         <button
@@ -116,6 +132,13 @@ export function Home({ onPlay, onHow }: { onPlay: () => void; onHow: () => void 
           initialIdx={0}
           onAssignDare={() => {}}
           onClose={() => setShowStandaloneWheel(false)}
+        />
+      )}
+
+      {showVipModal && (
+        <VipModal
+          onSuccess={() => setShowVipModal(false)}
+          onClose={() => setShowVipModal(false)}
         />
       )}
     </div>

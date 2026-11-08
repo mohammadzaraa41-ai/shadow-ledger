@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { showRewardedUnlockAd } from '../game/ads';
+import { isVipUnlocked } from '../game/purchase';
+import { VipModal } from './VipModal';
 import {
   AVATARS,
   buildCustomCategory,
@@ -27,6 +29,8 @@ export function Setup({ players, setPlayers, settings, setSettings, onStart, onB
   const { t, lang } = useLang();
   const [newWord, setNewWord] = useState('');
   const [unlockTarget, setUnlockTarget] = useState<Category | null>(null);
+  const [showVipModal, setShowVipModal] = useState(false);
+  const isVip = isVipUnlocked();
 
   const customWords = settings.customWords ?? DEFAULT_CUSTOM_WORDS;
   const customCat = buildCustomCategory(customWords);
@@ -34,7 +38,7 @@ export function Setup({ players, setPlayers, settings, setSettings, onStart, onB
   const unlockedCats = settings.unlockedCats ?? DEFAULT_UNLOCKED_CATS;
   const selectedCat = settings.cat || 'food';
 
-  const isUnlocked = (c: Category) => !c.lockedByDefault || unlockedCats.includes(c.id);
+  const isUnlocked = (c: Category) => !c.lockedByDefault || isVip || unlockedCats.includes(c.id);
 
   const rename = (id: number, name: string) => setPlayers(players.map((p) => (p.id === id ? { ...p, name } : p)));
 
@@ -312,12 +316,29 @@ export function Setup({ players, setPlayers, settings, setSettings, onStart, onB
               <button type="button" className="btn btn-primary btn-xl" onClick={confirmUnlock}>
                 {t('setup.unlockConfirm')}
               </button>
+              <button
+                type="button"
+                className="btn btn-accent"
+                onClick={() => {
+                  setUnlockTarget(null);
+                  setShowVipModal(true);
+                }}
+              >
+                👑 {t('vip.modalBtn')}
+              </button>
               <button type="button" className="btn btn-ghost" onClick={() => setUnlockTarget(null)}>
                 {t('setup.unlockCancel')}
               </button>
             </div>
           </div>
         </div>
+      )}
+
+      {showVipModal && (
+        <VipModal
+          onSuccess={() => setShowVipModal(false)}
+          onClose={() => setShowVipModal(false)}
+        />
       )}
     </div>
   );

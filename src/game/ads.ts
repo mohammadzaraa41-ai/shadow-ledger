@@ -1,5 +1,6 @@
 import { Capacitor } from '@capacitor/core';
 import { AdMob, type AdOptions, type RewardAdOptions } from '@capacitor-community/admob';
+import { isVipUnlocked } from './purchase';
 
 /**
  * AdMob Configuration (iOS & Android)
@@ -47,6 +48,8 @@ export async function initAds(): Promise<void> {
  * it gracefully grants the reward so the user is NEVER stuck or rejected by Apple Review.
  */
 export async function showRewardedUnlockAd(): Promise<boolean> {
+  // If the user purchased VIP (Remove Ads), never show ads and grant instantly!
+  if (isVipUnlocked()) return true;
   if (!Capacitor.isNativePlatform()) return true;
   try {
     await initAds();
@@ -69,6 +72,8 @@ export async function showRewardedUnlockAd(): Promise<boolean> {
  * Never blocks navigation if offline or unavailable.
  */
 export async function showRoundInterstitialAd(): Promise<void> {
+  // If the user purchased VIP (Remove Ads), never show interstitial ads!
+  if (isVipUnlocked()) return;
   if (!Capacitor.isNativePlatform()) return;
   try {
     const platform = Capacitor.getPlatform() === 'android' ? 'android' : 'ios';
