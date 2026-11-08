@@ -9,6 +9,7 @@ import {
   type HeadsUpCatId,
 } from '../game/arcadeData';
 import { sound } from '../game/sound';
+import { fireConfetti } from '../game/confetti';
 import { useLang } from '../i18n';
 import { CardIllustration } from './CardIllustration';
 
@@ -132,6 +133,7 @@ export function ArcadeModal({
 
   const handleCharadeSuccess = () => {
     sound.win();
+    fireConfetti(2500);
     setPhase('won');
   };
 
@@ -155,6 +157,7 @@ export function ArcadeModal({
       const next = prev + 1;
       if (next >= targetScore) {
         sound.win();
+        fireConfetti(2500);
         setPhase('won');
       }
       return next;

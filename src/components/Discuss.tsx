@@ -22,6 +22,20 @@ export function Discuss({ round, players, settings, onVote }: Props) {
   const [prompt, setPrompt] = useState(() => randomPrompt(lang, round.category.id));
   const [pairIdx, setPairIdx] = useState(0);
   const [host] = useState(() => hostLine('discuss', lang));
+  const [showTip, setShowTip] = useState(false);
+
+  const tips = lang === 'ar' ? [
+    '💡 اسألوا عن الحجم أو الرائحة أو المكان المعتاد للكلمة بدون ذكر اسمها!',
+    '🕵️ انتبهوا لمن يتأخر في الإجابة أو يكرر نفس كلام اللاعب الذي قبله!',
+    '🔍 اسألوا: "هل هذا الشيء موجود في بيتك الآن؟" ولاحظوا تعابير الوجه!',
+    '🎭 الكذّاب عادة يعطي إجابات عامة ومطاطة مثل "شيء حلو" أو "نستخدمه دائماً"!',
+  ] : [
+    '💡 Ask about the size, smell, or usual location without giving away the word!',
+    '🕵️ Watch out for whoever hesitates or mimics the answer before them!',
+    '🔍 Ask: "Do you have this in your room right now?" and watch their eyes!',
+    '🎭 Liars often give vague answers like "it’s nice" or "everyone uses it"!',
+  ];
+  const [tipIdx, setTipIdx] = useState(0);
 
   const starterIdx = Math.max(0, players.findIndex((p) => p.id === round.starter));
   const asker = players[(starterIdx + pairIdx) % players.length] ?? players[0];
@@ -104,9 +118,23 @@ export function Discuss({ round, players, settings, onVote }: Props) {
           })}
         </p>
         <p className="prompt-text-lg">«{prompt}»</p>
-        <button type="button" className="btn btn-accent" onClick={nextPrompt}>
-          {t('disc.newPrompt')}
-        </button>
+        <div className="row" style={{ width: '100%', gap: 8 }}>
+          <button type="button" className="btn btn-accent grow" onClick={nextPrompt}>
+            {t('disc.newPrompt')}
+          </button>
+          <button
+            type="button"
+            className="btn btn-ghost"
+            onClick={() => {
+              sound.tap();
+              setTipIdx((i) => (i + 1) % tips.length);
+              setShowTip(true);
+            }}
+          >
+            💡 {t('disc.hintBtn')}
+          </button>
+        </div>
+        {showTip && <p className="discuss-tip-banner animate-pop">{tips[tipIdx]}</p>}
       </div>
 
       <div className="host-bubble">🎙️ {host}</div>

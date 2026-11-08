@@ -1654,3 +1654,149 @@ label,
   background: rgba(255, 210, 63, 0.18);
   color: var(--yellow);
 }
+
+/* ---------- Dramatic Ballot Reveal & Party MVP Awards ---------- */
+.dramatic-reveal-screen {
+  gap: 16px;
+}
+.dramatic-votes-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  max-width: 440px;
+}
+.dramatic-vote-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  background: var(--card-solid);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 10px 14px;
+  font-size: 15px;
+  font-weight: 700;
+}
+.voter-tag {
+  color: var(--text);
+}
+.vote-arrow-icon {
+  color: var(--yellow);
+  font-size: 13px;
+}
+.target-tag {
+  color: var(--pink);
+  font-weight: 800;
+}
+.dramatic-verdict-card {
+  background: linear-gradient(155deg, rgba(255, 77, 141, 0.28), rgba(220, 38, 38, 0.35));
+  border: 3px solid var(--red);
+  border-radius: 24px;
+  padding: 20px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  max-width: 440px;
+  box-shadow: 0 10px 30px rgba(220, 38, 38, 0.35);
+}
+.verdict-kicker {
+  color: var(--yellow);
+  font-size: 14px;
+  font-weight: 800;
+}
+.verdict-avatar {
+  font-size: 64px;
+  line-height: 1.1;
+}
+.verdict-name {
+  margin: 0;
+  font-family: var(--f-title);
+  font-size: clamp(28px, 7vw, 42px);
+  color: #fff;
+}
+.verdict-badge {
+  background: var(--red);
+  color: #fff;
+  font-weight: 800;
+  font-size: 14px;
+  padding: 4px 14px;
+  border-radius: 999px;
+}
+.discuss-tip-banner {
+  margin: 6px 0 0;
+  background: rgba(255, 210, 63, 0.12);
+  border: 1px dashed var(--yellow);
+  border-radius: 12px;
+  padding: 8px 12px;
+  font-size: 13px;
+  color: var(--yellow);
+  line-height: 1.45;
+  text-align: center;
+}
+.party-awards-card {
+  width: 100%;
+  background: linear-gradient(160deg, rgba(255, 210, 63, 0.12), rgba(138, 77, 255, 0.14));
+  border: 1px solid var(--yellow);
+  border-radius: 20px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.party-awards-card h3 {
+  margin: 0;
+  font-size: 16px;
+  color: var(--yellow);
+}
+.awards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 8px;
+}
+.award-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 8px 12px;
+}
+.award-item.detective {
+  border-color: rgba(61, 220, 151, 0.45);
+}
+.award-item.victim {
+  border-color: rgba(255, 77, 141, 0.45);
+}
+.award-icon {
+  font-size: 26px;
+}
+.award-item b {
+  display: block;
+  font-size: 14px;
+  color: var(--text);
+}
+.award-item small {
+  display: block;
+  font-size: 12px;
+  color: var(--muted);
+}
+.animate-pop {
+  animation: pop 0.3s ease;
+}
+.animate-zoom {
+  animation: zoom 0.35s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+}
+@keyframes zoom {
+  from {
+    transform: scale(0.7);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}

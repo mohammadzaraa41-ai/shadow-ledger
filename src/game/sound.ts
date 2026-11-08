@@ -70,6 +70,28 @@ export const sound = {
     tone(220, 0, 0.18, 'sawtooth', 0.1, 440);
     tone(440, 0.16, 0.22, 'sawtooth', 0.1, 220);
   },
+  siren: () => {
+    vib([80, 40, 80, 40, 100]);
+    tone(400, 0, 0.22, 'sawtooth', 0.14, 880);
+    tone(880, 0.22, 0.25, 'sawtooth', 0.14, 400);
+    tone(400, 0.47, 0.22, 'sawtooth', 0.14, 880);
+  },
+  evilLaugh: () => {
+    vib([40, 40, 40, 40, 60]);
+    [320, 290, 260, 230, 200].forEach((freq, idx) => {
+      tone(freq, idx * 0.1, 0.08, 'sawtooth', 0.14);
+    });
+  },
+  jesterHorn: () => {
+    vib([30, 60, 80]);
+    tone(293, 0, 0.14, 'square', 0.15, 349);
+    tone(440, 0.16, 0.28, 'triangle', 0.16);
+  },
+  heartbeat: () => {
+    vib(30);
+    tone(85, 0, 0.09, 'sine', 0.2);
+    tone(65, 0.12, 0.14, 'sine', 0.16);
+  },
   drumroll: () => {
     vib([20, 50, 20, 50, 30]);
     for (let i = 0; i < 14; i++) tone(120 + i * 6, i * 0.07, 0.06, 'triangle', 0.1);

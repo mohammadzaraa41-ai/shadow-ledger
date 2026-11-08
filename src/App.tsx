@@ -5,6 +5,7 @@ import { Home, HowTo } from './components/Home';
 import { Result } from './components/Result';
 import { Setup } from './components/Setup';
 import { Guess, Vote } from './components/VoteGuess';
+import { DramaticVoteReveal } from './components/DramaticVoteReveal';
 import { initAds } from './game/ads';
 import {
   AVATARS,
@@ -21,7 +22,7 @@ import type { Category, Outcome, Player, Round, Settings } from './game/types';
 import { CATEGORIES } from './game/words';
 import { useLang } from './i18n';
 
-type Screen = 'home' | 'setup' | 'handoff' | 'discuss' | 'vote' | 'guess' | 'result';
+type Screen = 'home' | 'setup' | 'handoff' | 'discuss' | 'vote' | 'tally' | 'guess' | 'result';
 
 const defaultPlayers = (): Player[] =>
   [0, 1, 2, 3].map((id, i) => ({ id, name: '', avatar: AVATARS[i % AVATARS.length] }));
@@ -111,12 +112,17 @@ export default function App() {
     if (!round) return;
     setVotesMap(vMap);
     const acc = tallyVotes(round, players, vMap);
-    const caught = round.liars.includes(acc);
+    setAccused(acc);
+    setScreen('tally');
+  };
+
+  const onTallyDone = () => {
+    if (!round || accused === null) return;
+    const caught = round.liars.includes(accused);
     if (caught) {
-      setAccused(acc);
       setScreen('guess');
     } else {
-      finishRound(acc, false, vMap);
+      finishRound(accused, false, votesMap);
     }
   };
 
@@ -165,6 +171,17 @@ export default function App() {
       )}
 
       {screen === 'vote' && <Vote key={gameNo.current} players={players} onConfirm={onVote} />}
+
+      {screen === 'tally' && round && accused !== null && (
+        <DramaticVoteReveal
+          key={gameNo.current}
+          round={round}
+          players={players}
+          votesMap={votesMap}
+          accusedId={accused}
+          onDone={onTallyDone}
+        />
+      )}
 
       {screen === 'guess' && round && accused !== null && (
         <Guess

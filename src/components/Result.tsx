@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { showRoundInterstitialAd } from '../game/ads';
+import { fireConfetti } from '../game/confetti';
 import { hostLine, speak } from '../game/host';
 import { sound } from '../game/sound';
 import type { Outcome, Player, Round, Settings } from '../game/types';
@@ -61,8 +62,14 @@ export function Result({
     sound.drumroll();
     const a = setTimeout(() => {
       setStage(1);
-      if (outcome === 'LIAR_LOST') sound.win();
-      else sound.lose();
+      if (outcome === 'LIAR_LOST') {
+        sound.win();
+        fireConfetti(3000);
+      } else if (outcome === 'GROUP_LOST_JESTER') {
+        sound.jesterHorn();
+      } else {
+        sound.evilLaugh();
+      }
     }, 1400);
     const b = setTimeout(() => {
       setStage(2);
@@ -149,6 +156,54 @@ export function Result({
               </div>
             </div>
           )}
+
+          {/* Party MVP Awards / Recap */}
+          {(() => {
+            const innocentSuspectCounts: Record<number, number> = {};
+            for (const [, targetId] of Object.entries(votesMap)) {
+              if (!round.liars.includes(targetId)) {
+                innocentSuspectCounts[targetId] = (innocentSuspectCounts[targetId] ?? 0) + 1;
+              }
+            }
+            let scapegoatId: number | null = null;
+            let maxInnocentVotes = 0;
+            for (const [idStr, count] of Object.entries(innocentSuspectCounts)) {
+              if (count > maxInnocentVotes) {
+                maxInnocentVotes = count;
+                scapegoatId = Number(idStr);
+              }
+            }
+            const scapegoat = scapegoatId !== null ? players.find((p) => p.id === scapegoatId) : null;
+            const smartMvp = smartSurvivors.length > 0 ? smartSurvivors[0] : null;
+
+            if (!smartMvp && !scapegoat) return null;
+
+            return (
+              <div className="party-awards-card">
+                <h3>🏆 {t('res.awardsTitle')}</h3>
+                <div className="awards-grid">
+                  {smartMvp && (
+                    <div className="award-item detective">
+                      <span className="award-icon">🕵️‍♂️</span>
+                      <div>
+                        <b>{smartMvp.avatar} {smartMvp.name}</b>
+                        <small>{t('res.awardDetectiveSub')}</small>
+                      </div>
+                    </div>
+                  )}
+                  {scapegoat && (
+                    <div className="award-item victim">
+                      <span className="award-icon">🥺</span>
+                      <div>
+                        <b>{scapegoat.avatar} {scapegoat.name}</b>
+                        <small>{t('res.awardVictimSub')}</small>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            );
+          })()}
 
           <div className="losers-panel">
             <h3>{t('res.losersHeader', { n: losers.length })}</h3>
@@ -262,7 +317,10 @@ export function Result({
           onClose={() => setRedeemIdx(null)}
           onRedeemSuccess={() => {
             const p = losers[redeemIdx];
-            if (p) setRedeemedIds((prev) => ({ ...prev, [p.id]: true }));
+            if (p) {
+              setRedeemedIds((prev) => ({ ...prev, [p.id]: true }));
+              fireConfetti(2500);
+            }
             setRedeemIdx(null);
           }}
           onRedeemFail={() => {
