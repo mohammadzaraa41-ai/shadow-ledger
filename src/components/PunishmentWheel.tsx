@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { filterDares, pick } from '../game/engine';
 import { sound } from '../game/sound';
 import type { Dare, DareKind, Player } from '../game/types';
@@ -35,6 +35,14 @@ export function PunishmentWheel({ losers, initialIdx = 0, onAssignDare, onClose 
   const [customInput, setCustomInput] = useState('');
   const [sharedOk, setSharedOk] = useState(false);
   const usedDares = useRef<Set<string>>(new Set());
+  const timeoutsRef = useRef<number[]>([]);
+
+  useEffect(() => {
+    return () => {
+      // Clear all pending spin timeouts on modal unmount
+      timeoutsRef.current.forEach(clearTimeout);
+    };
+  }, []);
 
   const currentLoser = losers[idx] ?? losers[0];
   const nextLoser = idx + 1 < losers.length ? losers[idx + 1] : null;
@@ -94,14 +102,16 @@ export function PunishmentWheel({ losers, initialIdx = 0, onAssignDare, onClose 
     const extraTurns = 1440 + Math.floor(Math.random() * 720);
     setRotation((r) => r + extraTurns);
 
-    setTimeout(() => sound.tick(), 600);
-    setTimeout(() => sound.tick(), 1100);
-    setTimeout(() => {
-      setSpinning(false);
-      setCurrentDare(chosen);
-      onAssignDare?.(currentLoser.id, chosen[lang]);
-      sound.chaos();
-    }, 1800);
+    timeoutsRef.current.push(window.setTimeout(() => sound.tick(), 600));
+    timeoutsRef.current.push(window.setTimeout(() => sound.tick(), 1100));
+    timeoutsRef.current.push(
+      window.setTimeout(() => {
+        setSpinning(false);
+        setCurrentDare(chosen);
+        onAssignDare?.(currentLoser.id, chosen[lang]);
+        sound.chaos();
+      }, 1800),
+    );
   };
 
   const shareDare = async () => {

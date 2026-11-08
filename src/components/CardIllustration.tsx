@@ -1,3 +1,4 @@
+import { useId } from 'react';
 import type { ArcadeCard } from '../game/arcadeData';
 
 interface Props {
@@ -90,6 +91,7 @@ function getCardTheme(card: ArcadeCard): VisualTheme {
  */
 export function CardIllustration({ card, size = 'lg' }: Props) {
   const theme = getCardTheme(card);
+  const gradId = useId();
 
   return (
     <div className={`card-portrait card-portrait-${size}`}>
@@ -100,19 +102,19 @@ export function CardIllustration({ card, size = 'lg' }: Props) {
         aria-label={card.ar}
       >
         <defs>
-          <linearGradient id={`bg-${card.cat}`} x1="0" y1="0" x2="1" y2="1">
+          <linearGradient id={gradId} x1="0" y1="0" x2="1" y2="1">
             <stop offset="0%" stopColor={theme.bg1} />
             <stop offset="100%" stopColor={theme.bg2} />
           </linearGradient>
-          <radialGradient id="spotlight" cx="50%" cy="42%" r="55%">
+          <radialGradient id={`spotlight-${gradId}`} cx="50%" cy="42%" r="55%">
             <stop offset="0%" stopColor="rgba(255,255,255,0.28)" />
             <stop offset="100%" stopColor="rgba(255,255,255,0)" />
           </radialGradient>
         </defs>
 
         {/* Poster Background */}
-        <rect x="4" y="4" width="252" height="182" rx="26" fill={`url(#bg-${card.cat})`} stroke={theme.accent} strokeWidth="4" />
-        <rect x="4" y="4" width="252" height="182" rx="26" fill="url(#spotlight)" />
+        <rect x="4" y="4" width="252" height="182" rx="26" fill={`url(#${gradId})`} stroke={theme.accent} strokeWidth="4" />
+        <rect x="4" y="4" width="252" height="182" rx="26" fill={`url(#spotlight-${gradId})`} />
 
         {/* Decorative Stage Rays / Halos */}
         <circle cx="130" cy="88" r="64" fill="rgba(255,255,255,0.08)" stroke={theme.accent} strokeDasharray="6 6" strokeWidth="2" />

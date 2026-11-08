@@ -25,9 +25,15 @@ export async function initAds(): Promise<void> {
   if (initialized || !Capacitor.isNativePlatform()) return;
   try {
     await AdMob.initialize();
-    const status = await AdMob.trackingAuthorizationStatus();
-    if (status.status === 'notDetermined') {
-      await AdMob.requestTrackingAuthorization();
+    if (Capacitor.getPlatform() === 'ios') {
+      try {
+        const status = await AdMob.trackingAuthorizationStatus();
+        if (status.status === 'notDetermined') {
+          await AdMob.requestTrackingAuthorization();
+        }
+      } catch {
+        // Safe fallback if tracking authorization is denied or unavailable
+      }
     }
     initialized = true;
   } catch {
