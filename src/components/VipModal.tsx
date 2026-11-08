@@ -116,3 +116,4 @@ export function VipModal({ onSuccess, onClose }: Props) {
     </div>
   );
 }
+
